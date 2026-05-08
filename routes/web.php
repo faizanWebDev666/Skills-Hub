@@ -38,9 +38,24 @@ Route::middleware(['auth', 'role:freelancer|vendor|admin'])->group(function () {
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    // Users
     Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
+    Route::put('/admin/users/{user}/role', [AdminController::class, 'updateUserRole'])->name('admin.users.role');
+    Route::post('/admin/users/{user}/ban', [AdminController::class, 'banUser'])->name('admin.users.ban');
+    Route::post('/admin/users/{user}/unban', [AdminController::class, 'unbanUser'])->name('admin.users.unban');
+    Route::delete('/admin/users/{user}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');
+
+    // Gigs
     Route::get('/admin/gigs', [AdminController::class, 'gigs'])->name('admin.gigs');
+    Route::patch('/admin/gigs/{gig}/toggle', [AdminController::class, 'toggleGig'])->name('admin.gigs.toggle');
+    Route::delete('/admin/gigs/{gig}', [AdminController::class, 'deleteGig'])->name('admin.gigs.delete');
+
+    // Orders
     Route::get('/admin/orders', [AdminController::class, 'orders'])->name('admin.orders');
-    Route::get('/admin/reports', [AdminController::class, 'reports'])->name('admin.reports');
+    Route::patch('/admin/orders/{order}/status', [AdminController::class, 'updateOrderStatus'])->name('admin.orders.status');
+
+    // Settings
     Route::get('/admin/settings', [AdminController::class, 'settings'])->name('admin.settings');
+    Route::put('/admin/settings', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
 });
