@@ -1,0 +1,111 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* ============================================
+       COLOR SYSTEM — Single source of truth
+       Change any value here to update the whole site
+       Base: #F6EEDE / rgb(246, 238, 222)
+       ============================================ */
+
+    /* Cream — Page backgrounds & surfaces */
+    --color-cream-50:  #FDFBF7;
+    --color-cream-100: #F6EEDE;
+    --color-cream-200: #EFE5D0;
+    --color-cream-300: #E5D7BC;
+    --color-cream-400: #D4C19E;
+    --color-cream-500: #BFA87A;
+
+    /* Brand — Primary actions, links, CTAs */
+    --color-brand-50:  #EEF2FF;
+    --color-brand-100: #E0E7FF;
+    --color-brand-200: #C7D2FE;
+    --color-brand-300: #A5B4FC;
+    --color-brand-400: #818CF8;
+    --color-brand-500: #6366F1;
+    --color-brand-600: #4F46E5;
+    --color-brand-700: #4338CA;
+    --color-brand-800: #3730A3;
+    --color-brand-900: #312E81;
+
+    /* Accent — Highlights, badges, secondary CTAs */
+    --color-accent-50:  #FFFBEB;
+    --color-accent-100: #FEF3C7;
+    --color-accent-200: #FDE68A;
+    --color-accent-300: #FCD34D;
+    --color-accent-400: #FBBF24;
+    --color-accent-500: #F59E0B;
+    --color-accent-600: #D97706;
+
+    /* Success — Positive states, confirmations */
+    --color-success-50:  #ECFDF5;
+    --color-success-100: #D1FAE5;
+    --color-success-200: #A7F3D0;
+    --color-success-500: #10B981;
+    --color-success-600: #059669;
+    --color-success-700: #047857;
+
+    /* Danger — Errors, deletions, warnings */
+    --color-danger-50:  #FFF1F2;
+    --color-danger-100: #FFE4E6;
+    --color-danger-500: #F43F5E;
+    --color-danger-600: #E11D48;
+    --color-danger-700: #BE123C;
+
+    /* Sidebar — Dark navigation panel */
+    --color-sidebar:       #1E293B;
+    --color-sidebar-light: #334155;
+    --color-sidebar-hover: #475569;
+}
+
+html {
+    zoom: 0.9;
+}
+
+@media (max-width: 640px) {
+    html {
+        zoom: 1;
+    }
+}
+
+.container {
+    max-width: 100% !important;
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+    .container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+}
+
+@media (min-width: 1280px) {
+    .container {
+        padding-left: 4rem;
+        padding-right: 4rem;
+    }
+}
+
+@media (min-width: 1536px) {
+    .container {
+        padding-left: 6rem;
+        padding-right: 6rem;
+    }
+}
