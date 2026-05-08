@@ -13,7 +13,7 @@ const StatCard = ({ title, value, subtitle, icon, color, trend }) => {
     };
 
     return (
-        <div className={`bg-gradient-to-br ${colorClasses[color]} rounded-2xl p-6 border shadow-sm hover:shadow-md transition-shadow`}>
+        <div className={`bg-linear-to-br ${colorClasses[color]} rounded-2xl p-6 border shadow-sm hover:shadow-md transition-shadow`}>
             <div className="flex items-start justify-between">
                 <div>
                     <p className="text-sm font-medium opacity-80">{title}</p>
@@ -48,7 +48,7 @@ const MiniChart = ({ data }) => {
             {data.map((d, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1">
                     <div 
-                        className="w-full bg-gradient-to-t from-brand-600 to-brand-400 rounded-t-lg transition-all duration-300 hover:from-brand-700 hover:to-brand-500"
+                        className="w-full bg-linear-to-t from-brand-600 to-brand-400 rounded-t-lg transition-all duration-300 hover:from-brand-700 hover:to-brand-500"
                         style={{ height: `${(d.orders / maxValue) * 100}%`, minHeight: '4px' }}
                     />
                     <span className="text-xs text-gray-500">{d.label}</span>
@@ -106,7 +106,7 @@ export default function AdminDashboard({ stats, recentUsers, recentGigs, recentO
                                     </svg>
                                     Export
                                 </button>
-                                <button className="px-4 py-2 bg-gradient-to-r from-brand-600 to-brand-800 text-white rounded-xl font-medium hover:shadow-lg transition-all shadow-brand-500/30">
+                                <button className="px-4 py-2 bg-linear-to-r from-brand-600 to-brand-800 text-white rounded-xl font-medium hover:shadow-lg transition-all shadow-brand-500/30">
                                     <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                     </svg>
@@ -115,7 +115,7 @@ export default function AdminDashboard({ stats, recentUsers, recentGigs, recentO
                             </div>
                         </div>
 
-                        <div className="flex gap-2 mb-6 p-1 bg-white rounded-xl border border-gray-200 inline-flex shadow-sm">
+                        <div className="inline-flex gap-2 mb-6 p-1 bg-white rounded-xl border border-gray-200 shadow-sm">
                             {['overview', 'analytics', 'reports'].map((tab) => (
                                 <button
                                     key={tab}
@@ -240,6 +240,12 @@ export default function AdminDashboard({ stats, recentUsers, recentGigs, recentO
                                             }`}>
                                                 {u.roles?.[0]?.name || 'customer'}
                                             </span>
+                                            <Link
+                                                href={route('chat.with-user', u.id)}
+                                                className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-semibold hover:bg-brand-200 transition-colors"
+                                            >
+                                                Chat
+                                            </Link>
                                         </div>
                                     )) : (
                                         <p className="text-center text-gray-400 py-6 text-sm">No users yet</p>
@@ -310,7 +316,7 @@ export default function AdminDashboard({ stats, recentUsers, recentGigs, recentO
                         </div>
 
                         <div className="mt-8">
-                            <div className="bg-gradient-to-br from-brand-600 to-brand-800 rounded-2xl shadow-lg p-6 sm:p-8 text-white">
+                            <div className="bg-linear-to-br from-brand-600 to-brand-800 rounded-2xl shadow-lg p-6 sm:p-8 text-white">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                                     <Link href="/admin/users" className="group bg-white/10 hover:bg-white/20 rounded-xl p-4 text-center transition-all duration-300 backdrop-blur-sm">
                                         <svg className="w-8 h-8 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">

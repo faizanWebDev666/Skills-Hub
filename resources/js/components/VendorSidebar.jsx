@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 const sidebarLinks = [
     { href: '/vendor/dashboard', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1' },
@@ -9,6 +9,10 @@ const sidebarLinks = [
 ];
 
 export default function VendorSidebar({ user, sidebarOpen, setSidebarOpen }) {
+    const { props } = usePage();
+    const authUser = props.auth?.user;
+    const currentUser = user ?? authUser;
+
     const isActive = (href) => {
         if (typeof window !== 'undefined') {
             return window.location.pathname === href;
@@ -38,11 +42,11 @@ export default function VendorSidebar({ user, sidebarOpen, setSidebarOpen }) {
                 <div className="mb-6 px-3">
                     <div className="flex items-center gap-3 p-3 bg-sidebar-light rounded-xl">
                         <div className="w-10 h-10 bg-brand-500 rounded-full flex items-center justify-center text-white font-bold">
-                            {user?.name?.charAt(0) || 'V'}
+                            {currentUser?.name?.charAt(0) || 'V'}
                         </div>
                         <div className="min-w-0">
-                            <p className="font-semibold text-white text-sm truncate">{user?.name || 'Vendor'}</p>
-                            <p className="text-xs text-slate-400">Freelancer</p>
+                            <p className="font-semibold text-white text-sm truncate">{currentUser?.name || 'Vendor'}</p>
+                            <p className="text-xs text-slate-300">Vendor</p>
                         </div>
                     </div>
                 </div>

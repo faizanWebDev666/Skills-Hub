@@ -24,12 +24,25 @@ class AuthenticatedSessionController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            return redirect()->intended('/home');
+            return redirect()->intended($this->redirectAfterLogin(Auth::user()));
         }
 
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ]);
+    }
+
+    protected function redirectAfterLogin($user)
+    {
+        if ($user->hasRole('admin')) {
+            return route('admin.dashboard');
+        }
+
+        if ($user->hasAnyRole(['vendor', 'freelancer'])) {
+            return route('vendor.dashboard');
+        }
+
+        return route('home');
     }
 
     public function destroy(Request $request)

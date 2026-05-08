@@ -1,15 +1,40 @@
 import React, { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 export default function Navbar({ user }) {
+    const { props } = usePage();
+    const authUser = props.auth?.user;
+    const currentUser = user ?? authUser;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
-    const isVendor = user?.roles?.some(role => role.name === 'freelancer' || role.name === 'vendor');
-    const isAdmin = user?.roles?.some(role => role.name === 'admin');
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            window.location.href = `/gigs?search=${encodeURIComponent(searchQuery.trim())}`;
+        }
+    };
+
+    const isVendor = currentUser?.roles?.some(role => role.name === 'freelancer' || role.name === 'vendor');
+    const isAdmin = currentUser?.roles?.some(role => role.name === 'admin');
 
     return (
         <nav className="bg-cream-50 shadow-sm sticky top-0 z-50 transition-all duration-300">
+            {/* Top Thin Bar */}
+            <div className="bg-white border-b border-gray-100 hidden lg:block">
+                <div className="container mx-auto px-4 lg:px-8">
+                    <div className="flex justify-end items-center py-1.5 space-x-6 text-xs font-medium">
+                        <Link href="/home" className="text-gray-500 hover:text-brand-600 transition-colors">
+                            Home
+                        </Link>
+                        <Link href="#" className="text-gray-500 hover:text-brand-600 transition-colors">
+                            How It Works
+                        </Link>
+                    </div>
+                </div>
+            </div>
+
             <div className="container mx-auto px-4 lg:px-8">
                 <div className="flex justify-between items-center py-4">
                     <div className="flex items-center space-x-4 lg:space-x-12">
@@ -22,29 +47,50 @@ export default function Navbar({ user }) {
                             </span>
                         </Link>
                         <div className="hidden lg:flex items-center space-x-8">
-                            <Link href="/home" className="text-gray-700 hover:text-brand-600 font-medium transition-colors">
-                                Home
-                            </Link>
                             <Link href="/gigs" className="text-gray-700 hover:text-brand-600 font-medium transition-colors">
                                 Browse Services
-                            </Link>
-                            <Link href="#" className="text-gray-700 hover:text-brand-600 font-medium transition-colors">
-                                How It Works
                             </Link>
                         </div>
                     </div>
 
-                    <div className="hidden lg:flex items-center space-x-4">
-                        {user ? (
+                    <div className="hidden lg:flex items-center space-x-3">
+                        {/* Search Bar */}
+                        <form onSubmit={handleSearch} className="relative">
+                            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search services..."
+                                className="w-80 lg:w-[400px] pl-9 pr-4 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all"
+                            />
+                        </form>
+
+                        {currentUser ? (
                             <>
-                                {isVendor && (
-                                    <Link 
-                                        href="/vendor/dashboard" 
-                                        className="text-gray-700 hover:text-brand-600 font-medium transition-colors px-4 py-2"
-                                    >
-                                        Vendor Dashboard
-                                    </Link>
-                                )}
+                                {/* Wishlist */}
+                                <Link
+                                    href="/wishlist"
+                                    className="relative text-gray-600 hover:text-brand-600 transition-colors p-2"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
+                                </Link>
+
+                             
+
+                                {/* Messages */}
+                                <Link
+                                    href="/chat"
+                                    className="relative text-gray-600 hover:text-brand-600 transition-colors p-2"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
+                                </Link>
                                 {isAdmin && (
                                     <Link 
                                         href="/admin/dashboard" 
@@ -60,9 +106,9 @@ export default function Navbar({ user }) {
                                         className="flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-cream-200 transition-colors"
                                     >
                                         <div className="w-10 h-10 bg-brand-600 rounded-full flex items-center justify-center text-white font-bold">
-                                            {user.name?.charAt(0) || 'U'}
+                                            {currentUser?.name?.charAt(0) || 'U'}
                                         </div>
-                                        <span className="font-medium text-gray-700">{user.name}</span>
+                                        <span className="font-medium text-gray-700">{currentUser?.name}</span>
                                         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                         </svg>
@@ -70,6 +116,15 @@ export default function Navbar({ user }) {
                                     
                                     {isUserMenuOpen && (
                                         <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-lg border border-gray-100 py-2 z-50">
+                                            {isVendor && (
+                                                <Link 
+                                                    href="/vendor/dashboard" 
+                                                    className="block px-4 py-3 text-gray-700 hover:bg-cream-200 transition-colors"
+                                                    onClick={() => setIsUserMenuOpen(false)}
+                                                >
+                                                    Dashboard
+                                                </Link>
+                                            )}
                                             <Link 
                                                 href="/profile" 
                                                 className="block px-4 py-3 text-gray-700 hover:bg-cream-200 transition-colors"
@@ -150,6 +205,20 @@ export default function Navbar({ user }) {
                 <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-150 opacity-100' : 'max-h-0 opacity-0'}`}>
                     <div className="py-4 border-t">
                         <div className="flex flex-col space-y-3">
+                            {/* Mobile Search */}
+                            <form onSubmit={handleSearch} className="relative">
+                                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="Search services..."
+                                    className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all"
+                                />
+                            </form>
+
                             <Link href="/home" className="text-gray-700 hover:text-brand-600 font-medium py-2">
                                 Home
                             </Link>
@@ -160,26 +229,38 @@ export default function Navbar({ user }) {
                                 How It Works
                             </Link>
 
-                            {user && isVendor && (
-                                <Link href="/vendor/dashboard" className="text-gray-700 hover:text-brand-600 font-medium py-2">
-                                    Vendor Dashboard
-                                </Link>
+                            {currentUser && (
+                                <div className="flex items-center gap-6 py-2">
+                                    <Link href="/wishlist" className="flex items-center gap-2 text-gray-700 hover:text-brand-600 font-medium transition-colors">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                        </svg>
+                                        Wishlist
+                                    </Link>
+                                  
+                                </div>
                             )}
-                            {user && isAdmin && (
+
+                            {currentUser && isAdmin && (
                                 <Link href="/admin/dashboard" className="text-gray-700 hover:text-danger-600 font-medium py-2">
                                     Admin Panel
                                 </Link>
                             )}
 
                             <div className="pt-4 border-t flex flex-col space-y-3 pb-2">
-                                {user ? (
+                                {currentUser ? (
                                     <>
                                         <div className="flex items-center gap-3 px-2 py-2">
                                             <div className="w-10 h-10 bg-brand-600 rounded-full flex items-center justify-center text-white font-bold">
-                                                {user.name?.charAt(0) || 'U'}
+                                                {currentUser.name?.charAt(0) || 'U'}
                                             </div>
-                                            <span className="font-medium text-gray-900">{user.name}</span>
+                                            <span className="font-medium text-gray-900">{currentUser.name}</span>
                                         </div>
+                                        {isVendor && (
+                                            <Link href="/vendor/dashboard" className="text-gray-700 hover:text-brand-600 font-medium py-2">
+                                                Dashboard
+                                            </Link>
+                                        )}
                                         <Link href="/profile" className="text-gray-700 hover:text-brand-600 font-medium py-2">
                                             My Profile
                                         </Link>

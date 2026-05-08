@@ -81,6 +81,23 @@ export default function VendorDashboard({ stats, recentOrders, myGigs, user }) {
                             </div>
                         </div>
 
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
+                            <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                    <div>
+                                        <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Your Freelancer Profile</h2>
+                                        <p className="text-sm text-gray-500 mt-1">View and update your public profile, bio, gigs, and customer chat actions.</p>
+                                    </div>
+                                    <Link
+                                        href={route('vendor.profile')}
+                                        className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors"
+                                    >
+                                        View Profile
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
                             {/* Recent Orders */}
                             <div className="lg:col-span-2">
@@ -101,7 +118,7 @@ export default function VendorDashboard({ stats, recentOrders, myGigs, user }) {
                                                         <p className="text-xs text-gray-500">#{order.id} • {order.customer?.name || 'Customer'}</p>
                                                     </div>
                                                 </div>
-                                                <div className="text-right shrink-0 ml-3">
+                                                <div className="text-right shrink-0 ml-3 space-y-2">
                                                     <p className="font-bold text-gray-900 text-sm">${Number(order.amount).toLocaleString()}</p>
                                                     <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
                                                         order.status === 'completed' ? 'bg-success-100 text-success-700 ring-1 ring-success-200' :
@@ -110,6 +127,14 @@ export default function VendorDashboard({ stats, recentOrders, myGigs, user }) {
                                                     }`}>
                                                         {order.status?.charAt(0).toUpperCase() + order.status?.slice(1).replace('_', ' ') || 'Pending'}
                                                     </span>
+                                                    {order.customer?.id && (
+                                                        <Link
+                                                            href={route('chat.with-user', order.customer.id)}
+                                                            className="inline-flex items-center justify-center px-3 py-1 text-xs font-semibold bg-brand-100 text-brand-700 rounded-full hover:bg-brand-200"
+                                                        >
+                                                            Chat with customer
+                                                        </Link>
+                                                    )}
                                                 </div>
                                             </div>
                                         )) : (

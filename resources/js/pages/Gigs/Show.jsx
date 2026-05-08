@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import Navbar from '../../components/Navbar';
 
-export default function Show({ gig, user }) {
+export default function Show({ gig, user, isInWishlist = false }) {
     const [activeTab, setActiveTab] = useState('overview');
     const [quantity, setQuantity] = useState(1);
+
+    const handleWishlistToggle = () => {
+        if (!user) {
+            router.get('/login');
+            return;
+        }
+
+        router.post(`/wishlist/${gig.id}/toggle`, {}, {
+            preserveScroll: true,
+            preserveState: true,
+        });
+    };
 
     const packageTabs = [
         { id: 'basic', name: 'Basic', price: gig.price, description: 'Essential package' },
@@ -202,11 +214,23 @@ export default function Show({ gig, user }) {
                                         Continue
                                     </button>
 
-                                    <button className="w-full bg-white hover:bg-cream-100 text-gray-700 font-bold py-4 rounded-xl border border-cream-300 transition-colors flex items-center justify-center gap-2">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <button 
+                                        onClick={handleWishlistToggle}
+                                        className={`w-full font-bold py-4 rounded-xl border transition-colors flex items-center justify-center gap-2 ${
+                                            isInWishlist 
+                                                ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
+                                                : 'bg-white border-cream-300 text-gray-700 hover:bg-cream-100'
+                                        }`}
+                                    >
+                                        <svg 
+                                            className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} 
+                                            fill="none" 
+                                            stroke="currentColor" 
+                                            viewBox="0 0 24 24"
+                                        >
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                         </svg>
-                                        Save
+                                        {isInWishlist ? 'Saved' : 'Save'}
                                     </button>
 
                                     <div className="mt-6 pt-6 border-t border-gray-200">

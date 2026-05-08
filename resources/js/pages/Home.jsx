@@ -26,33 +26,32 @@ export default function Home({ user }) {
             <Navbar user={user} />
 
             {/* Hero Section */}
-            <section className="relative overflow-hidden bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white">
+            <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
                 <div className="absolute inset-0 bg-[url('https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=abstract%20network%20connections%20digital%20marketplace%20background%20with%20dots%20and%20waves&image_size=landscape_16_9')] bg-cover bg-center opacity-10"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-600/80 to-brand-800/80"></div>
-                
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 to-slate-900/80"></div>
+
                 <div className="container mx-auto px-4 lg:px-8 relative z-10">
-                    <div className="pt-20 pb-28 lg:pt-32 lg:pb-40">
-                        <div className="max-w-7xl mx-auto">
+                    <div className="pt-20 pb-24 lg:pt-28 lg:pb-32">
+                        <div className="max-w-5xl mx-auto">
                             <div className="text-center">
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full mb-8">
-                                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                                    <span className="text-sm font-medium">Trusted by 50,000+ businesses</span>
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full mb-8">
+                                    <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                                    <span className="text-sm font-medium text-slate-200">Trusted by 50,000+ businesses</span>
                                 </div>
-                                <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight">
-                                    Hire Expert Freelancers
-                                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-brand-700">
-                                        For Your Next Project
+                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
+                                    Hire expert freelancers
+                                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-sky-200">
+                                        for your next project
                                     </span>
                                 </h1>
-                                <p className="text-xl md:text-2xl mb-10 text-white/90 max-w-3xl mx-auto leading-relaxed">
-                                    Connect with talented professionals from around the world. Get high-quality work done at amazing prices.
-                                    Your vision, delivered.
+                                <p className="text-base md:text-lg mb-10 text-slate-300 max-w-3xl mx-auto leading-relaxed">
+                                    Work with vetted professionals across design, development, marketing and more. Get dependable results from experts who deliver on time.
                                 </p>
-                                
+
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
                                     <a
                                         href="/gigs"
-                                        className="group bg-white text-brand-600 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-cream-100 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center gap-2"
+                                        className="group bg-white text-slate-950 px-9 py-4 rounded-2xl font-semibold text-base hover:bg-slate-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
                                     >
                                         <span>Find Talent</span>
                                         <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,7 +60,7 @@ export default function Home({ user }) {
                                     </a>
                                     <a
                                         href="/register"
-                                        className="group border-3 border-white text-white px-10 py-5 rounded-2xl font-bold text-lg hover:bg-white hover:text-brand-600 transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2"
+                                        className="group border border-white/20 text-white px-9 py-4 rounded-2xl font-semibold text-base hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
                                     >
                                         <span>Start Selling</span>
                                         <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,18 +69,18 @@ export default function Home({ user }) {
                                     </a>
                                 </div>
 
-                                <div className="grid grid-cols-3 gap-8 max-w-4xl mx-auto">
-                                    <div className="text-center">
-                                        <div className="text-4xl md:text-5xl font-bold mb-1">50K+</div>
-                                        <div className="text-white/80 text-sm md:text-base">Active Freelancers</div>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-3xl mx-auto">
+                                    <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                                        <div className="text-4xl md:text-5xl font-bold mb-2">50K+</div>
+                                        <div className="text-sm md:text-base text-slate-300">Active Freelancers</div>
                                     </div>
-                                    <div className="text-center">
-                                        <div className="text-4xl md:text-5xl font-bold mb-1">$5M+</div>
-                                        <div className="text-white/80 text-sm md:text-base">Projects Completed</div>
+                                    <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                                        <div className="text-4xl md:text-5xl font-bold mb-2">$5M+</div>
+                                        <div className="text-sm md:text-base text-slate-300">Projects Completed</div>
                                     </div>
-                                    <div className="text-center">
-                                        <div className="text-4xl md:text-5xl font-bold mb-1">4.9★</div>
-                                        <div className="text-white/80 text-sm md:text-base">Average Rating</div>
+                                    <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                                        <div className="text-4xl md:text-5xl font-bold mb-2">4.9★</div>
+                                        <div className="text-sm md:text-base text-slate-300">Average Rating</div>
                                     </div>
                                 </div>
                             </div>

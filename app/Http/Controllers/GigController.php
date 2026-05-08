@@ -47,6 +47,11 @@ class GigController extends Controller
 
         $gigs = $query->paginate(12)->withQueryString();
 
+        // Get user's wishlist IDs
+        $wishlistGigIds = auth()->check() 
+            ? auth()->user()->wishlists()->pluck('gig_id')->toArray() 
+            : [];
+
         return Inertia::render('Gigs/Index', [
             'gigs' => $gigs,
             'filters' => [
@@ -55,6 +60,7 @@ class GigController extends Controller
                 'sort' => $request->get('sort', 'recommended'),
             ],
             'user' => auth()->user() ? auth()->user()->load('roles') : null,
+            'wishlistGigIds' => $wishlistGigIds,
         ]);
     }
 
@@ -107,9 +113,14 @@ class GigController extends Controller
     {
         $gig->load('user');
 
+        $isInWishlist = auth()->check() 
+            ? auth()->user()->wishlists()->where('gig_id', $gig->id)->exists() 
+            : false;
+
         return Inertia::render('Gigs/Show', [
             'gig' => $gig,
             'user' => auth()->user() ? auth()->user()->load('roles') : null,
+            'isInWishlist' => $isInWishlist,
         ]);
     }
 

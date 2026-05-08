@@ -37,13 +37,26 @@ const sellerLevelOptions = [
     { id: 'new', name: 'New Seller' },
 ];
 
-export default function Index({ gigs, user, filters = {} }) {
+export default function Index({ gigs, user, filters = {}, wishlistGigIds = [] }) {
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
     const [selectedCategory, setSelectedCategory] = useState(filters.category || 'all');
     const [sortBy, setSortBy] = useState(filters.sort || 'recommended');
     const [deliveryTime, setDeliveryTime] = useState('any');
     const [sellerLevel, setSellerLevel] = useState('any');
     const [showFilters, setShowFilters] = useState(false);
+
+    // Wishlist Toggle
+    const handleWishlistToggle = (gigId) => {
+        if (!user) {
+            router.get('/login');
+            return;
+        }
+
+        router.post(`/wishlist/${gigId}/toggle`, {}, {
+            preserveScroll: true,
+            preserveState: true,
+        });
+    };
 
     // Helper to build query params and navigate via Inertia
     const applyFilters = useCallback((overrides = {}) => {
@@ -283,8 +296,16 @@ export default function Index({ gigs, user, filters = {} }) {
                                                 <div className="w-full h-full bg-gradient-to-br from-brand-400 via-brand-500 to-brand-600 group-hover:scale-105 transition-transform duration-300"></div>
                                             )}
                                         </div>
-                                        <button className="absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-sm">
-                                            <svg className="w-5 h-5 text-gray-600 hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <button 
+                                            onClick={() => handleWishlistToggle(gig.id)}
+                                            className="absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-sm"
+                                        >
+                                            <svg 
+                                                className={`w-5 h-5 transition-colors ${wishlistGigIds.includes(gig.id) ? 'text-red-500 fill-current' : 'text-gray-600 hover:text-red-500'}`} 
+                                                fill={wishlistGigIds.includes(gig.id) ? 'currentColor' : 'none'} 
+                                                stroke="currentColor" 
+                                                viewBox="0 0 24 24"
+                                            >
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                             </svg>
                                         </button>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Gig;
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Inertia\Inertia;
@@ -65,7 +66,21 @@ class VendorController extends Controller
     public function profile()
     {
         return Inertia::render('Vendor/Profile', [
-            'user' => auth()->user()->load('roles'),
+            'user' => auth()->user()->load('roles', 'gigs'),
+        ]);
+    }
+
+    public function showFreelancer(User $user)
+    {
+        $freelancer = $user->load('roles', 'gigs');
+        $orderCount = Order::where('freelancer_id', $freelancer->id)->count();
+
+        return Inertia::render('Freelancers/Show', [
+            'freelancer' => array_merge($freelancer->toArray(), [
+                'orderCount' => $orderCount,
+                'reviewCount' => 0,
+            ]),
+            'authUser' => auth()->user()->load('roles'),
         ]);
     }
 

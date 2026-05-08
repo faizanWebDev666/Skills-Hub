@@ -1,7 +1,11 @@
 import React from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 export default function AdminSidebar({ user, sidebarLinks, sidebarOpen, setSidebarOpen }) {
+    const { props } = usePage();
+    const authUser = props.auth?.user;
+    const currentUser = user ?? authUser;
+
     const isActive = (href) => {
         if (typeof window !== 'undefined') {
             return window.location.pathname === href;
@@ -31,10 +35,10 @@ export default function AdminSidebar({ user, sidebarLinks, sidebarOpen, setSideb
                 <div className="mb-6 px-3">
                     <div className="flex items-center gap-3 p-3 bg-sidebar-light rounded-xl">
                         <div className="w-10 h-10 bg-danger-500 rounded-full flex items-center justify-center text-white font-bold">
-                            {user?.name?.charAt(0) || 'A'}
+                            {currentUser?.name?.charAt(0) || 'A'}
                         </div>
                         <div className="min-w-0">
-                            <p className="font-semibold text-white text-sm truncate">{user?.name || 'Admin'}</p>
+                            <p className="font-semibold text-white text-sm truncate">{currentUser?.name || 'Admin'}</p>
                             <p className="text-xs text-slate-400">Administrator</p>
                         </div>
                     </div>
@@ -59,6 +63,23 @@ export default function AdminSidebar({ user, sidebarLinks, sidebarOpen, setSideb
                         </Link>
                     ))}
                 </nav>
+
+                <div className="mt-6 px-3">
+                    <Link
+                        href="/chat"
+                        onClick={() => setSidebarOpen(false)}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                            isActive('/chat')
+                                ? 'bg-brand-600 text-white'
+                                : 'text-slate-300 hover:bg-sidebar-light hover:text-white'
+                        }`}
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H7l-4 4V10a2 2 0 012-2h2" />
+                        </svg>
+                        Chat Inbox
+                    </Link>
+                </div>
 
                 <div className="mt-8 px-3">
                     <div className="bg-gradient-to-br from-brand-500 to-brand-800 rounded-xl p-4 text-white">
