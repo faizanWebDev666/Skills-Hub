@@ -17,12 +17,14 @@ class Gig extends Model
         'tags',
         'image',
         'active',
+        'category_fields',
     ];
 
     protected $casts = [
         'tags' => 'array',
         'price' => 'decimal:2',
         'active' => 'boolean',
+        'category_fields' => 'array',
     ];
 
     public function scopeActive($query)

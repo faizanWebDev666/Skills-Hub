@@ -1,254 +1,506 @@
 import React, { useState } from 'react';
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import Navbar from '../../components/Navbar';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+    Star, Clock, RefreshCw, Check, ChevronRight, 
+    Share2, Heart, Award, ShieldCheck, Zap, MessageSquare
+} from 'lucide-react';
 
-export default function Show({ gig, user, isInWishlist = false }) {
+export default function Show({ gig, user, isInWishlist = false, sellerStats, reviews = [] }) {
+    const { flash } = usePage().props;
     const [activeTab, setActiveTab] = useState('overview');
-    const [quantity, setQuantity] = useState(1);
-
     const handleWishlistToggle = () => {
-        if (!user) {
-            router.get('/login');
-            return;
-        }
-
+        if (!user) return router.get('/login');
         router.post(`/wishlist/${gig.id}/toggle`, {}, {
             preserveScroll: true,
             preserveState: true,
         });
     };
 
-    const packageTabs = [
-        { id: 'basic', name: 'Basic', price: gig.price, description: 'Essential package' },
-        { id: 'standard', name: 'Standard', price: gig.price * 1.5, description: 'Standard package' },
-        { id: 'premium', name: 'Premium', price: gig.price * 2.5, description: 'Premium package' },
-    ];
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) return 'yesterday';
+        if (diffDays < 7) return `${diffDays} days ago`;
+        if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+        if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+        return `${Math.floor(diffDays / 365)} years ago`;
+    };
 
-    const reviews = [
-        { id: 1, user: 'Jane Smith', rating: 5, comment: 'Excellent work! Very professional and delivered on time.', date: '2 weeks ago' },
-        { id: 2, user: 'Mike Johnson', rating: 5, comment: 'Great communication and high-quality work. Highly recommend!', date: '1 month ago' },
-        { id: 3, user: 'Sarah Williams', rating: 4, comment: 'Good service, would work with them again.', date: '2 months ago' },
+    const breadcrumbs = [
+        { name: 'Home', url: '/home' },
+        { name: 'Services', url: '/gigs' },
+        { name: gig.title, url: '#' }
     ];
 
     return (
-        <div className="min-h-screen bg-cream-50">
+        <div className="min-h-screen bg-[#FAFAFA] font-sans selection:bg-brand-500/30">
             <Navbar user={user} />
 
-            <div className="bg-cream-100 border-b border-cream-300">
+            {flash?.success && (
                 <div className="container mx-auto px-4 lg:px-8 py-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Link href="/home" className="hover:text-brand-600 transition-colors">Home</Link>
-                        <span>/</span>
-                        <Link href="/gigs" className="hover:text-brand-600 transition-colors">Services</Link>
-                        <span>/</span>
-                        <span className="text-gray-900 font-medium">{gig.title}</span>
+                    <div className="mb-6 bg-success-50 border border-success-200 text-success-700 px-4 py-3 rounded-xl text-sm font-medium">
+                        {flash.success}
+                    </div>
+                </div>
+            )}
+            {flash?.error && (
+                <div className="container mx-auto px-4 lg:px-8 py-4">
+                    <div className="mb-6 bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl text-sm font-medium">
+                        {flash.error}
+                    </div>
+                </div>
+            )}
+
+            {/* Breadcrumbs */}
+            <div className="border-b border-gray-200 bg-white">
+                <div className="container mx-auto px-4 lg:px-8 py-3">
+                    <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
+                        {breadcrumbs.map((crumb, i) => (
+                            <React.Fragment key={i}>
+                                <Link href={crumb.url} className="hover:text-brand-600 transition-colors">
+                                    {crumb.name}
+                                </Link>
+                                {i < breadcrumbs.length - 1 && <ChevronRight className="w-3.5 h-3.5" />}
+                            </React.Fragment>
+                        ))}
                     </div>
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 lg:px-8 py-8">
-                <div className="flex flex-col lg:flex-row gap-8">
-                    <div className="flex-1">
-                        <div className="rounded-2xl h-80 lg:h-[500px] mb-8 overflow-hidden">
-                            {gig.image ? (
-                                <img src={`/storage/${gig.image}`} alt={gig.title} className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-brand-400 via-brand-500 to-brand-600"></div>
-                            )}
-                        </div>
+            <div className="container mx-auto px-4 lg:px-8 py-8 lg:py-12">
+                <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
+                    {/* Left Column - Main Content */}
+                    <div className="flex-1 max-w-4xl">
+                        
+                        {/* Title & Metadata */}
+                        <div className="mb-8">
+                            <motion.h1 
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="text-3xl lg:text-4xl xl:text-[42px] font-extrabold text-gray-900 leading-tight tracking-tight mb-6"
+                            >
+                                {gig.title}
+                            </motion.h1>
 
-                        <div className="flex items-center gap-4 mb-6">
-                            <div className="w-14 h-14 bg-brand-500 rounded-full flex items-center justify-center text-white font-bold text-xl ring-4 ring-white shadow-lg">
-                                {gig.user?.name?.charAt(0) || 'S'}
-                            </div>
-                            <div>
-                                <p className="font-semibold text-gray-900 text-lg">{gig.user?.name || 'Service Provider'}</p>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-brand-500">✓</span>
-                                    <span className="text-sm text-gray-500">Level 2 Seller</span>
+                            <div className="flex flex-wrap items-center gap-6">
+                                {/* Seller info mini */}
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-brand-500 to-brand-700 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md overflow-hidden">
+                                        {gig.user?.avatar ? (
+                                            <img 
+                                                src={`/storage/${gig.user.avatar}`} 
+                                                alt={gig.user?.name} 
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <span>{gig.user?.name?.charAt(0) || 'S'}</span>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-gray-900 text-base flex items-center gap-1.5">
+                                            {gig.user?.name || 'Service Provider'}
+                                            <ShieldCheck className="w-4 h-4 text-brand-500" />
+                                        </p>
+                                        <p className="text-sm text-gray-500 font-medium">{gig.user?.professional_title || 'Freelancer'}</p>
+                                    </div>
+                                </div>
+                                
+                                <div className="w-px h-10 bg-gray-200 hidden sm:block"></div>
+
+                                {/* Stats mini */}
+                                <div className="flex items-center gap-4 text-sm font-medium">
+                                    <div className="flex items-center gap-1.5">
+                                        <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                                        <span className="text-gray-900 text-base font-bold">{sellerStats?.avgRating || 0}</span>
+                                        <span className="text-gray-500 underline decoration-gray-300 decoration-1 underline-offset-2 hover:text-brand-600 transition-colors cursor-pointer">
+                                            ({sellerStats?.reviewsCount || 0} reviews)
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-gray-600">
+                                        <Award className="w-5 h-5 text-gray-400" />
+                                        <span>{sellerStats?.totalOrders || 0} Orders</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">{gig.title}</h1>
+                        {/* Hero Image */}
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.4 }}
+                            className="rounded-3xl lg:h-[550px] mb-12 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative group bg-white border border-gray-100"
+                        >
+                            {gig.image ? (
+                                <img src={`/storage/${gig.image}`} alt={gig.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                            ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center">
+                                    <span className="text-brand-300 font-bold text-4xl">No Image</span>
+                                </div>
+                            )}
+                            {/* Glassmorphism Badge */}
+                            <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-white/40 shadow-sm flex items-center gap-2">
+                                <Zap className="w-4 h-4 text-brand-600 fill-brand-600" />
+                                <span className="text-sm font-bold text-gray-900">Highly Rated</span>
+                            </div>
+                        </motion.div>
 
-                        <div className="flex flex-wrap gap-6 mb-8 pb-8 border-b border-gray-200">
-                            <div className="flex items-center gap-2">
-                                <span className="text-yellow-500 text-xl">★</span>
-                                <span className="font-bold text-gray-900">4.9</span>
-                                <span className="text-gray-500">({reviews.length} reviews)</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-gray-400">👥</span>
-                                <span className="text-gray-700">{Math.floor(Math.random() * 500) + 100} orders</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-gray-400">⏱️</span>
-                                <span className="text-gray-700">3 Days Delivery</span>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-8 mb-8 border-b border-gray-200">
-                            {['overview', 'about-the-seller', 'reviews'].map((tab) => (
+                        {/* Tabs Navigation */}
+                        <div className="flex gap-8 mb-8 border-b border-gray-200 sticky top-20 bg-[#FAFAFA]/90 backdrop-blur-xl z-20 pt-4">
+                            {['overview', 'about the seller', 'reviews'].map((tab) => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`pb-4 font-semibold transition-all ${
-                                        activeTab === tab
-                                            ? 'text-brand-600 border-b-2 border-brand-600'
-                                            : 'text-gray-500 hover:text-gray-700'
+                                    className={`pb-4 text-base font-bold transition-colors relative capitalize ${
+                                        activeTab === tab ? 'text-brand-600' : 'text-gray-500 hover:text-gray-900'
                                     }`}
                                 >
-                                    {tab.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                                    {tab}
+                                    {activeTab === tab && (
+                                        <motion.div 
+                                            layoutId="activeTabIndicator"
+                                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-t-full"
+                                        />
+                                    )}
                                 </button>
                             ))}
                         </div>
 
-                        {activeTab === 'overview' && (
-                            <div className="mb-8">
-                                <h2 className="text-xl font-bold text-gray-900 mb-4">About This Service</h2>
-                                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                                    {gig.description}
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'about-the-seller' && (
-                            <div className="mb-8">
-                                <h2 className="text-xl font-bold text-gray-900 mb-6">About the Seller</h2>
-                                <div className="flex items-start gap-6 p-6 bg-cream-100 rounded-2xl">
-                                    <div className="w-20 h-20 bg-brand-500 rounded-full flex items-center justify-center text-white font-bold text-3xl ring-4 ring-white shadow-lg">
-                                        {gig.user?.name?.charAt(0) || 'S'}
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className="text-xl font-bold text-gray-900 mb-2">{gig.user?.name || 'Service Provider'}</h3>
-                                        <p className="text-gray-600 mb-4">Passionate about delivering high-quality work and helping clients achieve their goals.</p>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                            <div className="text-center">
-                                                <p className="text-2xl font-bold text-gray-900">4.9</p>
-                                                <p className="text-sm text-gray-500">Rating</p>
+                        {/* Tabs Content */}
+                        <div className="min-h-[400px]">
+                            <AnimatePresence mode="wait">
+                                {activeTab === 'overview' && (
+                                    <motion.div 
+                                        key="overview"
+                                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                                        className="mb-12 max-w-none"
+                                    >
+                                        {/* Category & Tags */}
+                                        <div className="mb-8 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                                            <div className="flex flex-wrap gap-4 items-center mb-6">
+                                                <div className="flex items-center gap-2 bg-brand-50 border border-brand-100 px-4 py-2 rounded-full">
+                                                    <span className="text-sm font-bold text-brand-700">Category:</span>
+                                                    <span className="text-base font-extrabold text-gray-900">{gig.category || 'Uncategorized'}</span>
+                                                </div>
                                             </div>
-                                            <div className="text-center">
-                                                <p className="text-2xl font-bold text-gray-900">{reviews.length}</p>
-                                                <p className="text-sm text-gray-500">Reviews</p>
-                                            </div>
-                                            <div className="text-center">
-                                                <p className="text-2xl font-bold text-gray-900">{Math.floor(Math.random() * 500) + 100}</p>
-                                                <p className="text-sm text-gray-500">Orders</p>
-                                            </div>
-                                            <div className="text-center">
-                                                <p className="text-2xl font-bold text-gray-900">2+</p>
-                                                <p className="text-sm text-gray-500">Years on Platform</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'reviews' && (
-                            <div className="mb-8">
-                                <h2 className="text-xl font-bold text-gray-900 mb-6">Reviews</h2>
-                                <div className="space-y-6">
-                                    {reviews.map((review) => (
-                                        <div key={review.id} className="p-6 bg-cream-100 rounded-2xl">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-cream-300 rounded-full flex items-center justify-center text-gray-700 font-bold">
-                                                        {review.user.charAt(0)}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-semibold text-gray-900">{review.user}</p>
-                                                        <p className="text-sm text-gray-500">{review.date}</p>
+                                            {gig.tags && gig.tags.length > 0 && (
+                                                <div className="mb-4">
+                                                    <p className="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Tags</p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {gig.tags.map((tag, idx) => (
+                                                            <span key={idx} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                                                                {tag}
+                                                            </span>
+                                                        ))}
                                                     </div>
                                                 </div>
-                                                <div className="flex text-yellow-500">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <span key={i}>{i < review.rating ? '★' : '☆'}</span>
+                                            )}
+                                        </div>
+                                        
+                                        {/* Category Fields if available */}
+                                        {gig.category_fields && Object.keys(gig.category_fields).length > 0 && (
+                                            <div className="mb-8 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+                                                <h3 className="text-xl font-bold text-gray-900 mb-6">Service Details</h3>
+                                                <div className="space-y-6">
+                                                    {Object.entries(gig.category_fields).map(([key, value], idx) => (
+                                                        <div key={idx}>
+                                                            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">
+                                                                {key.replace(/_/g, ' ')}
+                                                            </p>
+                                                            {Array.isArray(value) && value.length > 0 ? (
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {value.map((item, i) => (
+                                                                        <span key={i} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                                                                            {item}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            ) : (
+                                                                <p className="text-base font-semibold text-gray-900">{value}</p>
+                                                            )}
+                                                        </div>
                                                     ))}
                                                 </div>
                                             </div>
-                                            <p className="text-gray-700">{review.comment}</p>
+                                        )}
+                                        
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-6 tracking-tight">About This Gig</h2>
+                                        <div className="text-gray-600 leading-loose whitespace-pre-line font-medium bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+                                            {gig.description}
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                                    </motion.div>
+                                )}
+
+                                {activeTab === 'about the seller' && (
+                                    <motion.div 
+                                        key="about"
+                                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                                        className="mb-12"
+                                    >
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-6 tracking-tight">About the Seller</h2>
+                                        <div className="p-8 bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-8 items-start">
+                                            <div className="w-28 h-28 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-4xl shadow-xl shrink-0 border-4 border-white overflow-hidden">
+                                                {gig.user?.avatar ? (
+                                                    <img 
+                                                        src={`/storage/${gig.user.avatar}`} 
+                                                        alt={gig.user?.name} 
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <span>{gig.user?.name?.charAt(0) || 'S'}</span>
+                                                )}
+                                            </div>
+                                            <div className="flex-1 w-full">
+                                                <h3 className="text-2xl font-bold text-gray-900 mb-1">{gig.user?.name || 'Service Provider'}</h3>
+                                                <p className="text-brand-600 font-bold mb-4">{gig.user?.professional_title || 'Professional Freelancer'}</p>
+                                                <p className="text-gray-600 leading-relaxed mb-6 font-medium">{gig.user?.bio || 'Passionate about delivering high-quality work and helping clients achieve their business goals.'}</p>
+                                                
+                                                {/* Seller Details Grid */}
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                                    {gig.user?.location && (
+                                                        <div className="p-4 bg-gray-50 rounded-2xl">
+                                                            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Location</p>
+                                                            <p className="text-base font-semibold text-gray-900">{gig.user.location}</p>
+                                                        </div>
+                                                    )}
+                                                    {gig.user?.years_of_experience && (
+                                                        <div className="p-4 bg-gray-50 rounded-2xl">
+                                                            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Experience</p>
+                                                            <p className="text-base font-semibold text-gray-900">{gig.user.years_of_experience}</p>
+                                                        </div>
+                                                    )}
+                                                    {gig.user?.hourly_rate && (
+                                                        <div className="p-4 bg-gray-50 rounded-2xl">
+                                                            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Hourly Rate</p>
+                                                            <p className="text-base font-semibold text-gray-900">${gig.user.hourly_rate}/hr</p>
+                                                        </div>
+                                                    )}
+                                                    {gig.user?.delivery_time && (
+                                                        <div className="p-4 bg-gray-50 rounded-2xl">
+                                                            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Delivery Time</p>
+                                                            <p className="text-base font-semibold text-gray-900">{gig.user.delivery_time}</p>
+                                                        </div>
+                                                    )}
+                                                    {gig.user?.service_type && (
+                                                        <div className="p-4 bg-gray-50 rounded-2xl">
+                                                            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Service Type</p>
+                                                            <p className="text-base font-semibold text-gray-900">{gig.user.service_type}</p>
+                                                        </div>
+                                                    )}
+                                                    {gig.user?.languages && gig.user.languages.length > 0 && (
+                                                        <div className="p-4 bg-gray-50 rounded-2xl">
+                                                            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Languages</p>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {gig.user.languages.map((lang, idx) => (
+                                                                    <span key={idx} className="px-3 py-1 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-700">
+                                                                        {lang}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    {gig.user?.available_days && gig.user.available_days.length > 0 && (
+                                                        <div className="p-4 bg-gray-50 rounded-2xl sm:col-span-2">
+                                                            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Available Days</p>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {gig.user.available_days.map((day, idx) => (
+                                                                    <span key={idx} className="px-3 py-1 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-700">
+                                                                        {day}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-6 border-t border-gray-100">
+                                                    <div>
+                                                        <p className="text-sm text-gray-500 mb-1 font-medium">Rating</p>
+                                                        <p className="text-xl font-bold text-gray-900 flex items-center gap-1"><Star className="w-4 h-4 text-amber-400 fill-amber-400"/> {sellerStats?.avgRating || 0}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm text-gray-500 mb-1 font-medium">Reviews</p>
+                                                        <p className="text-xl font-bold text-gray-900">{sellerStats?.reviewsCount || 0}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm text-gray-500 mb-1 font-medium">Orders Completed</p>
+                                                        <p className="text-xl font-bold text-gray-900">{sellerStats?.completedOrders || 0}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm text-gray-500 mb-1 font-medium">Total Orders</p>
+                                                        <p className="text-xl font-bold text-gray-900">{sellerStats?.totalOrders || 0}</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                {/* Portfolio & Certifications */}
+                                                {gig.user?.portfolio_images && gig.user.portfolio_images.length > 0 && (
+                                                    <div className="mt-6 pt-6 border-t border-gray-100">
+                                                        <h4 className="text-lg font-bold text-gray-900 mb-4">Portfolio</h4>
+                                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                                            {gig.user.portfolio_images.slice(0, 6).map((img, idx) => (
+                                                                <div key={idx} className="aspect-square bg-gray-100 rounded-2xl overflow-hidden">
+                                                                    <img 
+                                                                        src={`/storage/${img}`} 
+                                                                        alt={`Portfolio ${idx + 1}`} 
+                                                                        className="w-full h-full object-cover"
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                
+                                                <div className="mt-6">
+                                                    <Link 
+                                                        href={gig.user?.id ? `/chat/user/${gig.user.id}` : '#'}
+                                                        className="inline-flex bg-brand-50 border border-brand-100 hover:bg-brand-100 text-brand-600 font-bold py-3 px-8 rounded-xl transition-colors items-center justify-center gap-2"
+                                                    >
+                                                        <MessageSquare className="w-5 h-5" /> Contact Me
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {activeTab === 'reviews' && (
+                                    <motion.div 
+                                        key="reviews"
+                                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                                        className="mb-12"
+                                    >
+                                        <div className="flex items-center justify-between mb-8">
+                                            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Client Reviews</h2>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-2xl font-black text-gray-900">{sellerStats?.avgRating || 0}</span>
+                                                <div className="flex text-amber-400"><Star className="w-5 h-5 fill-amber-400"/></div>
+                                            </div>
+                                        </div>
+                                        
+                                        {reviews && reviews.length > 0 ? (
+                                            <div className="grid gap-6">
+                                                {reviews.map((review) => (
+                                                    <div key={review.id} className="p-8 bg-white rounded-3xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
+                                                        <div className="flex items-start justify-between mb-4">
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-700 font-bold text-lg overflow-hidden">
+                                                                    {review.reviewer?.avatar ? (
+                                                                        <img 
+                                                                            src={`/storage/${review.reviewer.avatar}`} 
+                                                                            alt={review.reviewer?.name} 
+                                                                            className="w-full h-full object-cover"
+                                                                        />
+                                                                    ) : (
+                                                                        <span>{review.reviewer?.name?.charAt(0) || 'U'}</span>
+                                                                    )}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-bold text-gray-900">{review.reviewer?.name || 'User'}</p>
+                                                                    <p className="text-sm text-gray-500 font-medium">{formatDate(review.created_at)}</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex text-amber-400">
+                                                                {[...Array(5)].map((_, i) => (
+                                                                    <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'fill-amber-400' : 'text-gray-300'}`} />
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-gray-700 leading-relaxed font-medium">"{review.comment}"</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-12 bg-white rounded-3xl border border-gray-100">
+                                                <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                </svg>
+                                                <h3 className="text-lg font-semibold text-gray-700 mb-2">No reviews yet</h3>
+                                                <p className="text-gray-500">Be the first to review this seller!</p>
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                     </div>
 
-                    <aside className="lg:w-96 flex-shrink-0">
-                        <div className="sticky top-24">
-                            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                                <div className="p-6">
-                                    <div className="flex items-baseline justify-between mb-6">
-                                        <div>
-                                            <p className="text-sm text-gray-500">From</p>
-                                            <p className="text-4xl font-bold text-gray-900">${gig.price}</p>
+                    {/* Right Column - Sticky Sidebar */}
+                    <aside className="lg:w-[420px] flex-shrink-0">
+                        <div className="sticky top-28">
+                            
+                            <div className="flex gap-2 mb-4">
+                                <button className="flex-1 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-3 rounded-2xl flex items-center justify-center gap-2 transition-colors shadow-sm">
+                                    <Share2 className="w-4 h-4" /> Share
+                                </button>
+                                <button 
+                                    onClick={handleWishlistToggle}
+                                    className={`flex-1 border font-bold py-3 rounded-2xl flex items-center justify-center gap-2 transition-colors shadow-sm ${
+                                        isInWishlist 
+                                            ? 'bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100' 
+                                            : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-current' : ''}`} /> 
+                                    {isInWishlist ? 'Saved' : 'Save'}
+                                </button>
+                            </div>
+
+                            {/* Single Pricing Card */}
+                            <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 p-8 relative overflow-hidden">
+                                {/* Decorative top gradient */}
+                                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-400 via-brand-500 to-indigo-600"></div>
+                                
+                                <div className="pt-2">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <h3 className="font-bold text-gray-900 text-2xl">Service Price</h3>
+                                        <span className="text-4xl font-black text-gray-900 tracking-tight">${gig.price}</span>
+                                    </div>
+                                    
+                                    <p className="text-gray-600 font-medium leading-relaxed mb-8">
+                                        Get professional, high-quality service tailored to your needs by a verified expert.
+                                    </p>
+
+                                    <div className="flex items-center gap-4 mb-8 text-sm font-bold text-gray-700">
+                                        <div className="flex flex-1 items-center justify-center gap-2 bg-gray-50/80 border border-gray-100 py-3 rounded-xl">
+                                            <Clock className="w-4 h-4 text-brand-500" />
+                                            Standard Delivery
                                         </div>
-                                        <div className="flex items-center gap-1">
-                                            <span className="text-yellow-500">★</span>
-                                            <span className="font-semibold text-gray-900">4.9</span>
+                                        <div className="flex flex-1 items-center justify-center gap-2 bg-gray-50/80 border border-gray-100 py-3 rounded-xl">
+                                            <ShieldCheck className="w-4 h-4 text-brand-500" />
+                                            Verified Expert
                                         </div>
                                     </div>
 
-                                    <div className="space-y-4 mb-8">
-                                        {packageTabs.map((pkg) => (
-                                            <button
-                                                key={pkg.id}
-                                                className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
-                                                    pkg.id === 'basic'
-                                                        ? 'border-brand-500 bg-brand-50'
-                                                        : 'border-gray-200 hover:border-gray-300'
-                                                }`}
-                                            >
-                                                <div className="flex items-center justify-between">
-                                                    <span className="font-semibold text-gray-900">{pkg.name}</span>
-                                                    <span className="font-bold text-gray-900">${pkg.price}</span>
-                                                </div>
-                                                <p className="text-sm text-gray-500 mt-1">{pkg.description}</p>
-                                            </button>
+                                    <ul className="space-y-4 mb-8">
+                                        {['High-quality execution', 'Professional communication', 'Satisfaction guaranteed', 'Secure payment protection'].map((feature, idx) => (
+                                            <li key={idx} className="flex items-center gap-3 text-gray-700 font-medium">
+                                                <Check className="w-5 h-5 text-brand-500 shrink-0" />
+                                                {feature}
+                                            </li>
                                         ))}
-                                    </div>
+                                    </ul>
 
-                                    <button className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-4 rounded-xl transition-colors mb-4">
-                                        Continue
-                                    </button>
-
-                                    <button 
-                                        onClick={handleWishlistToggle}
-                                        className={`w-full font-bold py-4 rounded-xl border transition-colors flex items-center justify-center gap-2 ${
-                                            isInWishlist 
-                                                ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
-                                                : 'bg-white border-cream-300 text-gray-700 hover:bg-cream-100'
-                                        }`}
+                                    <Link
+                                        href={user ? `/gigs/${gig.id}/checkout` : '/login'}
+                                        disabled={user?.id === gig.user_id}
+                                        className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-lg disabled:opacity-60 disabled:cursor-not-allowed text-center"
                                     >
-                                        <svg 
-                                            className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} 
-                                            fill="none" 
-                                            stroke="currentColor" 
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                        </svg>
-                                        {isInWishlist ? 'Saved' : 'Save'}
-                                    </button>
+                                        Continue <ChevronRight className="w-5 h-5" />
+                                    </Link>
 
-                                    <div className="mt-6 pt-6 border-t border-gray-200">
-                                        <div className="space-y-3 text-sm">
-                                            <div className="flex items-center gap-2 text-gray-700">
-                                                <span className="text-brand-500">✓</span>
-                                                <span>3 Days Delivery</span>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-gray-700">
-                                                <span className="text-brand-500">✓</span>
-                                                <span>Unlimited Revisions</span>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-gray-700">
-                                                <span className="text-brand-500">✓</span>
-                                                <span>100% Satisfaction Guaranteed</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <Link 
+                                        href={gig.user?.id ? `/chat/user/${gig.user.id}` : '#'}
+                                        className="w-full mt-4 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-800 font-bold py-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-lg"
+                                    >
+                                        <MessageSquare className="w-5 h-5" /> Contact Seller
+                                    </Link>
+                                    
+                                    <p className="text-center text-sm text-gray-400 mt-4 font-medium">You won't be charged yet</p>
                                 </div>
                             </div>
                         </div>

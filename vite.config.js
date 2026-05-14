@@ -1,4 +1,4 @@
-import { defineConfig, splitVendorChunkPlugin } from 'vite';
+import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
@@ -13,14 +13,15 @@ export default defineConfig({
         inertia(),
         tailwindcss(),
         react(),
-        splitVendorChunkPlugin(),
     ],
     build: {
         chunkSizeWarningLimit: 1000,
         rollupOptions: {
             output: {
-                manualChunks: {
-                    vendor: ['react', 'react-dom', '@inertiajs/react'],
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        return 'vendor';
+                    }
                 },
             },
         },
@@ -31,3 +32,5 @@ export default defineConfig({
         },
     },
 });
+
+// Force Vite restart for new dependencies

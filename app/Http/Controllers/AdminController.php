@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Gig;
 use App\Models\Order;
 use App\Models\Review;
+use App\Models\CommissionSetting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
@@ -250,8 +251,52 @@ class AdminController extends Controller
         return back()->with('success', 'Order status updated.');
     }
 
+    public function releaseFunds(Order $order)
+    {
+        if ($order->status !== 'completed') {
+            return back()->with('error', 'Only completed orders can have their funds released.');
+        }
+
+        if ($order->funds_released_at) {
+            return back()->with('error', 'Funds have already been released for this order.');
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($order) {
+            $gigCategory = $order->gig->category;
+            $commissionSetting = CommissionSetting::where('category', $gigCategory)->first();
+            $percentage = $commissionSetting ? $commissionSetting->percentage : 20.00; // Default 20%
+            
+            $adminCommission = $order->amount * ($percentage / 100);
+            $freelancerEarning = $order->amount - $adminCommission;
+
+            // Credit Freelancer Wallet
+            $freelancer = $order->freelancer;
+            $freelancer->wallet_balance += $freelancerEarning;
+            $freelancer->save();
+
+            // Credit Admin Wallet
+            $admin = User::role('admin')->first();
+            if ($admin) {
+                $admin->wallet_balance += $adminCommission;
+                $admin->save();
+            }
+
+            $order->update(['funds_released_at' => now()]);
+        });
+
+        return back()->with('success', 'Funds successfully released to the vendor!');
+    }
+
     public function settings()
     {
+        $categories = Gig::distinct()->pluck('category')->filter()->values()->toArray();
+        $commissions = CommissionSetting::all()->keyBy('category')->map->percentage->toArray();
+        
+        $categoryCommissions = [];
+        foreach ($categories as $category) {
+            $categoryCommissions[$category] = $commissions[$category] ?? 20; // Default 20%
+        }
+
         return Inertia::render('Admin/Settings', [
             'settings' => [
                 'siteName' => config('app.name', 'Multi-Vendor Marketplace'),
@@ -260,6 +305,7 @@ class AdminController extends Controller
                 'maxGigPrice' => (float) config('app.max_gig_price', 10000),
                 'minGigPrice' => (float) config('app.min_gig_price', 5),
             ],
+            'categoryCommissions' => collect($categoryCommissions)->map(fn($v, $k) => ['category' => $k, 'percentage' => $v])->values(),
             'sidebarLinks' => $this->getSidebarLinks(),
         ]);
     }
@@ -272,7 +318,19 @@ class AdminController extends Controller
             'minPayout' => 'required|numeric|min:0',
             'maxGigPrice' => 'required|numeric|min:0',
             'minGigPrice' => 'required|numeric|min:0',
+            'categoryCommissions' => 'nullable|array',
+            'categoryCommissions.*.category' => 'required|string',
+            'categoryCommissions.*.percentage' => 'required|numeric|min:0|max:100',
         ]);
+
+        if ($request->has('categoryCommissions')) {
+            foreach ($request->categoryCommissions as $commission) {
+                CommissionSetting::updateOrCreate(
+                    ['category' => $commission['category']],
+                    ['percentage' => $commission['percentage']]
+                );
+            }
+        }
 
         // In production, these would be stored in a settings table or .env
         // For now we just return success

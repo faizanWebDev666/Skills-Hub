@@ -49,8 +49,19 @@ export default function VendorGigs({ gigs, counts, user }) {
                     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
                         {/* Flash message */}
                         {flash?.success && (
-                            <div className="mb-6 bg-success-50 border border-success-200 text-success-700 px-4 py-3 rounded-xl text-sm font-medium">
+                            <div className="mb-6 bg-success-50 border border-success-200 text-success-700 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3">
+                                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
                                 {flash.success}
+                            </div>
+                        )}
+                        {flash?.error && (
+                            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3">
+                                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {flash.error}
                             </div>
                         )}
 
@@ -61,7 +72,7 @@ export default function VendorGigs({ gigs, counts, user }) {
                                 <p className="text-gray-500 mt-1 text-sm">{counts?.total || 0} total • {counts?.active || 0} active • {counts?.paused || 0} paused</p>
                             </div>
                             <Link
-                                href="/gigs/create"
+                                href="/vendor/gigs/create"
                                 className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,7 +217,7 @@ export default function VendorGigs({ gigs, counts, user }) {
                                         </svg>
                                         <p className="font-semibold text-lg text-gray-500">No gigs found</p>
                                         <p className="text-sm mt-1">Create your first gig to start selling</p>
-                                        <Link href="/gigs/create" className="mt-4 inline-flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-brand-700 transition-colors">
+                                        <Link href="/vendor/gigs/create" className="mt-4 inline-flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-brand-700 transition-colors">
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                             </svg>

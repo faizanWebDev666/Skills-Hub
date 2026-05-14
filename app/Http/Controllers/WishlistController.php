@@ -21,6 +21,16 @@ class WishlistController extends Controller
         ]);
     }
 
+    public function getItems()
+    {
+        $wishlistItems = Wishlist::where('user_id', auth()->id())
+            ->with(['gig.user'])
+            ->latest()
+            ->get();
+
+        return response()->json($wishlistItems);
+    }
+
     public function toggle(Gig $gig)
     {
         $wishlist = Wishlist::where('user_id', auth()->id())

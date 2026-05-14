@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import Navbar from '../../components/Navbar';
 import AdminSidebar from '../../components/AdminSidebar';
 
@@ -55,25 +55,46 @@ export default function Orders({ orders, filters, user, sidebarLinks }) {
                                                     </span>
                                                 </td>
                                                 <td className="py-4">
-                                                    <select
-                                                        defaultValue={order.status}
-                                                        onChange={(e) => {
-                                                            fetch(`/admin/orders/${order.id}/status`, {
-                                                                method: 'PATCH',
-                                                                headers: {
-                                                                    'Content-Type': 'application/json',
-                                                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-                                                                },
-                                                                body: JSON.stringify({ status: e.target.value }),
-                                                            }).then(() => window.location.reload());
-                                                        }}
-                                                        className="px-2 py-1 text-xs border rounded-lg"
-                                                    >
-                                                        <option value="pending">Pending</option>
-                                                        <option value="in_progress">In Progress</option>
-                                                        <option value="completed">Completed</option>
-                                                        <option value="cancelled">Cancelled</option>
-                                                    </select>
+                                                    <div className="flex items-center gap-2">
+                                                        <select
+                                                            defaultValue={order.status}
+                                                            onChange={(e) => {
+                                                                fetch(`/admin/orders/${order.id}/status`, {
+                                                                    method: 'PATCH',
+                                                                    headers: {
+                                                                        'Content-Type': 'application/json',
+                                                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                                                                    },
+                                                                    body: JSON.stringify({ status: e.target.value }),
+                                                                }).then(() => window.location.reload());
+                                                            }}
+                                                            className="px-2 py-1 text-xs border rounded-lg"
+                                                        >
+                                                            <option value="pending">Pending</option>
+                                                            <option value="in_progress">In Progress</option>
+                                                            <option value="delivered">Delivered</option>
+                                                            <option value="completed">Completed</option>
+                                                            <option value="cancelled">Cancelled</option>
+                                                        </select>
+                                                        
+                                                        {order.status === 'completed' && !order.funds_released_at && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    if(confirm('Release funds to the vendor? This will deduct platform commission and add the rest to the vendor wallet.')) {
+                                                                        router.post(`/admin/orders/${order.id}/release-funds`);
+                                                                    }
+                                                                }}
+                                                                className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg shadow-sm"
+                                                            >
+                                                                Release Funds
+                                                            </button>
+                                                        )}
+                                                        {order.funds_released_at && (
+                                                            <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs font-bold rounded-lg">
+                                                                Released
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}

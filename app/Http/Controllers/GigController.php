@@ -3,8 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Gig;
+use App\Models\Order;
+use App\Models\User;
+use App\Models\CommissionSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Stripe\Stripe;
+use Stripe\Checkout\Session as StripeSession;
 
 class GigController extends Controller
 {
@@ -113,15 +119,163 @@ class GigController extends Controller
     {
         $gig->load('user');
 
+        $seller = $gig->user;
+        $stats = [
+            'totalOrders' => $seller->freelancerOrders->count(),
+            'completedOrders' => $seller->freelancerOrders->where('status', 'completed')->count(),
+            'reviewsCount' => $seller->reviewsReceived->count(),
+            'avgRating' => $seller->reviewsReceived->count() > 0 
+                ? number_format($seller->reviewsReceived->avg('rating'), 1) 
+                : 0,
+        ];
+
         $isInWishlist = auth()->check() 
             ? auth()->user()->wishlists()->where('gig_id', $gig->id)->exists() 
             : false;
 
         return Inertia::render('Gigs/Show', [
             'gig' => $gig,
+            'sellerStats' => $stats,
+            'reviews' => $seller->reviewsReceived->load('reviewer'),
             'user' => auth()->user() ? auth()->user()->load('roles') : null,
             'isInWishlist' => $isInWishlist,
         ]);
+    }
+
+    /**
+     * Show checkout page.
+     */
+    public function checkout(Gig $gig)
+    {
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        if ($gig->user_id === auth()->id()) {
+            return back()->with('error', 'You cannot purchase your own gig.');
+        }
+
+        if (!$gig->active) {
+            return back()->with('error', 'This gig is not available for purchase right now.');
+        }
+
+        $gig->load('user');
+
+        return Inertia::render('Gigs/Checkout', [
+            'gig' => $gig,
+            'user' => auth()->user() ? auth()->user()->load('roles') : null,
+        ]);
+    }
+
+    /**
+     * Store a new order for a gig and initiate Stripe Checkout.
+     */
+    public function order(Request $request, Gig $gig)
+    {
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        if ($gig->user_id === auth()->id()) {
+            return back()->with('error', 'You cannot purchase your own gig.');
+        }
+
+        if (!$gig->active) {
+            return back()->with('error', 'This gig is not available for purchase right now.');
+        }
+
+        $request->validate([
+            'requirements' => 'nullable|string|max:2000',
+        ]);
+
+        // Create the order as pending_payment
+        $order = Order::create([
+            'customer_id' => auth()->id(),
+            'freelancer_id' => $gig->user_id,
+            'gig_id' => $gig->id,
+            'amount' => $gig->price,
+            'requirements' => $request->requirements,
+            'status' => 'pending_payment',
+        ]);
+
+        // Initiate Stripe Checkout
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        $checkout_session = StripeSession::create([
+            'payment_method_types' => ['card'],
+            'line_items' => [[
+                'price_data' => [
+                    'currency' => 'usd',
+                    'unit_amount' => $gig->price * 100, // Amount in cents
+                    'product_data' => [
+                        'name' => 'Gig: ' . $gig->title,
+                        'description' => 'Service from ' . $gig->user->name,
+                    ],
+                ],
+                'quantity' => 1,
+            ]],
+            'mode' => 'payment',
+            'success_url' => route('gigs.payment.success', $order->id) . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => route('gigs.payment.cancel', $order->id),
+            'client_reference_id' => $order->id,
+        ]);
+
+        return Inertia::location($checkout_session->url);
+    }
+
+    public function paymentSuccess(Request $request, Order $order)
+    {
+        // Ideally verify the session with Stripe using $request->session_id
+        if ($order->status === 'pending_payment') {
+            $order->update([
+                'status' => 'in_progress', // Changed from pending_payment to in_progress
+            ]);
+        }
+
+        return redirect()->route('profile.show')->with('success', 'Payment successful! Your order is now in progress.');
+    }
+
+    public function paymentCancel(Order $order)
+    {
+        if ($order->status === 'pending_payment') {
+            $order->update(['status' => 'cancelled']);
+        }
+
+        return redirect()->route('gigs.show', $order->gig_id)->with('error', 'Payment was cancelled.');
+    }
+
+    public function deliverOrder(Order $order)
+    {
+        if (auth()->id() !== $order->freelancer_id) {
+            return back()->with('error', 'Unauthorized.');
+        }
+
+        $order->update(['status' => 'delivered']);
+
+        return back()->with('success', 'Order marked as delivered. Waiting for customer approval.');
+    }
+
+    public function completeOrder(Order $order)
+    {
+        if (auth()->id() !== $order->customer_id) {
+            return back()->with('error', 'Unauthorized.');
+        }
+
+        if ($order->status === 'completed') {
+            return back()->with('error', 'Order is already completed.');
+        }
+
+        DB::transaction(function () use ($order) {
+            $order->update([
+                'status' => 'completed',
+                'completed_at' => now(),
+            ]);
+
+            // Note: The payment was held in Stripe/Admin account. 
+            // The vendor will receive the funds when the Admin explicitly releases them from the Admin dashboard.
+        });
+
+        return back()->with('success', 'Order completed! The admin will release the funds to the freelancer shortly.');
     }
 
     /**

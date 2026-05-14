@@ -44,9 +44,21 @@ class ProfileController extends Controller
             'bio' => 'nullable|string|max:1000',
             'phone' => 'nullable|string|max:20',
             'location' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'address' => 'nullable|string',
         ]);
 
-        $user->update($request->only(['name', 'email', 'bio', 'phone', 'location']));
+        $user->update($request->only([
+            'name',
+            'email',
+            'bio',
+            'phone',
+            'location',
+            'country',
+            'city',
+            'address',
+        ]));
 
         return back()->with('success', 'Profile updated successfully.');
     }

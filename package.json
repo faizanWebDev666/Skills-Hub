@@ -18,10 +18,14 @@
         "@inertiajs/inertia": "^0.11.1",
         "@inertiajs/react": "^3.1.0",
         "@inertiajs/vite": "^3.1.0",
+        "axios": "^1.16.0",
         "dom": "^0.0.3",
+        "framer-motion": "^12.38.0",
         "laravel-echo": "^2.3.4",
+        "lucide-react": "^1.14.0",
         "pusher-js": "^8.5.0",
         "react": "^19.2.6",
-        "react-dom": "^19.2.6"
+        "react-dom": "^19.2.6",
+        "react-select": "^5.10.2"
     }
 }

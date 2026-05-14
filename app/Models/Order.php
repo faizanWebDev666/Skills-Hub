@@ -15,11 +15,13 @@ class Order extends Model
         'amount',
         'requirements',
         'completed_at',
+        'funds_released_at',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'completed_at' => 'datetime',
+        'funds_released_at' => 'datetime',
     ];
 
     public function customer(): BelongsTo

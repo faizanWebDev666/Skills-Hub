@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import Navbar from '../../components/Navbar';
 import AdminSidebar from '../../components/AdminSidebar';
 
-export default function Settings({ settings, user, sidebarLinks }) {
+export default function Settings({ settings, categoryCommissions, user, sidebarLinks }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [formData, setFormData] = useState(settings);
+    const [formData, setFormData] = useState({ ...settings, categoryCommissions: categoryCommissions || [] });
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -83,9 +83,35 @@ export default function Settings({ settings, user, sidebarLinks }) {
                                             className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none"
                                         />
                                     </div>
+                                    <div className="pt-4 border-t border-gray-100">
+                                        <h3 className="text-lg font-bold text-gray-900 mb-4">Category Commissions (%)</h3>
+                                        {formData.categoryCommissions?.length > 0 ? (
+                                            <div className="space-y-3">
+                                                {formData.categoryCommissions.map((comm, index) => (
+                                                    <div key={index} className="flex items-center gap-4">
+                                                        <span className="w-1/2 text-sm font-medium text-gray-700 capitalize">{comm.category}</span>
+                                                        <input
+                                                            type="number"
+                                                            value={comm.percentage}
+                                                            onChange={(e) => {
+                                                                const newComms = [...formData.categoryCommissions];
+                                                                newComms[index].percentage = parseFloat(e.target.value);
+                                                                setFormData({ ...formData, categoryCommissions: newComms });
+                                                            }}
+                                                            className="w-1/2 px-4 py-2 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none"
+                                                            step="0.1"
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-gray-500">No categories found yet. Create a gig to see categories here.</p>
+                                        )}
+                                    </div>
+
                                     <button
                                         type="submit"
-                                        className="w-full bg-gradient-to-r from-brand-600 to-brand-800 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
+                                        className="w-full bg-gradient-to-r from-brand-600 to-brand-800 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all mt-4"
                                     >
                                         Save Settings
                                     </button>

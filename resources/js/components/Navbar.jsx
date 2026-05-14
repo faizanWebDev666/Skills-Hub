@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
+import WishlistDrawer from './WishlistDrawer';
 
 export default function Navbar({ user }) {
     const { props } = usePage();
@@ -8,6 +9,7 @@ export default function Navbar({ user }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isWishlistOpen, setIsWishlistOpen] = useState(false);
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -39,12 +41,7 @@ export default function Navbar({ user }) {
                 <div className="flex justify-between items-center py-4">
                     <div className="flex items-center space-x-4 lg:space-x-12">
                         <Link href="/home" className="flex items-center space-x-2">
-                            <div className="w-10 h-10 bg-gradient-to-r from-brand-600 to-brand-800 rounded-xl flex items-center justify-center">
-                                <span className="text-white text-xl font-bold">S</span>
-                            </div>
-                            <span className="text-2xl font-bold bg-gradient-to-r from-brand-600 to-brand-800 bg-clip-text text-transparent">
-                                SkillHub
-                            </span>
+                            <img src="/assets/logo/logo.png" alt="SkillHub Logo" className="h-10 object-contain" />
                         </Link>
                         <div className="hidden lg:flex items-center space-x-8">
                             <Link href="/gigs" className="text-gray-700 hover:text-brand-600 font-medium transition-colors">
@@ -71,14 +68,14 @@ export default function Navbar({ user }) {
                         {currentUser ? (
                             <>
                                 {/* Wishlist */}
-                                <Link
-                                    href="/wishlist"
+                                <button
+                                    onClick={() => setIsWishlistOpen(true)}
                                     className="relative text-gray-600 hover:text-brand-600 transition-colors p-2"
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                     </svg>
-                                </Link>
+                                </button>
 
                              
 
@@ -116,7 +113,7 @@ export default function Navbar({ user }) {
                                     
                                     {isUserMenuOpen && (
                                         <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-lg border border-gray-100 py-2 z-50">
-                                            {isVendor && (
+                                                    {isVendor && (
                                                 <Link 
                                                     href="/vendor/dashboard" 
                                                     className="block px-4 py-3 text-gray-700 hover:bg-cream-200 transition-colors"
@@ -125,16 +122,18 @@ export default function Navbar({ user }) {
                                                     Dashboard
                                                 </Link>
                                             )}
-                                            <Link 
-                                                href="/profile" 
-                                                className="block px-4 py-3 text-gray-700 hover:bg-cream-200 transition-colors"
-                                                onClick={() => setIsUserMenuOpen(false)}
-                                            >
-                                                My Profile
-                                            </Link>
+                                            {!isVendor && (
+                                                <Link 
+                                                    href="/profile" 
+                                                    className="block px-4 py-3 text-gray-700 hover:bg-cream-200 transition-colors"
+                                                    onClick={() => setIsUserMenuOpen(false)}
+                                                >
+                                                    My Profile
+                                                </Link>
+                                            )}
                                             {isVendor && (
                                                 <Link 
-                                                    href="/gigs/create" 
+                                                    href="/vendor/gigs/create" 
                                                     className="block px-4 py-3 text-gray-700 hover:bg-cream-200 transition-colors"
                                                     onClick={() => setIsUserMenuOpen(false)}
                                                 >
@@ -231,12 +230,12 @@ export default function Navbar({ user }) {
 
                             {currentUser && (
                                 <div className="flex items-center gap-6 py-2">
-                                    <Link href="/wishlist" className="flex items-center gap-2 text-gray-700 hover:text-brand-600 font-medium transition-colors">
+                                    <button onClick={() => { setIsWishlistOpen(true); setIsMenuOpen(false); }} className="flex items-center gap-2 text-gray-700 hover:text-brand-600 font-medium transition-colors">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                         </svg>
                                         Wishlist
-                                    </Link>
+                                    </button>
                                   
                                 </div>
                             )}
@@ -261,11 +260,13 @@ export default function Navbar({ user }) {
                                                 Dashboard
                                             </Link>
                                         )}
-                                        <Link href="/profile" className="text-gray-700 hover:text-brand-600 font-medium py-2">
-                                            My Profile
-                                        </Link>
+                                        {!isVendor && (
+                                            <Link href="/profile" className="text-gray-700 hover:text-brand-600 font-medium py-2">
+                                                My Profile
+                                            </Link>
+                                        )}
                                         {isVendor && (
-                                            <Link href="/gigs/create" className="text-gray-700 hover:text-brand-600 font-medium py-2">
+                                            <Link href="/vendor/gigs/create" className="text-gray-700 hover:text-brand-600 font-medium py-2">
                                                 Create Gig
                                             </Link>
                                         )}
@@ -294,6 +295,11 @@ export default function Navbar({ user }) {
                     </div>
                 </div>
             </div>
+
+            <WishlistDrawer 
+                isOpen={isWishlistOpen} 
+                onClose={() => setIsWishlistOpen(false)} 
+            />
         </nav>
     );
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import Navbar from '../../components/Navbar';
 import VendorSidebar from '../../components/VendorSidebar';
 
@@ -122,19 +122,34 @@ export default function VendorDashboard({ stats, recentOrders, myGigs, user }) {
                                                     <p className="font-bold text-gray-900 text-sm">${Number(order.amount).toLocaleString()}</p>
                                                     <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
                                                         order.status === 'completed' ? 'bg-success-100 text-success-700 ring-1 ring-success-200' :
+                                                        order.status === 'delivered' ? 'bg-purple-100 text-purple-700 ring-1 ring-purple-200' :
                                                         order.status === 'in_progress' ? 'bg-brand-100 text-brand-700 ring-1 ring-brand-200' :
                                                         'bg-accent-100 text-accent-600 ring-1 ring-accent-200'
                                                     }`}>
                                                         {order.status?.charAt(0).toUpperCase() + order.status?.slice(1).replace('_', ' ') || 'Pending'}
                                                     </span>
-                                                    {order.customer?.id && (
-                                                        <Link
-                                                            href={route('chat.with-user', order.customer.id)}
-                                                            className="inline-flex items-center justify-center px-3 py-1 text-xs font-semibold bg-brand-100 text-brand-700 rounded-full hover:bg-brand-200"
-                                                        >
-                                                            Chat with customer
-                                                        </Link>
-                                                    )}
+                                                    <div className="flex flex-col gap-2 mt-2">
+                                                        {order.status === 'in_progress' && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    if(confirm('Are you sure you want to mark this order as delivered? The customer will be notified.')) {
+                                                                        router.post(`/orders/${order.id}/deliver`);
+                                                                    }
+                                                                }}
+                                                                className="inline-flex items-center justify-center px-3 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full hover:bg-green-200"
+                                                            >
+                                                                Deliver Order
+                                                            </button>
+                                                        )}
+                                                        {order.customer?.id && (
+                                                            <Link
+                                                                href={route('chat.with-user', order.customer.id)}
+                                                                className="inline-flex items-center justify-center px-3 py-1 text-xs font-semibold bg-brand-100 text-brand-700 rounded-full hover:bg-brand-200"
+                                                            >
+                                                                Chat with customer
+                                                            </Link>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         )) : (
@@ -155,7 +170,7 @@ export default function VendorDashboard({ stats, recentOrders, myGigs, user }) {
                                 <div className="bg-white rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100">
                                     <div className="flex items-center justify-between mb-6">
                                         <h2 className="text-lg sm:text-xl font-bold text-gray-900">My Gigs</h2>
-                                        <Link href="/gigs/create" className="text-xs sm:text-sm text-brand-600 hover:text-brand-700 font-medium">
+                                        <Link href="/vendor/gigs/create" className="text-xs sm:text-sm text-brand-600 hover:text-brand-700 font-medium">
                                             + New
                                         </Link>
                                     </div>
@@ -184,7 +199,7 @@ export default function VendorDashboard({ stats, recentOrders, myGigs, user }) {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                                 </svg>
                                                 <p className="font-medium text-sm">No gigs yet</p>
-                                                <Link href="/gigs/create" className="text-xs text-brand-600 hover:text-brand-700 mt-1 inline-block">Create your first gig</Link>
+                                                <Link href="/vendor/gigs/create" className="text-xs text-brand-600 hover:text-brand-700 mt-1 inline-block">Create your first gig</Link>
                                             </div>
                                         )}
                                     </div>
