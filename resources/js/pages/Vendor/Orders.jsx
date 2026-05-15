@@ -2,18 +2,26 @@ import React, { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import Navbar from '../../components/Navbar';
 import VendorSidebar from '../../components/VendorSidebar';
+import { CheckCircle } from 'lucide-react';
 
 export default function VendorOrders({ orders, filters, user }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [confirmModal, setConfirmModal] = useState(null);
 
     const handleFilterChange = (status) => {
         router.get('/vendor/orders', { status }, { preserveState: true, preserveScroll: true });
     };
 
     const handleDeliver = (orderId) => {
-        if (confirm('Are you sure you want to mark this order as delivered? The customer will be notified to review and complete the order.')) {
-            router.post(`/orders/${orderId}/deliver`, {}, { preserveScroll: true });
-        }
+        setConfirmModal(orderId);
+    };
+
+    const confirmDeliver = () => {
+        if (!confirmModal) return;
+        router.post(`/orders/${confirmModal}/deliver`, {}, { 
+            preserveScroll: true,
+            onSuccess: () => setConfirmModal(null)
+        });
     };
 
     const statusColors = {
@@ -194,6 +202,35 @@ export default function VendorOrders({ orders, filters, user }) {
                     </div>
                 </main>
             </div>
+
+            {/* Confirmation Modal */}
+            {confirmModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+                        <div className="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mb-6 mx-auto">
+                            <CheckCircle className="w-8 h-8" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 text-center mb-2">Deliver Order</h3>
+                        <p className="text-gray-500 text-center mb-8">
+                            Are you sure you want to mark this order as delivered? The customer will be notified to review and complete the order.
+                        </p>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setConfirmModal(null)}
+                                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDeliver}
+                                className="flex-1 px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition-colors shadow-lg shadow-brand-500/30"
+                            >
+                                Confirm Delivery
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

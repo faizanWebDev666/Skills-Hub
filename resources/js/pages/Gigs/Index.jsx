@@ -285,11 +285,11 @@ export default function Index({ gigs, user, filters = {}, wishlistGigIds = [] })
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                             {gigs.data?.map((gig) => (
-                                <div key={gig.id} className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300">
+                                <div key={gig.id} className="group bg-white rounded-lg sm:rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300">
                                     <div className="relative">
-                                        <div className="h-28 sm:h-48 overflow-hidden">
+                                        <div className="h-32 sm:h-40 md:h-48 overflow-hidden">
                                             {gig.image ? (
                                                 <img src={`/storage/${gig.image}`} alt={gig.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                                             ) : (
@@ -298,7 +298,7 @@ export default function Index({ gigs, user, filters = {}, wishlistGigIds = [] })
                                         </div>
                                         <button 
                                             onClick={() => handleWishlistToggle(gig.id)}
-                                            className="absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-sm"
+                                            className="absolute top-2 sm:top-3 right-2 sm:right-3 w-8 h-8 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-sm"
                                         >
                                             <svg 
                                                 className={`w-5 h-5 transition-colors ${wishlistGigIds.includes(gig.id) ? 'text-red-500 fill-current' : 'text-gray-600 hover:text-red-500'}`} 

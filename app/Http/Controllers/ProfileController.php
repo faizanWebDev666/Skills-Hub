@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -21,16 +22,30 @@ class ProfileController extends Controller
             'totalSpent' => Order::where('customer_id', $user->id)->where('status', 'completed')->sum('amount'),
         ];
 
-        $recentOrders = Order::where('customer_id', $user->id)
+        $orders = Order::where('customer_id', $user->id)
             ->with(['freelancer', 'gig'])
             ->latest()
-            ->take(5)
+            ->get();
+
+        $pendingReviews = Order::where('customer_id', $user->id)
+            ->where('status', 'completed')
+            ->whereDoesntHave('reviews', function ($query) use ($user) {
+                $query->where('reviewer_id', $user->id);
+            })
+            ->with(['freelancer', 'gig'])
+            ->get();
+
+        $submittedReviews = Review::where('reviewer_id', $user->id)
+            ->with(['order.gig', 'reviewee'])
+            ->latest()
             ->get();
 
         return Inertia::render('Profile/Show', [
             'user' => $user,
             'stats' => $stats,
-            'recentOrders' => $recentOrders,
+            'orders' => $orders,
+            'pendingReviews' => $pendingReviews,
+            'submittedReviews' => $submittedReviews,
         ]);
     }
 

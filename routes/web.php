@@ -8,8 +8,11 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\WalletController;
+use App\Http\Controllers\AdminWalletController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\ReviewController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::resource('gigs', GigController::class)->only(['index', 'show']);
@@ -36,6 +39,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/wishlist/items', [WishlistController::class, 'getItems'])->name('wishlist.items');
     Route::post('/wishlist/{gig}/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 
+    // Wallet routes
+    Route::get('/wallet', [WalletController::class, 'show'])->name('wallet.show');
+    Route::get('/wallet/transactions', [WalletController::class, 'transactions'])->name('wallet.transactions');
+    Route::post('/wallet/deposit', [WalletController::class, 'deposit'])->name('wallet.deposit');
+    Route::post('/wallet/deposit/stripe', [WalletController::class, 'createStripeCheckout'])->name('wallet.deposit.stripe');
+    Route::post('/wallet/deposit/paypal', [WalletController::class, 'createPayPalPayment'])->name('wallet.deposit.paypal');
+    Route::post('/wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw');
+    Route::post('/wallet/transfer', [WalletController::class, 'transfer'])->name('wallet.transfer');
+    Route::get('/wallet/deposit/success', [WalletController::class, 'paymentSuccess'])->name('wallet.deposit.success');
+    Route::get('/wallet/deposit/cancel', [WalletController::class, 'depositCancel'])->name('wallet.deposit.cancel');
+
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
     Route::get('/chat/{conversation}/messages', [ChatController::class, 'messages'])->name('chat.messages');
     Route::get('/chat/{conversation}', [ChatController::class, 'show'])->name('chat.show');
@@ -47,6 +61,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}/cancel', [GigController::class, 'paymentCancel'])->name('gigs.payment.cancel');
     Route::post('/orders/{order}/deliver', [GigController::class, 'deliverOrder'])->name('orders.deliver');
     Route::post('/orders/{order}/complete', [GigController::class, 'completeOrder'])->name('orders.complete');
+    Route::post('/orders/{order}/reviews', [ReviewController::class, 'store'])->name('orders.reviews.store');
     Route::get('/freelancers/{user}', [VendorController::class, 'showFreelancer'])->name('freelancers.show');
 });
 
@@ -61,6 +76,8 @@ Route::middleware(['auth', 'role:freelancer|vendor|admin'])->group(function () {
     Route::delete('/vendor/gigs/{gig}', [VendorController::class, 'deleteGig'])->name('vendor.gigs.delete');
     Route::patch('/vendor/gigs/{gig}/toggle', [VendorController::class, 'toggleGig'])->name('vendor.gigs.toggle');
     Route::get('/vendor/profile', [VendorController::class, 'profile'])->name('vendor.profile');
+    Route::get('/vendor/reviews', [VendorController::class, 'reviews'])->name('vendor.reviews');
+    Route::post('/vendor/reviews/{review}/reply', [VendorController::class, 'replyReview'])->name('vendor.reviews.reply');
     
     // Vendor Profile
     Route::put('/vendor/profile', [VendorController::class, 'updateProfile'])->name('vendor.profile.update');
@@ -99,4 +116,20 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Settings
     Route::get('/admin/settings', [AdminController::class, 'settings'])->name('admin.settings');
     Route::put('/admin/settings', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
+
+    // Reviews & Ratings
+    Route::get('/admin/reviews', [AdminController::class, 'reviews'])->name('admin.reviews');
+    Route::get('/admin/reviews/{user}', [AdminController::class, 'vendorReviews'])->name('admin.reviews.show');
+    Route::post('/admin/reviews/{user}/toggle-status', [AdminController::class, 'toggleVendorStatus'])->name('admin.reviews.toggle-status');
+
+    // Wallet Management
+    Route::get('/admin/wallet', [AdminWalletController::class, 'dashboard'])->name('admin.wallet.dashboard');
+    Route::get('/admin/wallet/wallets', [AdminWalletController::class, 'wallets'])->name('admin.wallet.wallets');
+    Route::get('/admin/wallet/transactions', [AdminWalletController::class, 'transactions'])->name('admin.wallet.transactions');
+    Route::get('/admin/wallet/withdrawals', [AdminWalletController::class, 'withdrawals'])->name('admin.wallet.withdrawals');
+    Route::post('/admin/wallet/withdrawals/{transaction}/approve', [AdminWalletController::class, 'approveWithdrawal'])->name('admin.wallet.withdrawals.approve');
+    Route::post('/admin/wallet/withdrawals/{transaction}/reject', [AdminWalletController::class, 'rejectWithdrawal'])->name('admin.wallet.withdrawals.reject');
+    Route::get('/admin/wallet/users/{user}', [AdminWalletController::class, 'viewUserWallet'])->name('admin.wallet.users.show');
+    Route::post('/admin/wallet/users/{user}/adjust', [AdminWalletController::class, 'adjustBalance'])->name('admin.wallet.users.adjust');
+    Route::get('/admin/wallet/export', [AdminWalletController::class, 'exportTransactions'])->name('admin.wallet.export');
 });

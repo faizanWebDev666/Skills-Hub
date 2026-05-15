@@ -13,6 +13,8 @@ class Review extends Model
         'reviewee_id',
         'rating',
         'comment',
+        'reply',
+        'replied_at',
     ];
 
     public function order(): BelongsTo

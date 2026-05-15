@@ -112,6 +112,12 @@ export default function AdminDashboard({ stats, recentUsers, recentGigs, recentO
                                     </svg>
                                     New Report
                                 </button>
+                                <Link
+                                    href="/admin/wallet"
+                                    className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-brand-600 font-medium hover:bg-brand-50 transition-colors shadow-sm"
+                                >
+                                    Manage Wallets
+                                </Link>
                             </div>
                         </div>
 

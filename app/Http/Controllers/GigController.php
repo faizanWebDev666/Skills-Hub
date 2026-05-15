@@ -199,7 +199,7 @@ class GigController extends Controller
         ]);
 
         // Initiate Stripe Checkout
-        Stripe::setApiKey(env('STRIPE_SECRET'));
+        Stripe::setApiKey(config('services.stripe.secret'));
 
         $checkout_session = StripeSession::create([
             'payment_method_types' => ['card'],

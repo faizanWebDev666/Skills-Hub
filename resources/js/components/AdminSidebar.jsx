@@ -6,6 +6,14 @@ export default function AdminSidebar({ user, sidebarLinks, sidebarOpen, setSideb
     const authUser = props.auth?.user;
     const currentUser = user ?? authUser;
 
+    const links = sidebarLinks || [
+        { href: '/admin/dashboard', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M13 5v6h6' },
+        { href: '/admin/users', label: 'Users', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+        { href: '/admin/orders', label: 'Orders', icon: 'M3 3h18l-2 13H5L3 3z' },
+        { href: '/admin/wallet', label: 'Wallets', icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z' },
+        { href: '/admin/wallet/withdrawals', label: 'Withdrawals', icon: 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+    ];
+
     const isActive = (href) => {
         if (typeof window !== 'undefined') {
             return window.location.pathname === href;

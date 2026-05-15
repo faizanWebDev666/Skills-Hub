@@ -23,7 +23,6 @@ return new class extends Migration
             $table->json('metadata')->nullable();
             $table->timestamp('processed_at')->nullable();
             $table->timestamps();
-
             $table->index(['wallet_id', 'type']);
             $table->index(['reference_type', 'reference_id']);
         });

@@ -10,6 +10,43 @@ import {
 export default function Show({ gig, user, isInWishlist = false, sellerStats, reviews = [] }) {
     const { flash } = usePage().props;
     const [activeTab, setActiveTab] = useState('overview');
+    const [shareMessage, setShareMessage] = useState('');
+
+    const handleShareClick = async () => {
+        const shareUrl = `${window.location.origin}/gigs/${gig.id}`;
+        const shareText = `Check out this gig: ${gig.title}`;
+
+        // Try native Web Share API first
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: gig.title,
+                    text: shareText,
+                    url: shareUrl,
+                });
+            } catch (err) {
+                // User cancelled share
+            }
+        } else {
+            // Fallback: Copy to clipboard
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                setShareMessage('Link copied to clipboard!');
+                setTimeout(() => setShareMessage(''), 3000);
+            } catch (err) {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = shareUrl;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                setShareMessage('Link copied to clipboard!');
+                setTimeout(() => setShareMessage(''), 3000);
+            }
+        }
+    };
+
     const handleWishlistToggle = () => {
         if (!user) return router.get('/login');
         router.post(`/wishlist/${gig.id}/toggle`, {}, {
@@ -19,11 +56,22 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
     };
 
     const formatDate = (dateString) => {
-        const date = new Date(dateString);
+        if (!dateString) return '';
+        const formattedString = dateString.endsWith('Z') ? dateString : `${dateString}Z`;
+        const date = new Date(formattedString);
         const now = new Date();
-        const diffTime = Math.abs(now - date);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffMs = now - date;
         
+        const diffSecs = Math.floor(diffMs / 1000);
+        const diffMins = Math.floor(diffSecs / 60);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+        
+        if (diffSecs < 60) return 'just now';
+        if (diffMins === 1) return '1 minute ago';
+        if (diffMins < 60) return `${diffMins} minutes ago`;
+        if (diffHours === 1) return '1 hour ago';
+        if (diffHours < 24) return `${diffHours} hours ago`;
         if (diffDays === 1) return 'yesterday';
         if (diffDays < 7) return `${diffDays} days ago`;
         if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
@@ -72,8 +120,8 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 lg:px-8 py-8 lg:py-12">
-                <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
+            <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 lg:py-12">
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-12">
                     {/* Left Column - Main Content */}
                     <div className="flex-1 max-w-4xl">
                         
@@ -356,12 +404,32 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
                                                 )}
                                                 
                                                 <div className="mt-6">
-                                                    <Link 
-                                                        href={gig.user?.id ? `/chat/user/${gig.user.id}` : '#'}
-                                                        className="inline-flex bg-brand-50 border border-brand-100 hover:bg-brand-100 text-brand-600 font-bold py-3 px-8 rounded-xl transition-colors items-center justify-center gap-2"
-                                                    >
-                                                        <MessageSquare className="w-5 h-5" /> Contact Me
-                                                    </Link>
+                                                    {(() => {
+                                                        const isOwner = user?.id === gig.user_id;
+                                                        const isVendor = user?.roles?.some(r => ['vendor', 'freelancer'].includes(r.name));
+                                                        const isDisabled = isOwner || isVendor;
+
+                                                        if (isDisabled) {
+                                                            return (
+                                                                <button 
+                                                                    disabled
+                                                                    className="inline-flex bg-gray-100 border border-gray-200 text-gray-400 font-bold py-3 px-8 rounded-xl items-center justify-center gap-2 cursor-not-allowed"
+                                                                    title={isOwner ? "You cannot contact yourself" : "Vendors cannot contact sellers"}
+                                                                >
+                                                                    <MessageSquare className="w-5 h-5" /> Contact Me
+                                                                </button>
+                                                            );
+                                                        }
+
+                                                        return (
+                                                            <Link 
+                                                                href={gig.user?.id ? `/chat/user/${gig.user.id}` : '#'}
+                                                                className="inline-flex bg-brand-50 border border-brand-100 hover:bg-brand-100 text-brand-600 font-bold py-3 px-8 rounded-xl transition-colors items-center justify-center gap-2"
+                                                            >
+                                                                <MessageSquare className="w-5 h-5" /> Contact Me
+                                                            </Link>
+                                                        );
+                                                    })()}
                                                 </div>
                                             </div>
                                         </div>
@@ -411,6 +479,25 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
                                                             </div>
                                                         </div>
                                                         <p className="text-gray-700 leading-relaxed font-medium">"{review.comment}"</p>
+                                                        
+                                                        {review.reply && (
+                                                            <div className="mt-5 ml-4 sm:ml-8 p-5 bg-slate-50 rounded-2xl border-l-4 border-brand-500 relative">
+                                                                <div className="absolute -left-[14px] top-6 w-6 h-px bg-brand-200"></div>
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <div className="w-6 h-6 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-xs shadow-sm">
+                                                                        {gig.user?.name?.charAt(0) || 'V'}
+                                                                    </div>
+                                                                    <p className="text-sm font-bold text-gray-900">
+                                                                        {gig.user?.name || 'Service Provider'} 
+                                                                        <span className="bg-brand-100 text-brand-700 text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ml-2">Vendor</span>
+                                                                    </p>
+                                                                    <span className="text-gray-400 font-medium text-xs ml-auto">
+                                                                        {formatDate(review.replied_at)}
+                                                                    </span>
+                                                                </div>
+                                                                <p className="text-gray-600 text-sm leading-relaxed pl-8">{review.reply}</p>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 ))}
                                             </div>
@@ -430,75 +517,126 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
                     </div>
 
                     {/* Right Column - Sticky Sidebar */}
-                    <aside className="lg:w-[420px] flex-shrink-0">
-                        <div className="sticky top-28">
+                    <aside className="lg:w-96 flex-shrink-0">
+                        <div className="sticky lg:top-28">
                             
+                            {shareMessage && (
+                                <div className="mb-3 md:mb-4 bg-success-50 border border-success-200 text-success-700 px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl text-xs md:text-sm font-medium">
+                                    {shareMessage}
+                                </div>
+                            )}
+
                             <div className="flex gap-2 mb-4">
-                                <button className="flex-1 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-3 rounded-2xl flex items-center justify-center gap-2 transition-colors shadow-sm">
-                                    <Share2 className="w-4 h-4" /> Share
+                                <button 
+                                    onClick={handleShareClick}
+                                    className="flex-1 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-2.5 md:py-3 rounded-lg md:rounded-2xl flex items-center justify-center gap-2 transition-colors shadow-sm text-sm md:text-base"
+                                    title="Share this gig"
+                                >
+                                    <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Share</span>
                                 </button>
                                 <button 
                                     onClick={handleWishlistToggle}
-                                    className={`flex-1 border font-bold py-3 rounded-2xl flex items-center justify-center gap-2 transition-colors shadow-sm ${
+                                    className={`flex-1 border font-bold py-2.5 md:py-3 rounded-lg md:rounded-2xl flex items-center justify-center gap-2 transition-colors shadow-sm text-sm md:text-base ${
                                         isInWishlist 
                                             ? 'bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100' 
                                             : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                                     }`}
                                 >
                                     <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-current' : ''}`} /> 
-                                    {isInWishlist ? 'Saved' : 'Save'}
+                                    <span className="hidden sm:inline">{isInWishlist ? 'Saved' : 'Save'}</span>
                                 </button>
                             </div>
 
                             {/* Single Pricing Card */}
-                            <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 p-8 relative overflow-hidden">
+                            <div className="bg-white rounded-lg md:rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 p-5 md:p-8 relative overflow-hidden">
                                 {/* Decorative top gradient */}
                                 <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-400 via-brand-500 to-indigo-600"></div>
                                 
                                 <div className="pt-2">
-                                    <div className="flex justify-between items-start mb-6">
-                                        <h3 className="font-bold text-gray-900 text-2xl">Service Price</h3>
-                                        <span className="text-4xl font-black text-gray-900 tracking-tight">${gig.price}</span>
+                                    <div className="flex justify-between items-start mb-4 md:mb-6">
+                                        <h3 className="font-bold text-gray-900 text-lg md:text-2xl">Service Price</h3>
+                                        <span className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">${gig.price}</span>
                                     </div>
                                     
-                                    <p className="text-gray-600 font-medium leading-relaxed mb-8">
+                                    <p className="text-gray-600 font-medium leading-relaxed mb-6 md:mb-8 text-sm md:text-base">
                                         Get professional, high-quality service tailored to your needs by a verified expert.
                                     </p>
 
-                                    <div className="flex items-center gap-4 mb-8 text-sm font-bold text-gray-700">
-                                        <div className="flex flex-1 items-center justify-center gap-2 bg-gray-50/80 border border-gray-100 py-3 rounded-xl">
+                                    <div className="flex items-center gap-2 md:gap-4 mb-6 md:mb-8 text-xs md:text-sm font-bold text-gray-700">
+                                        <div className="flex flex-1 items-center justify-center gap-2 bg-gray-50/80 border border-gray-100 py-2 md:py-3 rounded-lg md:rounded-xl">
                                             <Clock className="w-4 h-4 text-brand-500" />
-                                            Standard Delivery
+                                            <span className="hidden sm:inline">Standard Delivery</span>
+                                            <span className="sm:hidden">Standard</span>
                                         </div>
-                                        <div className="flex flex-1 items-center justify-center gap-2 bg-gray-50/80 border border-gray-100 py-3 rounded-xl">
+                                        <div className="flex flex-1 items-center justify-center gap-2 bg-gray-50/80 border border-gray-100 py-2 md:py-3 rounded-lg md:rounded-xl">
                                             <ShieldCheck className="w-4 h-4 text-brand-500" />
-                                            Verified Expert
+                                            <span className="hidden sm:inline">Verified Expert</span>
+                                            <span className="sm:hidden">Verified</span>
                                         </div>
                                     </div>
 
-                                    <ul className="space-y-4 mb-8">
+                                    <ul className="space-y-3 md:space-y-4 mb-6 md:mb-8">
                                         {['High-quality execution', 'Professional communication', 'Satisfaction guaranteed', 'Secure payment protection'].map((feature, idx) => (
-                                            <li key={idx} className="flex items-center gap-3 text-gray-700 font-medium">
-                                                <Check className="w-5 h-5 text-brand-500 shrink-0" />
+                                            <li key={idx} className="flex items-center gap-2 md:gap-3 text-gray-700 font-medium text-sm md:text-base">
+                                                <Check className="w-4 md:w-5 h-4 md:h-5 text-brand-500 shrink-0" />
                                                 {feature}
                                             </li>
                                         ))}
                                     </ul>
 
-                                    <Link
-                                        href={user ? `/gigs/${gig.id}/checkout` : '/login'}
-                                        disabled={user?.id === gig.user_id}
-                                        className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-lg disabled:opacity-60 disabled:cursor-not-allowed text-center"
-                                    >
-                                        Continue <ChevronRight className="w-5 h-5" />
-                                    </Link>
+                                    {(() => {
+                                        const isOwner = user?.id === gig.user_id;
+                                        const isVendor = user?.roles?.some(r => ['vendor', 'freelancer'].includes(r.name));
+                                        const isDisabled = isOwner || isVendor;
 
-                                    <Link 
-                                        href={gig.user?.id ? `/chat/user/${gig.user.id}` : '#'}
-                                        className="w-full mt-4 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-800 font-bold py-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-lg"
-                                    >
-                                        <MessageSquare className="w-5 h-5" /> Contact Seller
-                                    </Link>
+                                        if (isDisabled) {
+                                            return (
+                                                <button
+                                                    disabled
+                                                    className="w-full bg-gray-400 text-white font-bold py-3 md:py-4 rounded-lg md:rounded-xl flex items-center justify-center gap-2 text-base md:text-lg opacity-60 cursor-not-allowed text-center"
+                                                    title={isOwner ? "You cannot buy your own service" : "Vendors cannot buy services"}
+                                                >
+                                                    Continue <ChevronRight className="w-5 h-5" />
+                                                </button>
+                                            );
+                                        }
+
+                                        return (
+                                            <Link
+                                                href={user ? `/gigs/${gig.id}/checkout` : '/login'}
+                                                className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 md:py-4 rounded-lg md:rounded-xl transition-all shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-base md:text-lg text-center"
+                                            >
+                                                Continue <ChevronRight className="w-5 h-5" />
+                                            </Link>
+                                        );
+                                    })()}
+
+                                    {(() => {
+                                        const isOwner = user?.id === gig.user_id;
+                                        const isVendor = user?.roles?.some(r => ['vendor', 'freelancer'].includes(r.name));
+                                        const isDisabled = isOwner || isVendor;
+
+                                        if (isDisabled) {
+                                            return (
+                                                <button 
+                                                    disabled
+                                                    className="w-full mt-3 md:mt-4 bg-gray-50 border border-gray-200 text-gray-400 font-bold py-3 md:py-4 rounded-lg md:rounded-xl shadow-sm flex items-center justify-center gap-2 text-base md:text-lg cursor-not-allowed"
+                                                    title={isOwner ? "You cannot contact yourself" : "Vendors cannot contact sellers"}
+                                                >
+                                                    <MessageSquare className="w-5 h-5" /> Contact Seller
+                                                </button>
+                                            );
+                                        }
+
+                                        return (
+                                            <Link 
+                                                href={gig.user?.id ? `/chat/user/${gig.user.id}` : '#'}
+                                                className="w-full mt-4 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-800 font-bold py-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-lg"
+                                            >
+                                                <MessageSquare className="w-5 h-5" /> Contact Seller
+                                            </Link>
+                                        );
+                                    })()}
                                     
                                     <p className="text-center text-sm text-gray-400 mt-4 font-medium">You won't be charged yet</p>
                                 </div>

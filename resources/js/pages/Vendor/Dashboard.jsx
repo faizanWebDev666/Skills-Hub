@@ -79,6 +79,26 @@ export default function VendorDashboard({ stats, recentOrders, myGigs, user }) {
                                     </div>
                                 </div>
                             </div>
+
+                            <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 border border-slate-100 border-l-4 border-l-purple-500">
+                                <div className="flex items-center justify-between gap-4">
+                                    <div>
+                                        <p className="text-xs sm:text-sm font-medium text-slate-500">Wallet</p>
+                                        <p className="text-xl sm:text-3xl font-bold text-slate-800 mt-1">View balance</p>
+                                    </div>
+                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-50 rounded-xl flex items-center justify-center">
+                                        <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <Link
+                                    href="/wallet"
+                                    className="mt-6 inline-flex items-center justify-center w-full rounded-2xl bg-purple-600 px-4 py-3 text-sm font-semibold text-white hover:bg-purple-700 transition-colors"
+                                >
+                                    Go to Wallet
+                                </Link>
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">

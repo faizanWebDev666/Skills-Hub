@@ -38,4 +38,9 @@ class Order extends Model
     {
         return $this->belongsTo(Gig::class);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }

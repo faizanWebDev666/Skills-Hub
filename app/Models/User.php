@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -50,6 +51,7 @@ class User extends Authenticatable
         'facebook',
         'instagram',
         'wallet_balance',
+        'banned_at',
     ];
 
     protected $hidden = [
@@ -61,6 +63,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'banned_at' => 'datetime',
             'password' => 'hashed',
             'languages' => 'array',
             'portfolio_images' => 'array',
@@ -102,5 +105,16 @@ class User extends Authenticatable
     public function wishlists(): HasMany
     {
         return $this->hasMany(Wishlist::class);
+    }
+
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    // Backward compatibility for wallet_balance
+    public function getWalletBalanceAttribute(): float
+    {
+        return $this->wallet?->balance ?? $this->attributes['wallet_balance'] ?? 0;
     }
 }

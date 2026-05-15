@@ -45,8 +45,9 @@ class Wallet extends Model
 
     protected function createTransaction(float $amount, string $type, string $description, ?array $metadata = null, $referenceType = null, $referenceId = null): WalletTransaction
     {
-        $balanceBefore = $this->balance;
-        $this->balance += $amount;
+        $balanceBefore = floatval($this->balance);
+        $newBalance = number_format($balanceBefore + floatval($amount), 2, '.', '');
+        $this->attributes['balance'] = $newBalance;
         $this->save();
 
         return $this->transactions()->create([
@@ -62,10 +63,17 @@ class Wallet extends Model
         ]);
     }
 
+    public function getPendingWithdrawalAmountAttribute(): float
+    {
+        return $this->transactions()
+            ->where('type', 'withdrawal')
+            ->whereIn('status', ['pending_approval', 'approved'])
+            ->sum('amount') * -1;
+    }
+
     public function getAvailableBalanceAttribute(): float
     {
-        // Could implement holds/pending transactions logic here
-        return $this->balance;
+        return max(0, $this->balance + $this->pending_withdrawal_amount);
     }
 
     public function canDebit(float $amount): bool
@@ -73,3 +81,4 @@ class Wallet extends Model
         return $this->available_balance >= $amount;
     }
 }
+

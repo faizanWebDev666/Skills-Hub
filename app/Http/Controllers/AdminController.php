@@ -20,7 +20,8 @@ class AdminController extends Controller
             ['href' => '/admin/users', 'label' => 'Users', 'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z'],
             ['href' => '/admin/gigs', 'label' => 'Gigs', 'icon' => 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'],
             ['href' => '/admin/orders', 'label' => 'Orders', 'icon' => 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'],
-            ['href' => '/admin/settings', 'label' => 'Settings', 'icon' => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z'],
+            ['href' => '/admin/reviews', 'label' => 'Reviews & Ratings', 'icon' => 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z'],
+            ['href' => '/admin/settings', 'label' => 'Settings', 'icon' => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z'],
         ];
     }
 
@@ -251,6 +252,98 @@ class AdminController extends Controller
         return back()->with('success', 'Order status updated.');
     }
 
+    public function reviews(Request $request)
+    {
+        $search = $request->query('search', '');
+        $status = $request->query('status', '');
+        $minRating = $request->query('min_rating', '');
+        $sort = $request->query('sort', 'rating_desc');
+
+        // Get all users who have the vendor or freelancer role
+        $query = User::role(['vendor', 'freelancer'])
+            ->withCount(['freelancerOrders as delivered_orders_count' => function ($query) {
+                $query->whereIn('status', ['delivered', 'completed']);
+            }])
+            ->withAvg('reviewsReceived as average_rating', 'rating')
+            ->withCount('reviewsReceived as total_reviews');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($status === 'active') {
+            $query->whereNull('banned_at');
+        } elseif ($status === 'deactivated') {
+            $query->whereNotNull('banned_at');
+        }
+
+        if ($minRating !== '') {
+            $query->having('average_rating', '>=', (float)$minRating);
+        }
+
+        if ($sort === 'rating_desc') {
+            $query->orderByDesc('average_rating');
+        } elseif ($sort === 'rating_asc') {
+            $query->orderBy('average_rating');
+        } elseif ($sort === 'orders_desc') {
+            $query->orderByDesc('delivered_orders_count');
+        } elseif ($sort === 'orders_asc') {
+            $query->orderBy('delivered_orders_count');
+        } else {
+            $query->orderByDesc('average_rating')->orderByDesc('delivered_orders_count');
+        }
+
+        $vendors = $query->paginate(20)->withQueryString();
+
+        return Inertia::render('Admin/Reviews', [
+            'vendors' => $vendors,
+            'filters' => compact('search', 'status', 'minRating', 'sort'),
+            'sidebarLinks' => $this->getSidebarLinks(),
+        ]);
+    }
+
+    public function vendorReviews(User $user)
+    {
+        // Ensure the user is actually a vendor/freelancer
+        if (!$user->hasAnyRole(['vendor', 'freelancer'])) {
+            return redirect()->route('admin.reviews')->with('error', 'User is not a vendor.');
+        }
+
+        // Fetch vendor details along with overall stats
+        $vendor = $user->loadCount(['freelancerOrders as delivered_orders_count' => function ($query) {
+            $query->whereIn('status', ['delivered', 'completed']);
+        }])->loadAvg('reviewsReceived as average_rating', 'rating')
+           ->loadCount('reviewsReceived as total_reviews');
+
+        // Fetch detailed reviews
+        $reviews = Review::where('reviewee_id', $vendor->id)
+            ->with(['reviewer', 'order.gig'])
+            ->latest()
+            ->paginate(15);
+
+        return Inertia::render('Admin/VendorReviews', [
+            'vendor' => $vendor,
+            'reviews' => $reviews,
+            'sidebarLinks' => $this->getSidebarLinks(),
+        ]);
+    }
+
+    public function toggleVendorStatus(User $user)
+    {
+        if ($user->banned_at) {
+            $user->update(['banned_at' => null]);
+            $status = 'activated';
+        } else {
+            $user->update(['banned_at' => now()]);
+            $status = 'deactivated';
+        }
+
+        return back()->with('success', "Vendor has been {$status}.");
+    }
+
     public function releaseFunds(Order $order)
     {
         if ($order->status !== 'completed') {
@@ -269,17 +362,25 @@ class AdminController extends Controller
             $adminCommission = $order->amount * ($percentage / 100);
             $freelancerEarning = $order->amount - $adminCommission;
 
-            // Credit Freelancer Wallet
-            $freelancer = $order->freelancer;
-            $freelancer->wallet_balance += $freelancerEarning;
-            $freelancer->save();
+            // Get or create wallets
+            $freelancerWallet = $order->freelancer->wallet ?? $order->freelancer->wallet()->create(['balance' => 0, 'currency' => 'USD']);
+            $adminWallet = User::role('admin')->first()->wallet ?? User::role('admin')->first()->wallet()->create(['balance' => 0, 'currency' => 'USD']);
 
-            // Credit Admin Wallet
-            $admin = User::role('admin')->first();
-            if ($admin) {
-                $admin->wallet_balance += $adminCommission;
-                $admin->save();
-            }
+            // Credit freelancer
+            $freelancerWallet->credit(
+                $freelancerEarning,
+                'commission',
+                "Earnings from order #{$order->id}",
+                ['order_id' => $order->id, 'type' => 'freelancer_earning']
+            );
+
+            // Credit admin commission
+            $adminWallet->credit(
+                $adminCommission,
+                'commission',
+                "Commission from order #{$order->id}",
+                ['order_id' => $order->id, 'type' => 'platform_commission']
+            );
 
             $order->update(['funds_released_at' => now()]);
         });

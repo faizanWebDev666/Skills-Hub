@@ -390,6 +390,60 @@ class VendorController extends Controller
         return back()->with('success', 'Resume/CV removed.');
     }
 
+    public function reviews(Request $request)
+    {
+        $user = auth()->user();
+        
+        $gigId = $request->query('gig_id', 'all');
+        $status = $request->query('status', 'all');
+
+        $query = \App\Models\Review::where('reviewee_id', $user->id)
+            ->with(['order.gig', 'reviewer']);
+
+        if ($gigId !== 'all') {
+            $query->whereHas('order', function($q) use ($gigId) {
+                $q->where('gig_id', $gigId);
+            });
+        }
+
+        if ($status === 'pending') {
+            $query->whereNull('reply');
+        } elseif ($status === 'replied') {
+            $query->whereNotNull('reply');
+        }
+
+        $reviews = $query->latest()->paginate(15)->withQueryString();
+        
+        $gigs = $user->gigs()->select('id', 'title')->get();
+
+        return Inertia::render('Vendor/Reviews', [
+            'reviews' => $reviews,
+            'gigs' => $gigs,
+            'filters' => [
+                'gig_id' => $gigId,
+                'status' => $status,
+            ]
+        ]);
+    }
+
+    public function replyReview(Request $request, \App\Models\Review $review)
+    {
+        if ($review->reviewee_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'reply' => 'required|string|max:1000',
+        ]);
+
+        $review->update([
+            'reply' => $request->reply,
+            'replied_at' => now(),
+        ]);
+
+        return back()->with('success', 'Reply posted successfully.');
+    }
+
     public function showFreelancer($user)
     {
         $user = \App\Models\User::with(['gigs', 'reviewsReceived'])->findOrFail($user);
