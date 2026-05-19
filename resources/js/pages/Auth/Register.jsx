@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import SocialLogin from '../../components/SocialLogin';
 
 export default function Register() {
     const { data, setData, post, processing, errors } = useForm({
@@ -66,7 +67,9 @@ export default function Register() {
                                 <p className="mt-2 text-sm sm:text-base text-slate-300">Sign up and start using the marketplace today.</p>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+                            <SocialLogin />
+
+                            <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6 mt-6 sm:mt-8">
                                 <div>
                                     <label htmlFor="name" className="block text-sm font-medium text-slate-200">
                                         Full Name

@@ -20,6 +20,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'oauth_id',
+        'oauth_provider',
         'avatar',
         'bio',
         'phone',
@@ -51,6 +53,7 @@ class User extends Authenticatable
         'facebook',
         'instagram',
         'wallet_balance',
+        'vendor_level',
         'banned_at',
     ];
 
@@ -74,6 +77,7 @@ class User extends Authenticatable
             'emergency_service' => 'boolean',
             'hourly_rate' => 'decimal:2',
             'wallet_balance' => 'decimal:2',
+            'vendor_level' => 'integer',
         ];
     }
 
@@ -110,6 +114,11 @@ class User extends Authenticatable
     public function wallet(): HasOne
     {
         return $this->hasOne(Wallet::class);
+    }
+
+    public function subscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class)->where('active', true)->latestOfMany();
     }
 
     // Backward compatibility for wallet_balance

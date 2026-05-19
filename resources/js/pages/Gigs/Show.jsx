@@ -155,6 +155,10 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
                                             <ShieldCheck className="w-4 h-4 text-brand-500" />
                                         </p>
                                         <p className="text-sm text-gray-500 font-medium">{gig.user?.professional_title || 'Freelancer'}</p>
+                                        <p className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-semibold uppercase tracking-wide">
+                                            <span className="w-2 h-2 rounded-full bg-brand-600" />
+                                            Vendor Level {gig.user?.vendor_level || 1}
+                                        </p>
                                     </div>
                                 </div>
                                 
@@ -228,59 +232,193 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
                                         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
                                         className="mb-12 max-w-none"
                                     >
-                                        {/* Category & Tags */}
-                                        <div className="mb-8 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-                                            <div className="flex flex-wrap gap-4 items-center mb-6">
-                                                <div className="flex items-center gap-2 bg-brand-50 border border-brand-100 px-4 py-2 rounded-full">
-                                                    <span className="text-sm font-bold text-brand-700">Category:</span>
-                                                    <span className="text-base font-extrabold text-gray-900">{gig.category || 'Uncategorized'}</span>
+                                        {/* Premium Highlights Card */}
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 15 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.1 }}
+                                            className="mb-10 bg-gradient-to-br from-brand-50 via-indigo-50 to-purple-50 p-8 rounded-3xl border border-brand-100 shadow-[0_8px_20px_rgba(99,102,241,0.1)] relative overflow-hidden"
+                                        >
+                                            <div className="absolute top-0 right-0 w-96 h-96 bg-brand-200 opacity-5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+                                            <div className="relative z-10">
+                                                <div className="flex items-center gap-2 mb-4">
+                                                    <Zap className="w-5 h-5 text-brand-600 fill-brand-600" />
+                                                    <span className="text-sm font-bold uppercase tracking-widest text-brand-600">Service Highlights</span>
+                                                </div>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                                    <div className="flex items-start gap-4">
+                                                        <div className="w-12 h-12 rounded-2xl bg-white border border-brand-100 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                                            <Check className="w-6 h-6 text-brand-600" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-bold text-gray-900 mb-1">Quality Assured</p>
+                                                            <p className="text-sm text-gray-600">Professional & vetted service</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-start gap-4">
+                                                        <div className="w-12 h-12 rounded-2xl bg-white border border-brand-100 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                                            <RefreshCw className="w-6 h-6 text-brand-600" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-bold text-gray-900 mb-1">Revisions Included</p>
+                                                            <p className="text-sm text-gray-600">Unlimited revisions available</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-start gap-4">
+                                                        <div className="w-12 h-12 rounded-2xl bg-white border border-brand-100 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                                            <Clock className="w-6 h-6 text-brand-600" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-bold text-gray-900 mb-1">Fast Delivery</p>
+                                                            <p className="text-sm text-gray-600">Quick turnaround time</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-start gap-4">
+                                                        <div className="w-12 h-12 rounded-2xl bg-white border border-brand-100 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                                            <Award className="w-6 h-6 text-brand-600" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-bold text-gray-900 mb-1">Expert Service</p>
+                                                            <p className="text-sm text-gray-600">Highly experienced seller</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+
+                                        {/* Category & Tags Enhanced */}
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 15 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.15 }}
+                                            className="mb-10 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+                                        >
+                                            <div className="mb-6">
+                                                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-4">Service Category</h3>
+                                                <div className="inline-flex items-center gap-3 bg-gradient-to-r from-brand-50 to-indigo-50 border border-brand-100 px-6 py-3 rounded-2xl">
+                                                    <div className="w-3 h-3 rounded-full bg-brand-500"></div>
+                                                    <span className="text-lg font-extrabold text-gray-900">{gig.category || 'Uncategorized'}</span>
                                                 </div>
                                             </div>
                                             {gig.tags && gig.tags.length > 0 && (
-                                                <div className="mb-4">
-                                                    <p className="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Tags</p>
-                                                    <div className="flex flex-wrap gap-2">
+                                                <div>
+                                                    <p className="text-sm font-bold text-gray-500 mb-4 uppercase tracking-wider">Skills & Keywords</p>
+                                                    <div className="flex flex-wrap gap-3">
                                                         {gig.tags.map((tag, idx) => (
-                                                            <span key={idx} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                                                            <motion.span 
+                                                                key={idx}
+                                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                                animate={{ opacity: 1, scale: 1 }}
+                                                                transition={{ delay: idx * 0.05 }}
+                                                                className="px-5 py-2.5 bg-gradient-to-br from-gray-50 to-gray-100 hover:from-brand-50 hover:to-indigo-50 text-gray-700 hover:text-brand-700 rounded-full text-sm font-semibold border border-gray-200 hover:border-brand-200 transition-all cursor-default shadow-sm"
+                                                            >
                                                                 {tag}
-                                                            </span>
+                                                            </motion.span>
                                                         ))}
                                                     </div>
                                                 </div>
                                             )}
-                                        </div>
+                                        </motion.div>
                                         
-                                        {/* Category Fields if available */}
+                                        {/* Service Details Enhanced */}
                                         {gig.category_fields && Object.keys(gig.category_fields).length > 0 && (
-                                            <div className="mb-8 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                                                <h3 className="text-xl font-bold text-gray-900 mb-6">Service Details</h3>
-                                                <div className="space-y-6">
+                                            <motion.div 
+                                                initial={{ opacity: 0, y: 15 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.2 }}
+                                                className="mb-10 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+                                            >
+                                                <h3 className="text-lg font-bold text-gray-900 mb-8 flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-brand-600"></div>
+                                                    Service Specifications
+                                                </h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                     {Object.entries(gig.category_fields).map(([key, value], idx) => (
-                                                        <div key={idx}>
-                                                            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">
+                                                        <motion.div 
+                                                            key={idx}
+                                                            initial={{ opacity: 0, x: -10 }}
+                                                            animate={{ opacity: 1, x: 0 }}
+                                                            transition={{ delay: 0.25 + idx * 0.05 }}
+                                                            className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border border-gray-100 hover:border-brand-100 hover:from-brand-50/30 hover:to-indigo-50/30 transition-all"
+                                                        >
+                                                            <p className="text-xs font-bold uppercase tracking-widest text-gray-600 mb-3">
                                                                 {key.replace(/_/g, ' ')}
                                                             </p>
                                                             {Array.isArray(value) && value.length > 0 ? (
                                                                 <div className="flex flex-wrap gap-2">
                                                                     {value.map((item, i) => (
-                                                                        <span key={i} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                                                                        <span key={i} className="px-3 py-1.5 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-semibold shadow-xs">
                                                                             {item}
                                                                         </span>
                                                                     ))}
                                                                 </div>
                                                             ) : (
-                                                                <p className="text-base font-semibold text-gray-900">{value}</p>
+                                                                <p className="text-base font-bold text-gray-900">{value}</p>
                                                             )}
-                                                        </div>
+                                                        </motion.div>
                                                     ))}
                                                 </div>
-                                            </div>
+                                            </motion.div>
                                         )}
                                         
-                                        <h2 className="text-2xl font-bold text-gray-900 mb-6 tracking-tight">About This Gig</h2>
-                                        <div className="text-gray-600 leading-loose whitespace-pre-line font-medium bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                                            {gig.description}
-                                        </div>
+                                        {/* About This Gig Section Enhanced */}
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 15 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.25 }}
+                                            className="mb-10"
+                                        >
+                                            <h2 className="text-2xl font-bold text-gray-900 mb-6 tracking-tight flex items-center gap-3">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-brand-600"></div>
+                                                About This Gig
+                                            </h2>
+                                            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                                <p className="text-gray-700 leading-relaxed whitespace-pre-line font-medium text-base lg:text-lg">
+                                                    {gig.description}
+                                                </p>
+                                            </div>
+                                        </motion.div>
+
+                                        {/* What You'll Get Section */}
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 15 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                            className="mb-10 bg-gradient-to-br from-emerald-50 to-teal-50 p-8 rounded-3xl border border-emerald-100 shadow-sm"
+                                        >
+                                            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                                                <Check className="w-6 h-6 text-emerald-600" />
+                                                What You'll Receive
+                                            </h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-5 h-5 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                                                        <Check className="w-3 h-3 text-emerald-600" />
+                                                    </div>
+                                                    <span className="text-gray-800 font-semibold">Professional delivery</span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-5 h-5 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                                                        <Check className="w-3 h-3 text-emerald-600" />
+                                                    </div>
+                                                    <span className="text-gray-800 font-semibold">On-time completion</span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-5 h-5 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                                                        <Check className="w-3 h-3 text-emerald-600" />
+                                                    </div>
+                                                    <span className="text-gray-800 font-semibold">Quality assurance</span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-5 h-5 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                                                        <Check className="w-3 h-3 text-emerald-600" />
+                                                    </div>
+                                                    <span className="text-gray-800 font-semibold">Responsive communication</span>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                        
+                                        {/* Category Fields if available - DEPRECATED, moved above */}
                                     </motion.div>
                                 )}
 
@@ -314,6 +452,12 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
                                                         <div className="p-4 bg-gray-50 rounded-2xl">
                                                             <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Location</p>
                                                             <p className="text-base font-semibold text-gray-900">{gig.user.location}</p>
+                                                        </div>
+                                                    )}
+                                                    {gig.user?.vendor_level !== undefined && (
+                                                        <div className="p-4 bg-gray-50 rounded-2xl">
+                                                            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Vendor Level</p>
+                                                            <p className="text-base font-semibold text-gray-900">Level {gig.user.vendor_level || 1}</p>
                                                         </div>
                                                     )}
                                                     {gig.user?.years_of_experience && (
@@ -481,22 +625,56 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
                                                         <p className="text-gray-700 leading-relaxed font-medium">"{review.comment}"</p>
                                                         
                                                         {review.reply && (
-                                                            <div className="mt-5 ml-4 sm:ml-8 p-5 bg-slate-50 rounded-2xl border-l-4 border-brand-500 relative">
-                                                                <div className="absolute -left-[14px] top-6 w-6 h-px bg-brand-200"></div>
-                                                                <div className="flex items-center gap-2 mb-2">
-                                                                    <div className="w-6 h-6 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-xs shadow-sm">
-                                                                        {gig.user?.name?.charAt(0) || 'V'}
+                                                            <motion.div
+                                                                initial={{ opacity: 0, y: 8 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                transition={{ delay: 0.2 }}
+                                                                className="mt-4 ml-0 sm:ml-4 p-0 relative"
+                                                            >
+                                                                {/* Connection line - very subtle */}
+                                                                <div className="absolute -left-5 top-0 w-0.5 h-8 bg-gradient-to-b from-brand-300 to-brand-100 hidden sm:block"></div>
+                                                                
+                                                                <div className="bg-gradient-to-br from-brand-50 to-indigo-50 border border-brand-100 rounded-xl p-3 md:p-3.5 shadow-xs hover:shadow-sm transition-all relative overflow-hidden">
+                                                                    {/* Vendor Header - Compact */}
+                                                                    <div className="flex items-center gap-2.5 mb-2 relative z-10">
+                                                                        {/* Vendor Avatar - Small */}
+                                                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-bold text-xs shadow-sm border border-white flex-shrink-0 overflow-hidden">
+                                                                            {gig.user?.avatar ? (
+                                                                                <img 
+                                                                                    src={`/storage/${gig.user.avatar}`} 
+                                                                                    alt={gig.user?.name} 
+                                                                                    className="w-full h-full object-cover"
+                                                                                />
+                                                                            ) : (
+                                                                                <span>{gig.user?.name?.charAt(0) || 'V'}</span>
+                                                                            )}
+                                                                        </div>
+                                                                        
+                                                                        {/* Vendor Info - Compact */}
+                                                                        <div className="flex-1 min-w-0 flex items-center gap-1.5">
+                                                                            <p className="text-xs md:text-sm font-bold text-gray-900 truncate">
+                                                                                {gig.user?.name || 'Service Provider'}
+                                                                            </p>
+                                                                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-gradient-to-r from-brand-500 to-indigo-600 text-white text-[9px] font-bold uppercase tracking-wide rounded-full shadow-sm flex-shrink-0">
+                                                                                <ShieldCheck className="w-2.5 h-2.5" />
+                                                                                Vendor
+                                                                            </span>
+                                                                        </div>
+                                                                        
+                                                                        {/* Timestamp - Right aligned */}
+                                                                        <p className="text-xs text-gray-500 font-medium flex-shrink-0 ml-auto">
+                                                                            {formatDate(review.replied_at)}
+                                                                        </p>
                                                                     </div>
-                                                                    <p className="text-sm font-bold text-gray-900">
-                                                                        {gig.user?.name || 'Service Provider'} 
-                                                                        <span className="bg-brand-100 text-brand-700 text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ml-2">Vendor</span>
-                                                                    </p>
-                                                                    <span className="text-gray-400 font-medium text-xs ml-auto">
-                                                                        {formatDate(review.replied_at)}
-                                                                    </span>
+                                                                    
+                                                                    {/* Reply Content - Compact */}
+                                                                    <div className="relative z-10 pl-0 sm:pl-0">
+                                                                        <p className="text-gray-700 leading-snug font-medium text-xs md:text-sm">
+                                                                            {review.reply}
+                                                                        </p>
+                                                                    </div>
                                                                 </div>
-                                                                <p className="text-gray-600 text-sm leading-relaxed pl-8">{review.reply}</p>
-                                                            </div>
+                                                            </motion.div>
                                                         )}
                                                     </div>
                                                 ))}

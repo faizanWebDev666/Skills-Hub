@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Link, useForm, usePage, router } from '@inertiajs/react';
-import Navbar from '../../components/Navbar';
+import VendorNavbar from '../../components/VendorNavbar';
 import VendorSidebar from '../../components/VendorSidebar';
 
 const languagesList = ['English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi', 'Urdu', 'Portuguese', 'Russian'];
@@ -389,7 +389,7 @@ export default function VendorProfile({ user, profileCompletion }) {
 
     return (
         <div className="min-h-screen bg-cream-50">
-            <Navbar user={user} />
+            <VendorNavbar user={user} />
 
             <div className="flex">
                 <VendorSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />

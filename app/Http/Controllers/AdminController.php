@@ -18,6 +18,7 @@ class AdminController extends Controller
         return [
             ['href' => '/admin/dashboard', 'label' => 'Dashboard', 'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1'],
             ['href' => '/admin/users', 'label' => 'Users', 'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z'],
+            ['href' => '/admin/vendor-levels', 'label' => 'Vendor Levels', 'icon' => 'M12 8c-1.657 0-3 1.343-3 3v5h6v-5c0-1.657-1.343-3-3-3zm0-2c2.761 0 5 2.239 5 5v4a1 1 0 01-1 1H8a1 1 0 01-1-1v-4c0-2.761 2.239-5 5-5z'],
             ['href' => '/admin/gigs', 'label' => 'Gigs', 'icon' => 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'],
             ['href' => '/admin/orders', 'label' => 'Orders', 'icon' => 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'],
             ['href' => '/admin/reviews', 'label' => 'Reviews & Ratings', 'icon' => 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z'],
@@ -208,6 +209,47 @@ class AdminController extends Controller
         $gig->delete();
 
         return back()->with('success', 'Gig has been deleted.');
+    }
+
+    public function vendorLevels(Request $request)
+    {
+        $vendors = User::role(['vendor', 'freelancer'])
+            ->with('roles')
+            ->withCount(['freelancerOrders as completed_orders_count' => function ($query) {
+                $query->where('status', 'completed');
+            }])
+            ->withAvg('reviewsReceived as avg_rating', 'rating')
+            ->select('users.*')
+            ->selectSub(function ($query) {
+                $query->from('gigs')
+                    ->select('category')
+                    ->whereColumn('gigs.user_id', 'users.id')
+                    ->groupBy('category')
+                    ->orderByRaw('COUNT(*) DESC')
+                    ->limit(1);
+            }, 'primary_category')
+            ->paginate(20)
+            ->withQueryString();
+
+        return Inertia::render('Admin/VendorLevels', [
+            'vendors' => $vendors,
+            'sidebarLinks' => $this->getSidebarLinks(),
+        ]);
+    }
+
+    public function updateVendorLevel(Request $request, User $user)
+    {
+        $request->validate([
+            'vendor_level' => 'required|integer|min:1|max:4',
+        ]);
+
+        if (!$user->hasAnyRole(['vendor', 'freelancer'])) {
+            return back()->with('error', 'Only vendors and freelancers can be assigned levels.');
+        }
+
+        $user->update(['vendor_level' => $request->vendor_level]);
+
+        return back()->with('success', "Vendor level updated to {$request->vendor_level}.");
     }
 
     public function orders(Request $request)

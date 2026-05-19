@@ -85,6 +85,46 @@ class StripePaymentService
         }
     }
 
+    /**
+     * Create a Stripe Checkout session for subscription
+     */
+    public function createCheckoutSessionForSubscription(string $planName, float $amount, string $currency, string $successUrl, string $cancelUrl, int $subscriptionId): array
+    {
+        try {
+            $session = Session::create([
+                'payment_method_types' => ['card'],
+                'line_items' => [[
+                    'price_data' => [
+                        'currency' => $currency,
+                        'product_data' => [
+                            'name' => 'Vendor Subscription - ' . ucfirst($planName),
+                            'description' => 'Subscription plan: ' . ucfirst($planName),
+                        ],
+                        'unit_amount' => $this->convertToLowestCurrency($amount, $currency),
+                    ],
+                    'quantity' => 1,
+                ]],
+                'mode' => 'payment',
+                'success_url' => $successUrl . '?session_id={CHECKOUT_SESSION_ID}&subscription_id=' . $subscriptionId,
+                'cancel_url' => $cancelUrl,
+                'metadata' => [
+                    'subscription_id' => $subscriptionId,
+                ],
+            ]);
+
+            return [
+                'success' => true,
+                'session_url' => $session->url,
+                'session_id' => $session->id,
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
     public function retrieveSession(string $sessionId): array
     {
         try {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
-import Navbar from '../../components/Navbar';
+import VendorNavbar from '../../components/VendorNavbar';
 import VendorSidebar from '../../components/VendorSidebar';
 
 export default function VendorGigs({ gigs, counts, user }) {
@@ -40,7 +40,7 @@ export default function VendorGigs({ gigs, counts, user }) {
 
     return (
         <div className="min-h-screen bg-cream-50">
-            <Navbar user={user} />
+            <VendorNavbar user={user} />
 
             <div className="flex">
                 <VendorSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />

@@ -171,9 +171,40 @@ export default function AdminDashboard({ stats, recentUsers, recentGigs, recentO
                                 trend={-2.3}
                             />
                         </div>
-
+   <div className="mt-8">
+                            <div className="bg-linear-to-br from-brand-600 to-brand-800 rounded-2xl shadow-lg p-6 sm:p-8 text-white">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                                    <Link href="/admin/users" className="group bg-white/10 hover:bg-white/20 rounded-xl p-4 text-center transition-all duration-300 backdrop-blur-sm">
+                                        <svg className="w-8 h-8 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197" />
+                                        </svg>
+                                        <span className="text-sm font-medium">Manage Users</span>
+                                    </Link>
+                                    <Link href="/admin/gigs" className="group bg-white/10 hover:bg-white/20 rounded-xl p-4 text-center transition-all duration-300 backdrop-blur-sm">
+                                        <svg className="w-8 h-8 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                        <span className="text-sm font-medium">Moderate Gigs</span>
+                                    </Link>
+                                    <Link href="/admin/orders" className="group bg-white/10 hover:bg-white/20 rounded-xl p-4 text-center transition-all duration-300 backdrop-blur-sm">
+                                        <svg className="w-8 h-8 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                        </svg>
+                                        <span className="text-sm font-medium">View Orders</span>
+                                    </Link>
+                                    <Link href="/admin/settings" className="group bg-white/10 hover:bg-white/20 rounded-xl p-4 text-center transition-all duration-300 backdrop-blur-sm">
+                                        <svg className="w-8 h-8 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <span className="text-sm font-medium">Settings</span>
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+                            
                             <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+
                                 <div className="flex items-center justify-between mb-6">
                                     <h2 className="text-lg font-bold text-gray-900">Weekly Performance</h2>
                                     <div className="flex items-center gap-4">
@@ -321,36 +352,7 @@ export default function AdminDashboard({ stats, recentUsers, recentGigs, recentO
                             </div>
                         </div>
 
-                        <div className="mt-8">
-                            <div className="bg-linear-to-br from-brand-600 to-brand-800 rounded-2xl shadow-lg p-6 sm:p-8 text-white">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                                    <Link href="/admin/users" className="group bg-white/10 hover:bg-white/20 rounded-xl p-4 text-center transition-all duration-300 backdrop-blur-sm">
-                                        <svg className="w-8 h-8 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197" />
-                                        </svg>
-                                        <span className="text-sm font-medium">Manage Users</span>
-                                    </Link>
-                                    <Link href="/admin/gigs" className="group bg-white/10 hover:bg-white/20 rounded-xl p-4 text-center transition-all duration-300 backdrop-blur-sm">
-                                        <svg className="w-8 h-8 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                        </svg>
-                                        <span className="text-sm font-medium">Moderate Gigs</span>
-                                    </Link>
-                                    <Link href="/admin/orders" className="group bg-white/10 hover:bg-white/20 rounded-xl p-4 text-center transition-all duration-300 backdrop-blur-sm">
-                                        <svg className="w-8 h-8 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                        </svg>
-                                        <span className="text-sm font-medium">View Orders</span>
-                                    </Link>
-                                    <Link href="/admin/settings" className="group bg-white/10 hover:bg-white/20 rounded-xl p-4 text-center transition-all duration-300 backdrop-blur-sm">
-                                        <svg className="w-8 h-8 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        <span className="text-sm font-medium">Settings</span>
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
+                     
                     </div>
                 </main>
             </div>

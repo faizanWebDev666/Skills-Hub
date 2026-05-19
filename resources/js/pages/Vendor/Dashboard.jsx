@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
-import Navbar from '../../components/Navbar';
+import VendorNavbar from '../../components/VendorNavbar';
 import VendorSidebar from '../../components/VendorSidebar';
 
-export default function VendorDashboard({ stats, recentOrders, myGigs, user }) {
+export default function VendorDashboard({ stats, recentOrders, myGigs, user, subscription, conversations, totalUnreadMessages }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
         <div className="min-h-screen bg-cream-50">
-            <Navbar user={user} />
+            <VendorNavbar user={user} />
 
             <div className="flex">
-                <VendorSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+                <VendorSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} conversations={conversations || []} totalUnreadMessages={totalUnreadMessages || 0} />
 
                 {/* Main Content */}
                 <main className="flex-1 min-w-0">
@@ -105,7 +105,14 @@ export default function VendorDashboard({ stats, recentOrders, myGigs, user }) {
                             <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div>
-                                        <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Your Freelancer Profile</h2>
+                                        <div className="flex items-center gap-3">
+                                            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Your Freelancer Profile</h2>
+                                            {subscription && (
+                                                <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-600 text-white text-xs font-semibold">
+                                                    {subscription.plan?.charAt(0).toUpperCase() + subscription.plan?.slice(1)}
+                                                </span>
+                                            )}
+                                        </div>
                                         <p className="text-sm text-gray-500 mt-1">View and update your public profile, bio, gigs, and customer chat actions.</p>
                                     </div>
                                     <Link
@@ -114,6 +121,46 @@ export default function VendorDashboard({ stats, recentOrders, myGigs, user }) {
                                     >
                                         View Profile
                                     </Link>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 mb-8">
+                            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                                <div className="max-w-2xl">
+                                    <p className="text-xs uppercase tracking-[0.35em] text-brand-600 font-semibold mb-3">Sell Faster</p>
+                                    <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Boost your gigs and book more projects.</h2>
+                                    <p className="mt-3 text-sm text-slate-600">Choose a subscription package that gives your gigs premium exposure, priority buyer matching, and higher trust for faster sales.</p>
+                                </div>
+                                <Link
+                                    href={route('vendor.subscriptions')}
+                                    className="inline-flex items-center justify-center rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 hover:bg-brand-700 transition-colors"
+                                >
+                                    View Subscription Plans
+                                </Link>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+                                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-brand-600 text-white mb-4">
+                                        <span className="text-lg">⚡</span>
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-slate-900">Faster Sales</h3>
+                                    <p className="mt-2 text-sm text-slate-600">Featured placement for your top gigs so buyers discover you quicker.</p>
+                                </div>
+                                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-600 text-white mb-4">
+                                        <span className="text-lg">⭐</span>
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-slate-900">Higher Conversions</h3>
+                                    <p className="mt-2 text-sm text-slate-600">Boost trust with badges, promotional placement, and verified seller support.</p>
+                                </div>
+                                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-purple-600 text-white mb-4">
+                                        <span className="text-lg">🚀</span>
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-slate-900">More Bookings</h3>
+                                    <p className="mt-2 text-sm text-slate-600">Get matched with active buyers and receive more requests for your services.</p>
                                 </div>
                             </div>
                         </div>

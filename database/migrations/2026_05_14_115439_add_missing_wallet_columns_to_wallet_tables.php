@@ -64,8 +64,16 @@ return new class extends Migration
                 // no-op, status already added above
             }
 
-            $table->index(['wallet_id', 'type']);
-            $table->index(['reference_type', 'reference_id']);
+            // Check if indexes don't already exist before adding them
+            $indexes = DB::select("SELECT INDEX_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'wallet_transactions' AND TABLE_SCHEMA = DATABASE()");
+            $indexNames = array_column($indexes, 'INDEX_NAME');
+            
+            if (!in_array('wallet_transactions_wallet_id_type_index', $indexNames)) {
+                $table->index(['wallet_id', 'type']);
+            }
+            if (!in_array('wallet_transactions_reference_type_reference_id_index', $indexNames)) {
+                $table->index(['reference_type', 'reference_id']);
+            }
         });
 
         DB::table('wallet_transactions')->whereNull('balance_before')->update([

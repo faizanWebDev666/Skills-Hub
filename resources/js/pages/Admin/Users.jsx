@@ -48,9 +48,17 @@ export default function Users({ users, filters, roles, user, sidebarLinks }) {
                                                 <tr key={u.id ?? index} className="border-b border-gray-100">
                                                         <td className="py-4">
                                                             <div className="flex items-center gap-3">
-                                                                <div className="w-10 h-10 bg-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                                                    {u.name?.charAt(0) || 'U'}
-                                                                </div>
+                                                                {u.avatar ? (
+                                                                    <img
+                                                                        src={u.avatar}
+                                                                        alt={u.name}
+                                                                        className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="w-10 h-10 bg-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                                                        {u.name?.charAt(0) || 'U'}
+                                                                    </div>
+                                                                )}
                                                                 <span className="font-medium text-gray-900">{u.name}</span>
                                                             </div>
                                                         </td>

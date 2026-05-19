@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useForm, Link, usePage } from '@inertiajs/react';
-import Navbar from '../../components/Navbar';
+import VendorNavbar from '../../components/VendorNavbar';
 import VendorSidebar from '../../components/VendorSidebar';
 
 const categories = [
@@ -202,7 +202,7 @@ export default function GigEdit({ gig, user }) {
 
     return (
         <div className="min-h-screen bg-cream-50">
-            <Navbar user={user} />
+            <VendorNavbar user={user} />
 
             <div className="flex">
                 <VendorSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />

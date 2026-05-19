@@ -1,25 +1,42 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-export default function Home({ user }) {
+export default function Home({ user, featuredGigs = [] }) {
     const categories = [
-        { id: 'developers', name: 'Developers', icon: '�‍�', count: 2850, color: 'from-blue-500 to-cyan-500', description: 'Web, Mobile, & Software Developers' },
+        { id: 'developers', name: 'Developers', icon: '👨‍💻', count: 2850, color: 'from-blue-500 to-cyan-500', description: 'Web, Mobile, & Software Developers' },
         { id: 'designers', name: 'Designers', icon: '🎨', count: 1850, color: 'from-purple-500 to-pink-500', description: 'UI/UX, Graphic, & Product Designers' },
         { id: 'tutors', name: 'Tutors', icon: '👨‍🏫', count: 1420, color: 'from-green-500 to-emerald-500', description: 'Online & In-Person Tutoring Experts' },
         { id: 'electricians', name: 'Electricians', icon: '⚡', count: 890, color: 'from-yellow-500 to-orange-500', description: 'Licensed Electrical Services' },
         { id: 'repair_experts', name: 'Repair Experts', icon: '🔧', count: 1180, color: 'from-red-500 to-rose-500', description: 'Home, Auto, & Tech Repair Specialists' },
-        { id: 'agencies', name: 'Agencies', icon: '�', count: 520, color: 'from-indigo-500 to-violet-500', description: 'Full-Service Creative & Marketing Agencies' },
+        { id: 'agencies', name: 'Agencies', icon: '🏢', count: 520, color: 'from-indigo-500 to-violet-500', description: 'Full-Service Creative & Marketing Agencies' },
         { id: 'freelancers', name: 'Freelancers', icon: '💼', count: 3240, color: 'from-teal-500 to-cyan-500', description: 'All-in-One Multi-Talented Professionals' },
         { id: 'writers', name: 'Writers', icon: '✍️', count: 950, color: 'from-amber-500 to-yellow-500', description: 'Content, Copy, & Creative Writers' },
     ];
 
-    const featuredGigs = [
-        { id: 1, title: 'Build a Modern React Website', price: 500, seller: 'John Doe', rating: 4.9, reviews: 128 },
-        { id: 2, title: 'Professional Logo Design', price: 150, seller: 'Jane Smith', rating: 5.0, reviews: 89 },
-        { id: 3, title: 'SEO Optimization for Your Site', price: 300, seller: 'Mike Johnson', rating: 4.8, reviews: 203 },
-        { id: 4, title: 'Custom WordPress Theme', price: 450, seller: 'Sarah Wilson', rating: 4.9, reviews: 156 },
-    ];
+    const carouselRef = useRef(null);
+    const pauseRef = useRef(false);
+
+    useEffect(() => {
+        const carousel = carouselRef.current;
+        if (!carousel) return;
+
+        let frameId;
+        const speed = 1;
+
+        const step = () => {
+            if (!pauseRef.current) {
+                carousel.scrollLeft += speed;
+                if (carousel.scrollLeft >= carousel.scrollWidth / 2) {
+                    carousel.scrollLeft -= carousel.scrollWidth / 2;
+                }
+            }
+            frameId = requestAnimationFrame(step);
+        };
+
+        frameId = requestAnimationFrame(step);
+        return () => cancelAnimationFrame(frameId);
+    }, []);
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -96,44 +113,74 @@ export default function Home({ user }) {
             </section>
 
             {/* Categories Section */}
-            <section className="py-12 md:py-16 lg:py-20 bg-cream-100">
+            <section className="py-16 md:py-20 lg:py-24 bg-cream-100">
                 <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
                     <div className="text-center mb-10 md:mb-16">
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-3 md:mb-4">
-                            Hire Experts in Every Field
+                        <p className="text-sm uppercase tracking-[0.35em] font-semibold text-brand-600 mb-4">
+                            Featured Categories
+                        </p>
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 md:mb-5 leading-tight">
+                            Find trusted expertise in every major category.
                         </h2>
-                        <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto">
-                            Find skilled professionals ready to help you get your project done right
+                        <p className="text-sm sm:text-base md:text-lg text-slate-600 max-w-2xl mx-auto">
+                            Explore categories built for businesses and individuals who want professional talent, fast.
                         </p>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
-                        {categories.map((category, index) => (
-                            <div
-                                key={index}
-                                onClick={() => window.location.href = `/gigs?category=${category.id}`}
-                                className="group cursor-pointer"
-                            >
-                                <div className="bg-white rounded-lg md:rounded-2xl lg:rounded-3xl p-3 md:p-6 lg:p-8 shadow-sm hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 group-hover:border-transparent h-full flex flex-col">
-                                    <div className={`w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-gradient-to-br ${category.color} rounded-lg md:rounded-2xl lg:rounded-3xl flex items-center justify-center mb-2 md:mb-4 lg:mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                                        <span className="text-lg md:text-2xl lg:text-3xl">{category.icon}</span>
-                                    </div>
-                                    <h3 className="text-sm md:text-lg lg:text-xl font-bold text-gray-900 mb-1 group-hover:text-brand-600 transition-colors">
-                                        {category.name}
-                                    </h3>
-                                    <p className="text-gray-500 text-xs md:text-sm mb-2 md:mb-4 hidden md:block flex-1">
-                                        {category.description}
-                                    </p>
-                                    <div className="flex items-center justify-between text-xs md:text-sm">
-                                        <span className="font-semibold text-gray-700">
-                                        {category.count.toLocaleString()} experts
-                                        </span>
-                                        <svg className="w-4 md:w-5 h-4 md:h-5 text-gray-400 group-hover:text-brand-600 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                        </svg>
+
+                    <div className="relative overflow-hidden">
+                        <div
+                            ref={carouselRef}
+                            onMouseEnter={() => (pauseRef.current = true)}
+                            onMouseLeave={() => (pauseRef.current = false)}
+                            className="flex gap-6 md:gap-8 overflow-hidden px-4 py-4 md:px-6 md:py-6"
+                        >
+                            {[...categories, ...categories].map((category, index) => (
+                                <div
+                                    key={`${category.id}-${index}`}
+                                    onClick={() => window.location.href = `/gigs?category=${category.id}`}
+                                    className="min-w-[240px] sm:min-w-[260px] md:min-w-[280px] lg:min-w-[300px] snap-center group cursor-pointer h-full"
+                                >
+                                    <div className="h-full rounded-[32px] border border-cream-200 bg-white shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden flex flex-col">
+                                        <div className="flex flex-col items-center text-center px-6 py-8 md:px-8 md:py-10 gap-4">
+                                            <div className={`flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-gradient-to-br ${category.color} text-white text-2xl md:text-3xl shadow-lg`}>
+                                                <span>{category.icon}</span>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <h3 className="text-xl md:text-2xl font-semibold text-slate-900">
+                                                    {category.name}
+                                                </h3>
+                                                <p className="text-sm md:text-base text-slate-500 max-w-xs mx-auto leading-relaxed">
+                                                    {category.description}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="border-t border-cream-200 bg-cream-100 px-6 py-4 md:px-7 md:py-5">
+                                            <div className="flex items-center justify-between gap-3">
+                                                <span className="text-sm md:text-base font-semibold text-slate-700">
+                                                    {category.count.toLocaleString()} experts
+                                                </span>
+                                                <span className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-white text-brand-600 shadow-sm transition-colors duration-300 group-hover:bg-brand-600 group-hover:text-white">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                        <div className="mt-8 flex justify-center">
+                            <a
+                                href="/gigs"
+                                className="inline-flex items-center justify-center rounded-full bg-brand-600 px-8 py-3 text-sm md:text-base font-semibold text-white shadow-lg shadow-brand-600/20 hover:bg-brand-700 transition-colors"
+                            >
+                                View All Services
+                                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -143,8 +190,14 @@ export default function Home({ user }) {
                 <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-10 md:mb-12">
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Popular Gigs</h2>
-                        <a href="/gigs" className="text-sm md:text-base text-brand-600 font-semibold hover:text-brand-700">
-                            View All →
+                        <a
+                            href="/gigs"
+                            className="inline-flex items-center justify-center rounded-full bg-brand-600 px-8 py-3 text-sm md:text-base font-semibold text-white shadow-lg shadow-brand-600/20 hover:bg-brand-700 transition-colors"
+                        >
+                            View All Gigs
+                            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
                         </a>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
@@ -161,13 +214,13 @@ export default function Home({ user }) {
                                     <h3 className="font-semibold text-xs md:text-sm lg:text-lg mb-1 md:mb-2 lg:mb-3 line-clamp-2">{gig.title}</h3>
                                     <div className="flex items-center mb-2 md:mb-3 lg:mb-4">
                                         <div className="w-5 h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 bg-gray-300 rounded-full mr-2"></div>
-                                        <span className="text-xs md:text-sm lg:text-base text-gray-600">{gig.seller}</span>
+                                        <span className="text-xs md:text-sm lg:text-base text-gray-600">{gig.user?.name || 'Seller'}</span>
                                     </div>
                                     <div className="flex items-center justify-between text-xs md:text-sm">
                                         <div className="flex items-center">
                                             <span className="text-yellow-500 mr-1">★</span>
-                                            <span className="font-semibold">{gig.rating}</span>
-                                            <span className="text-gray-500 ml-1">({gig.reviews})</span>
+                                            <span className="font-semibold">{gig.user?.reviews_received_avg_rating ? Number(gig.user.reviews_received_avg_rating).toFixed(1) : 'New'}</span>
+                                            <span className="text-gray-500 ml-1">({gig.user?.reviews_received_count ?? 0})</span>
                                         </div>
                                         <div className="font-bold text-brand-600 md:text-base lg:text-lg">${gig.price}</div>
                                     </div>

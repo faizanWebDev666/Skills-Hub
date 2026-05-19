@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import SocialLogin from '../../components/SocialLogin';
 
 export default function Login() {
     const { data, setData, post, processing, errors } = useForm({
@@ -64,7 +65,9 @@ export default function Login() {
                                 <p className="mt-2 text-sm sm:text-base text-slate-300">Sign in to your account</p>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+                            <SocialLogin />
+
+                            <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6 mt-6 sm:mt-8">
                                 <div>
                                     <label htmlFor="email" className="block text-sm font-medium text-slate-200">
                                         Email Address

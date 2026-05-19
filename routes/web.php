@@ -12,6 +12,7 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\AdminWalletController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\OAuthController;
 use App\Http\Controllers\ReviewController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -22,6 +23,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisteredUserController::class, 'store']);
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+
+    // OAuth routes
+    Route::get('/auth/google', [OAuthController::class, 'redirectToGoogle'])->name('oauth.google');
+    Route::get('/auth/google/callback', [OAuthController::class, 'handleGoogleCallback'])->name('oauth.google.callback');
+    Route::get('/auth/facebook', [OAuthController::class, 'redirectToFacebook'])->name('oauth.facebook');
+    Route::get('/auth/facebook/callback', [OAuthController::class, 'handleFacebookCallback'])->name('oauth.facebook.callback');
 });
 
 Route::middleware('auth')->group(function () {
@@ -55,6 +62,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat/{conversation}', [ChatController::class, 'show'])->name('chat.show');
     Route::post('/chat/{conversation}', [ChatController::class, 'store'])->name('chat.store');
     Route::get('/chat/user/{user}', [ChatController::class, 'createWithUser'])->name('chat.with-user');
+    
+    // Notification routes
+    Route::get('/notifications/unread-count', [ChatController::class, 'getUnreadNotifications'])->name('notifications.unread-count');
+    Route::get('/notifications', [ChatController::class, 'getNotifications'])->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [ChatController::class, 'markNotificationAsRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [ChatController::class, 'markAllNotificationsAsRead'])->name('notifications.mark-all-read');
+    
     Route::get('/gigs/{gig}/checkout', [GigController::class, 'checkout'])->name('gigs.checkout');
     Route::post('/gigs/{gig}/order', [GigController::class, 'order'])->name('gigs.order');
     Route::get('/orders/{order}/success', [GigController::class, 'paymentSuccess'])->name('gigs.payment.success');
@@ -76,6 +90,10 @@ Route::middleware(['auth', 'role:freelancer|vendor|admin'])->group(function () {
     Route::delete('/vendor/gigs/{gig}', [VendorController::class, 'deleteGig'])->name('vendor.gigs.delete');
     Route::patch('/vendor/gigs/{gig}/toggle', [VendorController::class, 'toggleGig'])->name('vendor.gigs.toggle');
     Route::get('/vendor/profile', [VendorController::class, 'profile'])->name('vendor.profile');
+    Route::get('/vendor/subscriptions', [VendorController::class, 'subscriptions'])->name('vendor.subscriptions');
+    Route::post('/vendor/subscriptions/purchase', [VendorController::class, 'purchaseSubscription'])->name('vendor.subscriptions.purchase');
+    Route::get('/vendor/subscriptions/success', [VendorController::class, 'subscriptionSuccess'])->name('vendor.subscriptions.success');
+    Route::get('/vendor/subscriptions/cancel', [VendorController::class, 'subscriptionCancel'])->name('vendor.subscriptions.cancel');
     Route::get('/vendor/reviews', [VendorController::class, 'reviews'])->name('vendor.reviews');
     Route::post('/vendor/reviews/{review}/reply', [VendorController::class, 'replyReview'])->name('vendor.reviews.reply');
     
@@ -107,6 +125,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/gigs', [AdminController::class, 'gigs'])->name('admin.gigs');
     Route::patch('/admin/gigs/{gig}/toggle', [AdminController::class, 'toggleGig'])->name('admin.gigs.toggle');
     Route::delete('/admin/gigs/{gig}', [AdminController::class, 'deleteGig'])->name('admin.gigs.delete');
+
+    // Vendor Levels
+    Route::get('/admin/vendor-levels', [AdminController::class, 'vendorLevels'])->name('admin.vendor-levels');
+    Route::put('/admin/vendor-levels/{user}', [AdminController::class, 'updateVendorLevel'])->name('admin.vendor-levels.update');
 
     // Orders
     Route::get('/admin/orders', [AdminController::class, 'orders'])->name('admin.orders');

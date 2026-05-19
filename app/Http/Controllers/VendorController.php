@@ -24,11 +24,144 @@ class VendorController extends Controller
             ->take(5)
             ->get();
 
+        $myGigs = $user->gigs()->latest()->take(5)->get();
+
+        $currentSubscription = \App\Models\Subscription::where('user_id', $user->id)->where('active', true)->latest()->first();
+
+        // Load conversations and unread message count
+        $conversations = \App\Models\Conversation::forUser($user)
+            ->with(['userOne:id,name,avatar', 'userTwo:id,name,avatar', 'latestMessage'])
+            ->orderBy('last_message_at', 'desc')
+            ->get()
+            ->map(function ($conversation) use ($user) {
+                $otherUser = $conversation->getOtherUser($user);
+                $unreadCount = \App\Models\Message::where('conversation_id', $conversation->id)
+                    ->where('user_id', '!=', $user->id)
+                    ->where('read', false)
+                    ->count();
+                
+                return [
+                    'id' => $conversation->id,
+                    'other_user' => [
+                        'id' => $otherUser->id,
+                        'name' => $otherUser->name,
+                        'avatar' => $otherUser->avatar,
+                    ],
+                    'latest_message' => $conversation->latestMessage,
+                    'unread_count' => $unreadCount,
+                    'last_message_at' => $conversation->last_message_at,
+                ];
+            });
+
+        $totalUnreadMessages = $conversations->sum('unread_count');
+
         return Inertia::render('Vendor/Dashboard', [
             'user' => $user,
             'stats' => $stats,
             'recentOrders' => $recentOrders,
+            'myGigs' => $myGigs,
+            'subscription' => $currentSubscription,
+            'conversations' => $conversations,
+            'totalUnreadMessages' => $totalUnreadMessages,
         ]);
+    }
+
+    public function subscriptions()
+    {
+        $user = auth()->user();
+        $currentSubscription = \App\Models\Subscription::where('user_id', $user->id)->where('active', true)->latest()->first();
+
+        return Inertia::render('Vendor/Subscriptions', [
+            'user' => $user,
+            'subscription' => $currentSubscription,
+        ]);
+    }
+
+    public function purchaseSubscription(Request $request, \App\Services\StripePaymentService $stripeService)
+    {
+        $request->validate([
+            'plan' => 'required|string|in:starter,growth,pro',
+        ]);
+
+        $user = auth()->user();
+
+        $prices = [
+            'starter' => 29.00,
+            'growth' => 59.00,
+            'pro' => 99.00,
+        ];
+
+        $plan = $request->plan;
+        $price = $prices[$plan] ?? 0;
+
+        // Create inactive subscription to store intent
+        $subscription = \App\Models\Subscription::create([
+            'user_id' => $user->id,
+            'plan' => $plan,
+            'price' => $price,
+            'active' => false,
+            'expires_at' => null, // Will be set on success
+        ]);
+
+        $session = $stripeService->createCheckoutSessionForSubscription(
+            $plan,
+            $price,
+            'usd',
+            route('vendor.subscriptions.success'),
+            route('vendor.subscriptions.cancel'),
+            $subscription->id
+        );
+
+        if (! $session['success']) {
+            return response()->json(['error' => $session['error']], 500);
+        }
+
+        return response()->json(['session_url' => $session['session_url']]);
+    }
+
+    public function subscriptionSuccess(Request $request, \App\Services\StripePaymentService $stripeService)
+    {
+        $sessionId = $request->query('session_id');
+        $subscriptionId = $request->query('subscription_id');
+
+        if (! $sessionId || ! $subscriptionId) {
+            return redirect()->route('vendor.subscriptions')->with('error', 'Invalid payment return data.');
+        }
+
+        $subscription = \App\Models\Subscription::where('id', $subscriptionId)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if (! $subscription || $subscription->active) {
+            return redirect()->route('vendor.subscriptions')->with('error', 'Invalid or already processed subscription.');
+        }
+
+        $sessionData = $stripeService->retrieveSession($sessionId);
+        if (! $sessionData['success'] || $sessionData['session']->payment_status !== 'paid') {
+            return redirect()->route('vendor.subscriptions')->with('error', 'Payment not completed successfully.');
+        }
+
+        $durations = [
+            'starter' => 7,
+            'growth' => 14,
+            'pro' => 30,
+        ];
+        $expiresAt = now()->addDays($durations[$subscription->plan] ?? 7);
+
+        // deactivate other subscriptions
+        \App\Models\Subscription::where('user_id', auth()->id())->update(['active' => false]);
+
+        $subscription->update([
+            'active' => true,
+            'expires_at' => $expiresAt,
+        ]);
+
+        return redirect()->route('vendor.dashboard')->with('success', 'Subscription activated: ' . ucfirst($subscription->plan));
+    }
+
+    public function subscriptionCancel()
+    {
+        return redirect()->route('vendor.subscriptions')->with('error', 'Subscription payment was cancelled.');
     }
 
     public function orders(Request $request)

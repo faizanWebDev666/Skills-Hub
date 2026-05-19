@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Events\MessageSent;
+use App\Events\NotificationCreated;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -143,6 +145,20 @@ class ChatController extends Controller
 
         broadcast(new MessageSent($message->load('user'), $conversation->id, $recipientId));
 
+        // Create notification for recipient
+        $notification = Notification::create([
+            'user_id' => $recipientId,
+            'type' => 'message',
+            'related_id' => $message->id,
+            'conversation_id' => $conversation->id,
+            'title' => 'New Message from ' . $user->name,
+            'message' => $message->content,
+            'from_user_id' => $user->id,
+        ]);
+
+        // Broadcast the notification
+        broadcast(new NotificationCreated($notification));
+
         return back();
     }
 
@@ -165,5 +181,89 @@ class ChatController extends Controller
         );
 
         return redirect()->route('chat.show', $conversation);
+    }
+
+    /**
+     * Get unread notifications count for the authenticated user
+     */
+    public function getUnreadNotifications()
+    {
+        $user = auth()->user();
+        $unreadCount = Notification::where('user_id', $user->id)
+            ->where('read', false)
+            ->count();
+
+        return response()->json([
+            'unread_count' => $unreadCount,
+        ]);
+    }
+
+    /**
+     * Get all notifications for the authenticated user
+     */
+    public function getNotifications()
+    {
+        $user = auth()->user();
+        $notifications = Notification::where('user_id', $user->id)
+            ->with(['fromUser:id,name,avatar'])
+            ->orderBy('created_at', 'desc')
+            ->limit(20)
+            ->get()
+            ->map(function ($notification) {
+                return [
+                    'id' => $notification->id,
+                    'type' => $notification->type,
+                    'title' => $notification->title,
+                    'message' => $notification->message,
+                    'from_user' => $notification->fromUser ? [
+                        'id' => $notification->fromUser->id,
+                        'name' => $notification->fromUser->name,
+                        'avatar' => $notification->fromUser->avatar,
+                    ] : null,
+                    'related_id' => $notification->related_id,
+                    'conversation_id' => $notification->conversation_id,
+                    'read' => $notification->read,
+                    'created_at' => $notification->created_at,
+                ];
+            });
+
+        return response()->json([
+            'notifications' => $notifications,
+        ]);
+    }
+
+    /**
+     * Mark notification as read
+     */
+    public function markNotificationAsRead(Notification $notification)
+    {
+        $user = auth()->user();
+        
+        abort_if($notification->user_id !== $user->id, 403);
+
+        $notification->markAsRead();
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }
+
+    /**
+     * Mark all notifications as read
+     */
+    public function markAllNotificationsAsRead()
+    {
+        $user = auth()->user();
+
+        Notification::where('user_id', $user->id)
+            ->where('read', false)
+            ->update([
+                'read' => true,
+                'read_at' => now(),
+            ]);
+
+        return response()->json([
+            'success' => true,
+        ]);
     }
 }
