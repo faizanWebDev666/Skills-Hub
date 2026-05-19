@@ -14,6 +14,9 @@ class Message extends Model
         'conversation_id',
         'user_id',
         'content',
+        'attachment',
+        'attachment_type',
+        'attachment_name',
         'read',
         'reply_to_message_id',
     ];

@@ -97,7 +97,7 @@ export default function VendorReviews({ reviews, gigs, filters }) {
                         <div className="space-y-6">
                             {reviews.data.map(review => (
                                 <div key={review.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                                    <div className="flex flex-col sm:flex-row gap-6">
+                                    <div className="flex flex-col sm:flex-row gap-6 items-start">
                                         
                                         {/* Review Left Side */}
                                         <div className="flex-1">

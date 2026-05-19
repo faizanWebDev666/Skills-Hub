@@ -10,7 +10,7 @@ export default function VendorDashboard({ stats, recentOrders, myGigs, user, sub
         <div className="min-h-screen bg-cream-50">
             <VendorNavbar user={user} />
 
-            <div className="flex">
+            <div className="flex items-start">
                 <VendorSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} conversations={conversations || []} totalUnreadMessages={totalUnreadMessages || 0} />
 
                 {/* Main Content */}

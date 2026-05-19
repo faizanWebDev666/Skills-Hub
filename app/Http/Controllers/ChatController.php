@@ -129,13 +129,29 @@ class ChatController extends Controller
         );
 
         $request->validate([
-            'content' => 'required|string|max:2000',
+            'content' => 'required_without:attachment|string|max:2000|nullable',
+            'attachment' => 'nullable|file|max:20480', // 20MB max
         ]);
 
-        $message = $conversation->messages()->create([
+        $messageData = [
             'user_id' => $user->id,
             'content' => $request->input('content'),
-        ]);
+        ];
+
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $path = $file->store('chat-attachments', 'public');
+            $messageData['attachment'] = $path;
+            $messageData['attachment_name'] = $file->getClientOriginalName();
+            
+            if (str_starts_with($file->getMimeType(), 'image/')) {
+                $messageData['attachment_type'] = 'image';
+            } else {
+                $messageData['attachment_type'] = 'file';
+            }
+        }
+
+        $message = $conversation->messages()->create($messageData);
 
         $conversation->update(['last_message_at' => now()]);
 

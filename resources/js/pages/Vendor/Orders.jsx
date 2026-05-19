@@ -44,7 +44,7 @@ export default function VendorOrders({ orders, filters, user }) {
         <div className="min-h-screen bg-cream-50">
             <VendorNavbar user={user} />
 
-            <div className="flex">
+            <div className="flex items-start">
                 <VendorSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
                 {/* Main Content */}

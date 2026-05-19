@@ -42,7 +42,7 @@ export default function VendorSidebar({ user, sidebarOpen, setSidebarOpen, conve
             )}
 
             {/* Sidebar */}
-            <aside className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white pt-20 lg:pt-0 px-0 transform transition-all duration-300 border-r border-gray-200 overflow-y-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+            <aside className={`fixed lg:sticky lg:top-[76px] lg:h-[calc(100vh-76px)] lg:overflow-y-auto custom-scrollbar inset-y-0 left-0 z-40 w-64 bg-white pt-20 lg:pt-0 px-0 transform transition-all duration-300 border-r border-gray-200 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
                 {/* Sidebar Content */}
                 <div className="py-6 space-y-6">
                     {/* User Profile Card */}

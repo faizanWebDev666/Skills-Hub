@@ -29,33 +29,33 @@ export default function Register() {
 
                 <div className="relative z-10 max-w-7xl mx-auto px-4 py-8 sm:py-12 lg:py-16 sm:px-6 lg:px-8">
                     <div className="grid gap-8 lg:gap-10 lg:grid-cols-[1.3fr_1fr] items-center">
-                        <div className="rounded-[32px] border border-white/10 bg-white/5 p-6 sm:p-8 lg:p-10 shadow-2xl backdrop-blur-xl order-2 lg:order-1">
+                        <div className="rounded-[32px] border border-slate-200/50 bg-slate-100/90 p-6 sm:p-8 lg:p-10 shadow-2xl backdrop-blur-xl order-2 lg:order-1">
                             <div className="max-w-xl">
-                                <span className="inline-flex items-center rounded-full bg-brand-500/10 px-3 py-1 text-sm font-semibold text-brand-100 mb-4 sm:mb-6">
+                                <span className="inline-flex items-center rounded-full bg-brand-500/10 px-3 py-1 text-sm font-semibold text-brand-700 mb-4 sm:mb-6">
                                     Professional freelance marketplace
                                 </span>
-                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
+                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-950">
                                     Start hiring or selling services with confidence.
                                 </h1>
-                                <p className="mt-4 sm:mt-6 text-base sm:text-lg leading-7 sm:leading-8 text-slate-300">
+                                <p className="mt-4 sm:mt-6 text-base sm:text-lg leading-7 sm:leading-8 text-slate-600">
                                     Whether you want to source expert work or grow your service business, our platform connects customers and freelancers with fast, secure, and reliable transactions.
                                 </p>
 
                                 <div className="mt-6 sm:mt-10 grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
-                                    <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-4 sm:p-6">
+                                    <div className="rounded-3xl border border-slate-200/70 bg-white/95 p-4 sm:p-6">
                                         <div className="text-2xl sm:text-3xl">👥</div>
-                                        <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-white">Hire talent</h3>
-                                        <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-400">Find trusted professionals for every project.</p>
+                                        <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-slate-950">Hire talent</h3>
+                                        <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-500">Find trusted professionals for every project.</p>
                                     </div>
-                                    <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-4 sm:p-6">
+                                    <div className="rounded-3xl border border-slate-200/70 bg-white/95 p-4 sm:p-6">
                                         <div className="text-2xl sm:text-3xl">💼</div>
-                                        <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-white">Offer services</h3>
-                                        <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-400">Showcase skills, set your rates, and earn more.</p>
+                                        <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-slate-950">Offer services</h3>
+                                        <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-500">Showcase skills, set your rates, and earn more.</p>
                                     </div>
-                                    <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-4 sm:p-6">
+                                    <div className="rounded-3xl border border-slate-200/70 bg-white/95 p-4 sm:p-6">
                                         <div className="text-2xl sm:text-3xl">📈</div>
-                                        <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-white">Grow faster</h3>
-                                        <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-400">Scale your work with customers who value quality.</p>
+                                        <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-slate-950">Grow faster</h3>
+                                        <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-500">Scale your work with customers who value quality.</p>
                                     </div>
                                 </div>
                             </div>

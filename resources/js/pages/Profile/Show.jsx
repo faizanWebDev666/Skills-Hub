@@ -150,8 +150,14 @@ export default function ProfileShow({ user, stats, orders, pendingReviews, submi
         <div className="min-h-screen bg-cream-50">
             <Navbar user={user} />
 
-            <div className="flex">
-                <CustomerSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+            <div className="flex items-start">
+                <CustomerSidebar 
+                    user={user} 
+                    sidebarOpen={sidebarOpen} 
+                    setSidebarOpen={setSidebarOpen} 
+                    activeSection={activeTab}
+                    onSectionChange={setActiveTab}
+                />
 
                 <main className="flex-1 min-w-0">
                     <div className="px-4 sm:px-6 lg:px-8 py-8">

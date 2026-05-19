@@ -61,7 +61,7 @@ export default function VendorSubscriptions({ user, subscription }) {
         <div className="min-h-screen bg-cream-50">
             <VendorNavbar user={user} />
 
-            <div className="flex">
+            <div className="flex items-start">
                 <VendorSidebar user={user} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
                 <main className="flex-1 min-w-0">

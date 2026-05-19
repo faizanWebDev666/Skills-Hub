@@ -27,33 +27,33 @@ export default function Login() {
 
                 <div className="relative z-10 max-w-7xl mx-auto px-4 py-8 sm:py-12 lg:py-16 sm:px-6 lg:px-8">
                     <div className="grid gap-8 lg:gap-10 lg:grid-cols-[1.4fr_1fr] items-center">
-                        <div className="rounded-[32px] border border-white/10 bg-white/5 p-6 sm:p-8 lg:p-10 shadow-2xl backdrop-blur-xl order-2 lg:order-1">
+                        <div className="rounded-[32px] border border-slate-200/50 bg-slate-100/90 p-6 sm:p-8 lg:p-10 shadow-2xl backdrop-blur-xl order-2 lg:order-1">
                             <div className="max-w-2xl">
-                                <span className="inline-flex items-center rounded-full bg-brand-500/10 px-3 py-1 text-sm font-semibold text-brand-100 mb-4 sm:mb-6">
+                                <span className="inline-flex items-center rounded-full bg-brand-500/10 px-3 py-1 text-sm font-semibold text-brand-700 mb-4 sm:mb-6">
                                     Secure marketplace access
                                 </span>
-                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
+                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-950">
                                     Welcome back to SkillHub.
                                 </h1>
-                                <p className="mt-4 sm:mt-6 text-base sm:text-lg leading-7 sm:leading-8 text-slate-300">
+                                <p className="mt-4 sm:mt-6 text-base sm:text-lg leading-7 sm:leading-8 text-slate-600">
                                     Access your projects, manage orders, and connect with top service providers instantly. Sign in to continue where you left off.
                                 </p>
 
                                 <div className="mt-6 sm:mt-10 grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
-                                    <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-4 sm:p-6">
+                                    <div className="rounded-3xl border border-slate-200/70 bg-white/95 p-4 sm:p-6">
                                         <div className="text-2xl sm:text-3xl">⚡</div>
-                                        <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-white">Fast login</h3>
-                                        <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-400">Secure access in just a few clicks.</p>
+                                        <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-slate-950">Fast login</h3>
+                                        <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-500">Secure access in just a few clicks.</p>
                                     </div>
-                                    <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-4 sm:p-6">
+                                    <div className="rounded-3xl border border-slate-200/70 bg-white/95 p-4 sm:p-6">
                                         <div className="text-2xl sm:text-3xl">🔒</div>
-                                        <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-white">Trusted security</h3>
-                                        <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-400">Keep your account and payments protected.</p>
+                                        <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-slate-950">Trusted security</h3>
+                                        <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-500">Keep your account and payments protected.</p>
                                     </div>
-                                    <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-4 sm:p-6">
+                                    <div className="rounded-3xl border border-slate-200/70 bg-white/95 p-4 sm:p-6">
                                         <div className="text-2xl sm:text-3xl">📱</div>
-                                        <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-white">Responsive</h3>
-                                        <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-400">Works beautifully on desktop and mobile.</p>
+                                        <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-slate-950">Responsive</h3>
+                                        <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-500">Works beautifully on desktop and mobile.</p>
                                     </div>
                                 </div>
                             </div>

@@ -55,6 +55,7 @@ class User extends Authenticatable
         'wallet_balance',
         'vendor_level',
         'banned_at',
+        'last_active_at',
     ];
 
     protected $hidden = [
@@ -67,6 +68,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'banned_at' => 'datetime',
+            'last_active_at' => 'datetime',
             'password' => 'hashed',
             'languages' => 'array',
             'portfolio_images' => 'array',
