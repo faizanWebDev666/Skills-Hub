@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Wallet extends Model
 {
+    use HasUuids;
+
     protected $fillable = [
+        'uuid',
         'user_id',
         'balance',
         'currency',
@@ -21,6 +25,11 @@ class Wallet extends Model
         'is_active' => 'boolean',
         'metadata' => 'array',
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     public function user(): BelongsTo
     {

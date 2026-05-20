@@ -46,7 +46,7 @@ export default function Gigs({ gigs, categories, filters, user, sidebarLinks }) 
                                         <div className="flex gap-2 mt-4">
                                             <button
                                                 onClick={() => {
-                                                    fetch(`/admin/gigs/${gig.id}/toggle`, {
+                                                    fetch(`/admin/gigs/${gig.uuid}/toggle`, {
                                                         method: 'PATCH',
                                                         headers: {
                                                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
@@ -60,7 +60,7 @@ export default function Gigs({ gigs, categories, filters, user, sidebarLinks }) 
                                             <button
                                                 onClick={() => {
                                                     if (confirm('Are you sure you want to delete this gig?')) {
-                                                        fetch(`/admin/gigs/${gig.id}`, {
+                                                        fetch(`/admin/gigs/${gig.uuid}`, {
                                                             method: 'DELETE',
                                                             headers: {
                                                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',

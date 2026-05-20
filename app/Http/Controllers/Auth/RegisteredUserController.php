@@ -24,8 +24,11 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'confirmed', 'min:8'],
+            'password' => ['required', 'confirmed', 'min:8', 'regex:/[A-Z]/', 'regex:/[!@#$%^&*(),.?":{}|<>]/'],
             'role' => ['required', 'in:customer,freelancer'],
+        ], [
+            'password.min' => 'Password must be at least 8 characters.',
+            'password.regex' => 'Password must include at least one uppercase letter and one special character.',
         ]);
 
         // Generate 8-digit code

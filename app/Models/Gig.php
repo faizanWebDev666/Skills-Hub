@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Gig extends Model
 {
+    use HasUuids;
+
     protected $fillable = [
+        'uuid',
         'user_id',
         'title',
         'description',
@@ -26,6 +30,11 @@ class Gig extends Model
         'active' => 'boolean',
         'category_fields' => 'array',
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     public function scopeActive($query)
     {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,9 +12,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Conversation extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
+        'uuid',
         'user_one_id',
         'user_two_id',
         'last_message_at',
@@ -22,6 +24,11 @@ class Conversation extends Model
     protected $casts = [
         'last_message_at' => 'datetime',
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     public function userOne(): BelongsTo
     {

@@ -77,7 +77,7 @@ export default function FreelancerShow({ freelancer, authUser }) {
                                 {freelancer?.gigs?.length > 0 ? freelancer.gigs.map((gig) => (
                                     <Link
                                         key={gig.id}
-                                        href={`/gigs/${gig.id}`}
+                                        href={`/gigs/${gig.uuid}`}
                                         className="block p-4 rounded-3xl bg-cream-50 border border-gray-100 hover:border-brand-200 transition-colors"
                                     >
                                         <div className="flex items-center justify-between gap-4">

@@ -38,7 +38,7 @@ export default function WishlistDrawer({ isOpen, onClose }) {
         router.post(`/wishlist/${gigId}/toggle`, {}, {
             preserveScroll: true,
             onSuccess: () => {
-                setWishlistItems(prev => prev.filter(item => item.gig_id !== gigId));
+                setWishlistItems(prev => prev.filter(item => item.gig?.uuid !== gigId));
             }
         });
     };
@@ -95,7 +95,7 @@ export default function WishlistDrawer({ isOpen, onClose }) {
                                         />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <Link href={`/gigs/${item.gig.id}`}>
+                                        <Link href={`/gigs/${item.gig.uuid}`}>
                                             <h4 className="font-bold text-gray-900 truncate font-sans">{item.gig.title}</h4>
                                         </Link>
                                         <div className="text-gray-900 font-bold mt-1">${item.gig.price}</div>
@@ -107,7 +107,7 @@ export default function WishlistDrawer({ isOpen, onClose }) {
                                         </div>
                                     </div>
                                     <button 
-                                        onClick={() => handleRemove(item.gig.id)}
+                                        onClick={() => handleRemove(item.gig.uuid)}
                                         className="text-gray-400 hover:text-red-500 text-sm flex items-center gap-1 transition-colors ml-2"
                                     >
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -13,7 +13,7 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
     const [shareMessage, setShareMessage] = useState('');
 
     const handleShareClick = async () => {
-        const shareUrl = `${window.location.origin}/gigs/${gig.id}`;
+        const shareUrl = `${window.location.origin}/gigs/${gig.uuid}`;
         const shareText = `Check out this gig: ${gig.title}`;
 
         // Try native Web Share API first
@@ -49,7 +49,7 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
 
     const handleWishlistToggle = () => {
         if (!user) return router.get('/login');
-        router.post(`/wishlist/${gig.id}/toggle`, {}, {
+        router.post(`/wishlist/${gig.uuid}/toggle`, {}, {
             preserveScroll: true,
             preserveState: true,
         });
@@ -90,14 +90,14 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
             <Navbar user={user} />
 
             {flash?.success && (
-                <div className="container mx-auto px-4 lg:px-8 py-4">
+                <div className="container max-w-7xl mx-auto px-4 lg:px-8 py-4">
                     <div className="mb-6 bg-success-50 border border-success-200 text-success-700 px-4 py-3 rounded-xl text-sm font-medium">
                         {flash.success}
                     </div>
                 </div>
             )}
             {flash?.error && (
-                <div className="container mx-auto px-4 lg:px-8 py-4">
+                <div className="container max-w-7xl mx-auto px-4 lg:px-8 py-4">
                     <div className="mb-6 bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl text-sm font-medium">
                         {flash.error}
                     </div>
@@ -106,7 +106,7 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
 
             {/* Breadcrumbs */}
             <div className="border-b border-gray-200 bg-white">
-                <div className="container mx-auto px-4 lg:px-8 py-3">
+                <div className="container max-w-7xl mx-auto px-4 lg:px-8 py-3">
                     <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
                         {breadcrumbs.map((crumb, i) => (
                             <React.Fragment key={i}>
@@ -120,17 +120,17 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
                 </div>
             </div>
 
-            <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 lg:py-12">
-                <div className="flex flex-col lg:flex-row gap-6 lg:gap-12">
+            <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     {/* Left Column - Main Content */}
-                    <div className="flex-1 max-w-4xl">
+                    <div className="lg:col-span-8 xl:col-span-8 w-full">
                         
                         {/* Title & Metadata */}
                         <div className="mb-8">
                             <motion.h1 
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="text-3xl lg:text-4xl xl:text-[42px] font-extrabold text-gray-900 leading-tight tracking-tight mb-6"
+                                className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight tracking-tight mb-4"
                             >
                                 {gig.title}
                             </motion.h1>
@@ -186,7 +186,7 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
                             initial={{ opacity: 0, scale: 0.98 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.4 }}
-                            className="rounded-3xl lg:h-[550px] mb-12 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative group bg-white border border-gray-100"
+                            className="rounded-2xl lg:rounded-3xl aspect-video lg:aspect-[2/1] mb-10 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative group bg-white border border-gray-100"
                         >
                             {gig.image ? (
                                 <img src={`/storage/${gig.image}`} alt={gig.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -695,7 +695,7 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
                     </div>
 
                     {/* Right Column - Sticky Sidebar */}
-                    <aside className="lg:w-96 flex-shrink-0">
+                    <aside className="lg:col-span-4 xl:col-span-4 w-full">
                         <div className="sticky lg:top-28">
                             
                             {shareMessage && (
@@ -725,98 +725,114 @@ export default function Show({ gig, user, isInWishlist = false, sellerStats, rev
                                 </button>
                             </div>
 
-                            {/* Single Pricing Card */}
-                            <div className="bg-white rounded-lg md:rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 p-5 md:p-8 relative overflow-hidden">
-                                {/* Decorative top gradient */}
-                                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-400 via-brand-500 to-indigo-600"></div>
+                            {/* Single Pricing Card - Optimized for Conversions */}
+                            <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-200 p-6 md:p-8 relative overflow-hidden group">
+                                {/* Animated Top Gradient */}
+                                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-500 via-indigo-500 to-purple-500 bg-[length:200%_auto] animate-gradient"></div>
                                 
                                 <div className="pt-2">
-                                    <div className="flex justify-between items-start mb-4 md:mb-6">
-                                        <h3 className="font-bold text-gray-900 text-lg md:text-2xl">Service Price</h3>
-                                        <span className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">${gig.price}</span>
+                                    <div className="flex flex-col mb-6">
+                                        <div className="flex justify-between items-start mb-1">
+                                            <h3 className="font-bold text-gray-900 text-xl">Service Price</h3>
+                                            <div className="text-right">
+                                                <span className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">${gig.price}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-end">
+                                            <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md uppercase tracking-wide">One-time payment</span>
+                                        </div>
                                     </div>
                                     
-                                    <p className="text-gray-600 font-medium leading-relaxed mb-6 md:mb-8 text-sm md:text-base">
+                                    <p className="text-gray-600 font-medium leading-relaxed mb-6 text-sm">
                                         Get professional, high-quality service tailored to your needs by a verified expert.
                                     </p>
 
-                                    <div className="flex items-center gap-2 md:gap-4 mb-6 md:mb-8 text-xs md:text-sm font-bold text-gray-700">
-                                        <div className="flex flex-1 items-center justify-center gap-2 bg-gray-50/80 border border-gray-100 py-2 md:py-3 rounded-lg md:rounded-xl">
-                                            <Clock className="w-4 h-4 text-brand-500" />
-                                            <span className="hidden sm:inline">Standard Delivery</span>
-                                            <span className="sm:hidden">Standard</span>
+                                    <div className="grid grid-cols-2 gap-3 mb-6 text-xs font-bold text-gray-700">
+                                        <div className="flex flex-col items-center justify-center gap-1.5 bg-gray-50 border border-gray-100 py-3 rounded-xl transition-colors hover:bg-gray-100">
+                                            <Clock className="w-5 h-5 text-brand-500" />
+                                            <span>Standard Delivery</span>
                                         </div>
-                                        <div className="flex flex-1 items-center justify-center gap-2 bg-gray-50/80 border border-gray-100 py-2 md:py-3 rounded-lg md:rounded-xl">
-                                            <ShieldCheck className="w-4 h-4 text-brand-500" />
-                                            <span className="hidden sm:inline">Verified Expert</span>
-                                            <span className="sm:hidden">Verified</span>
+                                        <div className="flex flex-col items-center justify-center gap-1.5 bg-gray-50 border border-gray-100 py-3 rounded-xl transition-colors hover:bg-gray-100">
+                                            <ShieldCheck className="w-5 h-5 text-brand-500" />
+                                            <span>Verified Expert</span>
                                         </div>
                                     </div>
 
-                                    <ul className="space-y-3 md:space-y-4 mb-6 md:mb-8">
-                                        {['High-quality execution', 'Professional communication', 'Satisfaction guaranteed', 'Secure payment protection'].map((feature, idx) => (
-                                            <li key={idx} className="flex items-center gap-2 md:gap-3 text-gray-700 font-medium text-sm md:text-base">
-                                                <Check className="w-4 md:w-5 h-4 md:h-5 text-brand-500 shrink-0" />
-                                                {feature}
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    <div className="mb-8">
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">What's included</p>
+                                        <ul className="space-y-3">
+                                            {['High-quality execution', 'Professional communication', 'Satisfaction guaranteed', 'Secure payment protection'].map((feature, idx) => (
+                                                <li key={idx} className="flex items-start gap-3 text-gray-700 font-medium text-sm">
+                                                    <div className="mt-0.5 w-5 h-5 rounded-full bg-brand-50 flex items-center justify-center shrink-0">
+                                                        <Check className="w-3 h-3 text-brand-600" />
+                                                    </div>
+                                                    {feature}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
 
-                                    {(() => {
-                                        const isOwner = user?.id === gig.user_id;
-                                        const isVendor = user?.roles?.some(r => ['vendor', 'freelancer'].includes(r.name));
-                                        const isDisabled = isOwner || isVendor;
+                                    <div className="space-y-3">
+                                        {(() => {
+                                            const isOwner = user?.id === gig.user_id;
+                                            const isVendor = user?.roles?.some(r => ['vendor', 'freelancer'].includes(r.name));
+                                            const isDisabled = isOwner || isVendor;
 
-                                        if (isDisabled) {
+                                            if (isDisabled) {
+                                                return (
+                                                    <button
+                                                        disabled
+                                                        className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-xl flex items-center justify-center gap-2 text-lg cursor-not-allowed"
+                                                        title={isOwner ? "You cannot buy your own service" : "Vendors cannot buy services"}
+                                                    >
+                                                        Continue <ChevronRight className="w-5 h-5" />
+                                                    </button>
+                                                );
+                                            }
+
                                             return (
-                                                <button
-                                                    disabled
-                                                    className="w-full bg-gray-400 text-white font-bold py-3 md:py-4 rounded-lg md:rounded-xl flex items-center justify-center gap-2 text-base md:text-lg opacity-60 cursor-not-allowed text-center"
-                                                    title={isOwner ? "You cannot buy your own service" : "Vendors cannot buy services"}
+                                                <Link
+                                                    href={user ? `/gigs/${gig.uuid}/checkout` : '/login'}
+                                                    className="w-full relative overflow-hidden group/btn bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-500/25 transition-all flex items-center justify-center gap-2 text-lg"
                                                 >
-                                                    Continue <ChevronRight className="w-5 h-5" />
-                                                </button>
+                                                    <span className="relative z-10 flex items-center gap-2">
+                                                        Continue to Checkout <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                                                    </span>
+                                                </Link>
                                             );
-                                        }
+                                        })()}
 
-                                        return (
-                                            <Link
-                                                href={user ? `/gigs/${gig.id}/checkout` : '/login'}
-                                                className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 md:py-4 rounded-lg md:rounded-xl transition-all shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-base md:text-lg text-center"
-                                            >
-                                                Continue <ChevronRight className="w-5 h-5" />
-                                            </Link>
-                                        );
-                                    })()}
+                                        {(() => {
+                                            const isOwner = user?.id === gig.user_id;
+                                            const isVendor = user?.roles?.some(r => ['vendor', 'freelancer'].includes(r.name));
+                                            const isDisabled = isOwner || isVendor;
 
-                                    {(() => {
-                                        const isOwner = user?.id === gig.user_id;
-                                        const isVendor = user?.roles?.some(r => ['vendor', 'freelancer'].includes(r.name));
-                                        const isDisabled = isOwner || isVendor;
+                                            if (isDisabled) {
+                                                return (
+                                                    <button 
+                                                        disabled
+                                                        className="w-full bg-white border-2 border-gray-100 text-gray-400 font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 text-base cursor-not-allowed"
+                                                    >
+                                                        <MessageSquare className="w-5 h-5" /> Contact Seller
+                                                    </button>
+                                                );
+                                            }
 
-                                        if (isDisabled) {
                                             return (
-                                                <button 
-                                                    disabled
-                                                    className="w-full mt-3 md:mt-4 bg-gray-50 border border-gray-200 text-gray-400 font-bold py-3 md:py-4 rounded-lg md:rounded-xl shadow-sm flex items-center justify-center gap-2 text-base md:text-lg cursor-not-allowed"
-                                                    title={isOwner ? "You cannot contact yourself" : "Vendors cannot contact sellers"}
+                                                <Link 
+                                                    href={gig.user?.id ? `/chat/user/${gig.user.id}` : '#'}
+                                                    className="w-full bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-base"
                                                 >
                                                     <MessageSquare className="w-5 h-5" /> Contact Seller
-                                                </button>
+                                                </Link>
                                             );
-                                        }
-
-                                        return (
-                                            <Link 
-                                                href={gig.user?.id ? `/chat/user/${gig.user.id}` : '#'}
-                                                className="w-full mt-4 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-800 font-bold py-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-lg"
-                                            >
-                                                <MessageSquare className="w-5 h-5" /> Contact Seller
-                                            </Link>
-                                        );
-                                    })()}
+                                        })()}
+                                    </div>
                                     
-                                    <p className="text-center text-sm text-gray-400 mt-4 font-medium">You won't be charged yet</p>
+                                    <div className="mt-5 flex items-center justify-center gap-2 text-xs text-gray-500 font-medium">
+                                        <ShieldCheck className="w-4 h-4 text-green-500" />
+                                        <span>SSL Encrypted Checkout</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

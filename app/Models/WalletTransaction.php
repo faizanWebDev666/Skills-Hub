@@ -3,13 +3,17 @@
 namespace App\Models;
 
 use App\Mail\TransactionNotification;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Mail;
 
 class WalletTransaction extends Model
 {
+    use HasUuids;
+
     protected $fillable = [
+        'uuid',
         'wallet_id',
         'type',
         'amount',
@@ -30,6 +34,11 @@ class WalletTransaction extends Model
         'metadata' => 'array',
         'processed_at' => 'datetime',
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     public function wallet(): BelongsTo
     {

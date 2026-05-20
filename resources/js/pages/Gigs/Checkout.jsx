@@ -12,7 +12,7 @@ export default function Checkout({ gig, user }) {
         e.preventDefault();
         
         setProcessingOrder(true);
-        router.post(`/gigs/${gig.id}/order`, { requirements }, {
+        router.post(`/gigs/${gig.uuid}/order`, { requirements }, {
             preserveScroll: true,
             preserveState: true,
             onFinish: () => setProcessingOrder(false),
@@ -39,7 +39,7 @@ export default function Checkout({ gig, user }) {
                         <ChevronRight className="w-3.5 h-3.5" />
                         <Link href="/gigs" className="hover:text-brand-600 transition-colors">Services</Link>
                         <ChevronRight className="w-3.5 h-3.5" />
-                        <Link href={`/gigs/${gig.id}`} className="hover:text-brand-600 transition-colors">{gig.title}</Link>
+                        <Link href={`/gigs/${gig.uuid}`} className="hover:text-brand-600 transition-colors">{gig.title}</Link>
                         <ChevronRight className="w-3.5 h-3.5" />
                         <span className="text-gray-900">Checkout</span>
                     </div>

@@ -24,4 +24,11 @@ class HomeController extends Controller
             }])->active()->whereIn('user_id', $topSellerIds)->latest()->take(4)->get(),
         ]);
     }
+
+    public function howItWorks()
+    {
+        return Inertia::render('HowItWorks', [
+            'user' => auth()->user() ? auth()->user()->load('roles') : null,
+        ]);
+    }
 }

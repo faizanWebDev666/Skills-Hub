@@ -241,7 +241,7 @@ class GigController extends Controller
             $order->update(['status' => 'cancelled']);
         }
 
-        return redirect()->route('gigs.show', $order->gig_id)->with('error', 'Payment was cancelled.');
+        return redirect()->route('gigs.show', $order->gig)->with('error', 'Payment was cancelled.');
     }
 
     public function deliverOrder(Order $order)

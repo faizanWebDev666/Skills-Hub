@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm } from '@inertiajs/react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
@@ -17,6 +17,15 @@ export default function Register() {
         e.preventDefault();
         post('/register');
     };
+
+    const password = data.password || '';
+    const hasMinLength = password.length >= 8;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const strengthScore = [hasMinLength, hasUppercase, hasSpecialChar].filter(Boolean).length;
+    const strengthLabel = strengthScore === 3 ? 'Strong' : strengthScore === 2 ? 'Medium' : 'Weak';
+    const strengthColor = strengthScore === 3 ? 'text-emerald-400' : strengthScore === 2 ? 'text-amber-300' : 'text-rose-400';
+    const isPasswordValid = hasMinLength && hasUppercase && hasSpecialChar;
 
     return (
         <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
@@ -80,7 +89,7 @@ export default function Register() {
                                         value={data.name}
                                         onChange={(e) => setData('name', e.target.value)}
                                         className="mt-1 block w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-slate-100 shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
-                                        placeholder="John Doe"
+                                        placeholder="Enter Name"
                                         required
                                     />
                                     {errors.name && (
@@ -118,7 +127,26 @@ export default function Register() {
                                         className="mt-1 block w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-slate-100 shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
                                         placeholder="••••••••"
                                         required
+                                        minLength={8}
                                     />
+
+                                    <div className="mt-4">
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-slate-300">Password strength</span>
+                                            <span className={`font-semibold ${strengthColor}`}>{strengthLabel}</span>
+                                        </div>
+                                        <div className="mt-3 grid grid-cols-3 gap-2">
+                                            <div className={`h-2 rounded-full ${hasMinLength ? 'bg-emerald-400' : 'bg-slate-700/70'}`}></div>
+                                            <div className={`h-2 rounded-full ${hasUppercase ? 'bg-emerald-400' : 'bg-slate-700/70'}`}></div>
+                                            <div className={`h-2 rounded-full ${hasSpecialChar ? 'bg-emerald-400' : 'bg-slate-700/70'}`}></div>
+                                        </div>
+                                        <div className="mt-3 grid gap-2 text-xs text-slate-400">
+                                            <p className={hasMinLength ? 'text-slate-200' : 'text-slate-400'}>• At least 8 characters</p>
+                                            <p className={hasUppercase ? 'text-slate-200' : 'text-slate-400'}>• One uppercase letter</p>
+                                            <p className={hasSpecialChar ? 'text-slate-200' : 'text-slate-400'}>• One special character</p>
+                                        </div>
+                                    </div>
+
                                     {errors.password && (
                                         <p className="mt-2 text-sm text-rose-400">{errors.password}</p>
                                     )}
@@ -177,11 +205,16 @@ export default function Register() {
 
                                 <button
                                     type="submit"
-                                    disabled={processing}
+                                    disabled={processing || !isPasswordValid}
                                     className="w-full rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     {processing ? 'Creating account...' : 'Create Account'}
                                 </button>
+                                {!isPasswordValid && (
+                                    <p className="mt-2 text-sm text-amber-300">
+                                        Password must have at least 8 characters, one uppercase letter, and one special character.
+                                    </p>
+                                )}
                             </form>
 
                             <div className="mt-6 sm:mt-8 text-center text-slate-400">

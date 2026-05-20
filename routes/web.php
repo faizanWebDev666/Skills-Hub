@@ -13,9 +13,12 @@ use App\Http\Controllers\AdminWalletController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\OAuthController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\ReviewController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index']);
+Route::get('/how-it-works', [HomeController::class, 'howItWorks'])->name('how-it-works');
 Route::resource('gigs', GigController::class)->only(['index', 'show']);
 
 Route::middleware('guest')->group(function () {
@@ -25,6 +28,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/register/verify', [RegisteredUserController::class, 'verifySubmit']);
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+
+    // Password reset (guest)
+    Route::get('/forgot-password', [PasswordResetController::class, 'showRequest'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendReset'])->name('password.email');
+    Route::get('/password/reset/{token}', [PasswordResetController::class, 'showReset'])->name('password.reset');
+    Route::post('/password/reset', [PasswordResetController::class, 'reset'])->name('password.update');
 
     // OAuth routes
     Route::get('/auth/google', [OAuthController::class, 'redirectToGoogle'])->name('oauth.google');

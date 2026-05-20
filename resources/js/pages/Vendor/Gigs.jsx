@@ -23,13 +23,13 @@ export default function VendorGigs({ gigs, counts, user }) {
     };
 
     const handleDelete = (gig) => {
-        router.delete(`/vendor/gigs/${gig.id}`, {
+        router.delete(`/vendor/gigs/${gig.uuid}`, {
             onSuccess: () => setShowDeleteModal(null),
         });
     };
 
     const handleToggle = (gig) => {
-        router.patch(`/vendor/gigs/${gig.id}/toggle`, {}, {
+        router.patch(`/vendor/gigs/${gig.uuid}/toggle`, {}, {
             preserveScroll: true,
         });
     };
@@ -147,7 +147,7 @@ export default function VendorGigs({ gigs, counts, user }) {
                                                             )}
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <Link href={`/gigs/${gig.id}`} className="font-semibold text-gray-900 text-sm hover:text-brand-600 truncate block">
+                                                            <Link href={`/gigs/${gig.uuid}`} className="font-semibold text-gray-900 text-sm hover:text-brand-600 truncate block">
                                                                 {gig.title}
                                                             </Link>
                                                             <p className="text-xs text-gray-400 mt-0.5">ID: {gig.id}</p>
@@ -176,7 +176,7 @@ export default function VendorGigs({ gigs, counts, user }) {
                                                 <td className="py-3 px-4">
                                                     <div className="flex items-center justify-end gap-1">
                                                         <Link
-                                                            href={`/vendor/gigs/${gig.id}/edit`}
+                                                            href={`/vendor/gigs/${gig.uuid}/edit`}
                                                             className="p-2 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
                                                             title="Edit"
                                                         >
@@ -185,7 +185,7 @@ export default function VendorGigs({ gigs, counts, user }) {
                                                             </svg>
                                                         </Link>
                                                         <Link
-                                                            href={`/gigs/${gig.id}`}
+                                                            href={`/gigs/${gig.uuid}`}
                                                             className="p-2 text-gray-400 hover:text-success-600 hover:bg-success-50 rounded-lg transition-colors"
                                                             title="View"
                                                         >

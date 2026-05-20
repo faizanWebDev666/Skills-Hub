@@ -112,7 +112,7 @@ export default function VendorReviews({ reviews, gigs, filters }) {
                                                 <div>
                                                     <p className="font-bold text-gray-900 text-sm">{review.reviewer?.name}</p>
                                                     <p className="text-xs text-gray-500">
-                                                        On: <Link href={`/gigs/${review.order?.gig?.id}`} className="text-brand-600 hover:underline">{review.order?.gig?.title}</Link>
+                                                        On: <Link href={`/gigs/${review.order?.gig?.uuid}`} className="text-brand-600 hover:underline">{review.order?.gig?.title}</Link>
                                                     </p>
                                                 </div>
                                                 <div className="ml-auto flex flex-col items-end">

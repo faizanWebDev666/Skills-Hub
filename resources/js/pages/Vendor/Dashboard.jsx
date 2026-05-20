@@ -243,7 +243,7 @@ export default function VendorDashboard({ stats, recentOrders, myGigs, user, sub
                                     </div>
                                     <div className="space-y-3">
                                         {myGigs?.length > 0 ? myGigs.map((gig) => (
-                                            <Link key={gig.id} href={`/gigs/${gig.id}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                            <Link key={gig.id} href={`/gigs/${gig.uuid}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                                                 <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
                                                     {gig.image ? (
                                                         <img src={`/storage/${gig.image}`} alt={gig.title} className="w-full h-full object-cover" />

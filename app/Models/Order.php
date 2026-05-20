@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Order extends Model
 {
+    use HasUuids;
+
     protected $fillable = [
+        'uuid',
         'customer_id',
         'freelancer_id',
         'gig_id',
@@ -23,6 +27,11 @@ class Order extends Model
         'completed_at' => 'datetime',
         'funds_released_at' => 'datetime',
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     public function customer(): BelongsTo
     {

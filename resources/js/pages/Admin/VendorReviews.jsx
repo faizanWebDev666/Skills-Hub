@@ -124,7 +124,7 @@ export default function VendorReviews({ vendor, reviews, user, sidebarLinks }) {
                                                         <span className="text-gray-400 text-sm">•</span>
                                                         <span className="text-sm text-gray-500 font-medium">{formatDate(review.created_at)}</span>
                                                     </div>
-                                                    <Link href={`/gigs/${review.order?.gig?.id}`} className="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline">
+                                                    <Link href={`/gigs/${review.order?.gig?.uuid}`} className="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline">
                                                         Service: {review.order?.gig?.title || 'Unknown Service'}
                                                     </Link>
                                                 </div>

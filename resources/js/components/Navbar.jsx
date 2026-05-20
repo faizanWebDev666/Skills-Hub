@@ -49,7 +49,7 @@ export default function Navbar({ user }) {
                         <Link href="/home" className="text-gray-500 hover:text-brand-600 transition-colors">
                             Home
                         </Link>
-                        <Link href="#" className="text-gray-500 hover:text-brand-600 transition-colors">
+                        <Link href="/how-it-works" className="text-gray-500 hover:text-brand-600 transition-colors">
                             How It Works
                         </Link>
                     </div>
@@ -276,7 +276,7 @@ export default function Navbar({ user }) {
                             <Link href="/gigs" className="text-gray-700 hover:text-brand-600 font-medium py-2 px-1 text-sm">
                                 Browse Services
                             </Link>
-                            <Link href="#" className="text-gray-700 hover:text-brand-600 font-medium py-2 px-1 text-sm">
+                            <Link href="/how-it-works" className="text-gray-700 hover:text-brand-600 font-medium py-2 px-1 text-sm">
                                 How It Works
                             </Link>
 

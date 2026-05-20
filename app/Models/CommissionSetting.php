@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class CommissionSetting extends Model
 {
-    protected $fillable = ['category', 'percentage'];
+    use HasUuids;
+
+    protected $fillable = ['uuid', 'category', 'percentage'];
 }

@@ -297,7 +297,7 @@ export default function Index({ gigs, user, filters = {}, wishlistGigIds = [] })
                                             )}
                                         </div>
                                         <button 
-                                            onClick={() => handleWishlistToggle(gig.id)}
+                                            onClick={() => handleWishlistToggle(gig.uuid)}
                                             className="absolute top-2 sm:top-3 right-2 sm:right-3 w-8 h-8 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-sm"
                                         >
                                             <svg 
@@ -349,7 +349,7 @@ export default function Index({ gigs, user, filters = {}, wishlistGigIds = [] })
                                                 <p className="text-base sm:text-xl font-bold text-gray-900">${gig.price}</p>
                                             </div>
                                             <Link
-                                                href={`/gigs/${gig.id}`}
+                                                href={`/gigs/${gig.uuid}`}
                                                 className="bg-white hover:bg-cream-100 text-gray-900 px-2 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold border border-cream-300 transition-all hover:border-brand-500 hover:text-brand-600 text-xs sm:text-sm"
                                             >
                                                 View

@@ -135,7 +135,7 @@ export default function GigEdit({ gig, user }) {
             submitData.category_fields[key] = data.category_field_tags[key];
         });
         setData(submitData);
-        post(`/vendor/gigs/${gig.id}`, {
+        post(`/vendor/gigs/${gig.uuid}`, {
             forceFormData: true,
         });
     };
