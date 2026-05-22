@@ -5,12 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Gig;
 use App\Models\Order;
 use App\Models\User;
-use App\Models\CommissionSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
-use Stripe\Stripe;
 use Stripe\Checkout\Session as StripeSession;
+use Stripe\Stripe;
 
 class GigController extends Controller
 {
@@ -28,11 +27,19 @@ class GigController extends Controller
 
         // Search by title or description
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
+            $search = trim($request->search);
+
+            if (strlen($search) > 0 && in_array(DB::getDriverName(), ['mysql', 'mariadb'], true)) {
+                $query->whereRaw(
+                    'MATCH(title, description) AGAINST(? IN BOOLEAN MODE)',
+                    [$this->buildFullTextSearchTerm($search)],
+                );
+            } else {
+                $query->where(function ($q) use ($search) {
+                    $q->where('title', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                });
+            }
         }
 
         // Sort
@@ -54,8 +61,8 @@ class GigController extends Controller
         $gigs = $query->paginate(12)->withQueryString();
 
         // Get user's wishlist IDs
-        $wishlistGigIds = auth()->check() 
-            ? auth()->user()->wishlists()->pluck('gig_id')->toArray() 
+        $wishlistGigIds = auth()->check()
+            ? auth()->user()->wishlists()->pluck('gig_id')->toArray()
             : [];
 
         return Inertia::render('Gigs/Index', [
@@ -73,6 +80,47 @@ class GigController extends Controller
     /**
      * Show the form for creating a new resource.
      */
+    public function suggestions(Request $request)
+    {
+        $term = trim($request->get('q', ''));
+
+        if (strlen($term) < 2) {
+            return response()->json([]);
+        }
+
+        $suggestions = Gig::active();
+
+        if (in_array(DB::getDriverName(), ['mysql', 'mariadb'], true)) {
+            $suggestions->whereRaw(
+                'MATCH(title, description) AGAINST(? IN BOOLEAN MODE)',
+                [$this->buildFullTextSearchTerm($term)],
+            );
+        } else {
+            $suggestions->where(function ($query) use ($term) {
+                $query->where('title', 'like', "%{$term}%")
+                    ->orWhere('description', 'like', "%{$term}%");
+            });
+        }
+
+        $results = $suggestions
+            ->orderBy('title')
+            ->limit(8)
+            ->pluck('title')
+            ->unique()
+            ->values();
+
+        return response()->json($results);
+    }
+
+    protected function buildFullTextSearchTerm(string $search): string
+    {
+        return collect(preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY))
+            ->map(fn ($word) => preg_replace('/[^\p{L}\p{N}_-]+/u', '', $word))
+            ->filter()
+            ->map(fn ($word) => $word . '*')
+            ->implode(' ');
+    }
+
     public function create()
     {
         return Inertia::render('Gigs/Create', [
@@ -124,13 +172,13 @@ class GigController extends Controller
             'totalOrders' => $seller->freelancerOrders->count(),
             'completedOrders' => $seller->freelancerOrders->where('status', 'completed')->count(),
             'reviewsCount' => $seller->reviewsReceived->count(),
-            'avgRating' => $seller->reviewsReceived->count() > 0 
-                ? number_format($seller->reviewsReceived->avg('rating'), 1) 
+            'avgRating' => $seller->reviewsReceived->count() > 0
+                ? number_format($seller->reviewsReceived->avg('rating'), 1)
                 : 0,
         ];
 
-        $isInWishlist = auth()->check() 
-            ? auth()->user()->wishlists()->where('gig_id', $gig->id)->exists() 
+        $isInWishlist = auth()->check()
+            ? auth()->user()->wishlists()->where('gig_id', $gig->id)->exists()
             : false;
 
         return Inertia::render('Gigs/Show', [
@@ -147,7 +195,7 @@ class GigController extends Controller
      */
     public function checkout(Gig $gig)
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 
@@ -155,7 +203,7 @@ class GigController extends Controller
             return back()->with('error', 'You cannot purchase your own gig.');
         }
 
-        if (!$gig->active) {
+        if (! $gig->active) {
             return back()->with('error', 'This gig is not available for purchase right now.');
         }
 
@@ -172,7 +220,7 @@ class GigController extends Controller
      */
     public function order(Request $request, Gig $gig)
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 
@@ -180,7 +228,7 @@ class GigController extends Controller
             return back()->with('error', 'You cannot purchase your own gig.');
         }
 
-        if (!$gig->active) {
+        if (! $gig->active) {
             return back()->with('error', 'This gig is not available for purchase right now.');
         }
 
@@ -208,14 +256,14 @@ class GigController extends Controller
                     'currency' => 'usd',
                     'unit_amount' => $gig->price * 100, // Amount in cents
                     'product_data' => [
-                        'name' => 'Gig: ' . $gig->title,
-                        'description' => 'Service from ' . $gig->user->name,
+                        'name' => 'Gig: '.$gig->title,
+                        'description' => 'Service from '.$gig->user->name,
                     ],
                 ],
                 'quantity' => 1,
             ]],
             'mode' => 'payment',
-            'success_url' => route('gigs.payment.success', $order->id) . '?session_id={CHECKOUT_SESSION_ID}',
+            'success_url' => route('gigs.payment.success', $order->id).'?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('gigs.payment.cancel', $order->id),
             'client_reference_id' => $order->id,
         ]);
@@ -271,7 +319,7 @@ class GigController extends Controller
                 'completed_at' => now(),
             ]);
 
-            // Note: The payment was held in Stripe/Admin account. 
+            // Note: The payment was held in Stripe/Admin account.
             // The vendor will receive the funds when the Admin explicitly releases them from the Admin dashboard.
         });
 

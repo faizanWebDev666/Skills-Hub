@@ -16,7 +16,7 @@ class ChatController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
+
         $conversations = Conversation::forUser($user)
             ->with(['userOne.roles', 'userTwo.roles', 'latestMessage'])
             ->orderBy('last_message_at', 'desc')
@@ -27,9 +27,9 @@ class ChatController extends Controller
                     ->where('user_id', '!=', $user->id)
                     ->where('read', false)
                     ->count();
-                
+
                 return [
-                    'id' => $conversation->id,
+                    'id' => $conversation->uuid,
                     'other_user' => [
                         'id' => $otherUser->id,
                         'name' => $otherUser->name,
@@ -49,7 +49,7 @@ class ChatController extends Controller
     public function show(Conversation $conversation)
     {
         $user = auth()->user();
-        
+
         abort_if(
             $conversation->user_one_id !== $user->id && $conversation->user_two_id !== $user->id,
             403
@@ -77,9 +77,9 @@ class ChatController extends Controller
                     ->where('user_id', '!=', $user->id)
                     ->where('read', false)
                     ->count();
-                
+
                 return [
-                    'id' => $c->id,
+                    'id' => $c->uuid,
                     'other_user' => [
                         'id' => $otherUser->id,
                         'name' => $otherUser->name,
@@ -93,7 +93,7 @@ class ChatController extends Controller
 
         return Inertia::render('Chat/Show', [
             'conversation' => [
-                'id' => $conversation->id,
+                'id' => $conversation->uuid,
                 'other_user' => $otherUser,
                 'messages' => $messages,
             ],
@@ -122,7 +122,7 @@ class ChatController extends Controller
     public function store(Request $request, Conversation $conversation)
     {
         $user = auth()->user();
-        
+
         abort_if(
             $conversation->user_one_id !== $user->id && $conversation->user_two_id !== $user->id,
             403
@@ -143,7 +143,7 @@ class ChatController extends Controller
             $path = $file->store('chat-attachments', 'public');
             $messageData['attachment'] = $path;
             $messageData['attachment_name'] = $file->getClientOriginalName();
-            
+
             if (str_starts_with($file->getMimeType(), 'image/')) {
                 $messageData['attachment_type'] = 'image';
             } else {
@@ -155,11 +155,11 @@ class ChatController extends Controller
 
         $conversation->update(['last_message_at' => now()]);
 
-        $recipientId = $conversation->user_one_id === $user->id 
-            ? $conversation->user_two_id 
+        $recipientId = $conversation->user_one_id === $user->id
+            ? $conversation->user_two_id
             : $conversation->user_one_id;
 
-        broadcast(new MessageSent($message->load('user'), $conversation->id, $recipientId));
+        broadcast(new MessageSent($message->load('user'), $conversation->uuid, $recipientId));
 
         // Create notification for recipient
         $notification = Notification::create([
@@ -167,10 +167,12 @@ class ChatController extends Controller
             'type' => 'message',
             'related_id' => $message->id,
             'conversation_id' => $conversation->id,
-            'title' => 'New Message from ' . $user->name,
+            'title' => 'New Message from '.$user->name,
             'message' => $message->content,
             'from_user_id' => $user->id,
         ]);
+
+        $notification->load('conversation', 'fromUser');
 
         // Broadcast the notification
         broadcast(new NotificationCreated($notification));
@@ -181,7 +183,7 @@ class ChatController extends Controller
     public function createWithUser(User $user)
     {
         $authUser = auth()->user();
-        
+
         if ($authUser->id === $user->id) {
             return redirect()->route('chat.index');
         }
@@ -221,7 +223,7 @@ class ChatController extends Controller
     {
         $user = auth()->user();
         $notifications = Notification::where('user_id', $user->id)
-            ->with(['fromUser:id,name,avatar'])
+            ->with(['fromUser:id,name,avatar', 'conversation'])
             ->orderBy('created_at', 'desc')
             ->limit(20)
             ->get()
@@ -237,7 +239,7 @@ class ChatController extends Controller
                         'avatar' => $notification->fromUser->avatar,
                     ] : null,
                     'related_id' => $notification->related_id,
-                    'conversation_id' => $notification->conversation_id,
+                    'conversation_id' => $notification->conversation ? $notification->conversation->uuid : null,
                     'read' => $notification->read,
                     'created_at' => $notification->created_at,
                 ];
@@ -254,7 +256,7 @@ class ChatController extends Controller
     public function markNotificationAsRead(Notification $notification)
     {
         $user = auth()->user();
-        
+
         abort_if($notification->user_id !== $user->id, 403);
 
         $notification->markAsRead();

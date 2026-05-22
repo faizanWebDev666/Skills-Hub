@@ -47,13 +47,17 @@ export default function Reviews({ vendors, filters, user, sidebarLinks }) {
 
     const executeToggle = () => {
         if (selectedVendor) {
-            router.post(`/admin/reviews/${selectedVendor.id}/toggle-status`, {}, {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setShowModal(false);
-                    setSelectedVendor(null);
-                }
-            });
+            router.post(
+                `/admin/reviews/${selectedVendor.uuid}/toggle-status`,
+                {},
+                {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        setShowModal(false);
+                        setSelectedVendor(null);
+                    },
+                },
+            );
         }
     };
 
@@ -170,14 +174,14 @@ export default function Reviews({ vendors, filters, user, sidebarLinks }) {
                                                         <div className="flex items-center gap-2">
                                                             {v.id !== user?.id && (
                                                                 <Link
-                                                                    href={typeof route !== 'undefined' ? route('chat.with-user', v.id) : `/chat/user/${v.id}`}
+                                                                    href={route('chat.with-user', v.uuid)}
                                                                     className="px-3 py-1.5 text-xs font-bold rounded-lg bg-brand-100 text-brand-700 hover:bg-brand-200 transition-colors"
                                                                 >
                                                                     Message
                                                                 </Link>
                                                             )}
                                                             <Link
-                                                                href={`/admin/reviews/${v.id}`}
+                                                                href={`/admin/reviews/${v.uuid}`}
                                                                 className="px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
                                                             >
                                                                 View Details

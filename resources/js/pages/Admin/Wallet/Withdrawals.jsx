@@ -1,35 +1,39 @@
-import React, { useState } from 'react';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import AdminSidebar from '../../../components/AdminSidebar';
+import React, { useState } from "react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
+import AdminSidebar from "../../../components/AdminSidebar";
 
 export default function Withdrawals({ withdrawals, filters }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
-    const [rejectionReason, setRejectionReason] = useState('');
+    const [rejectionReason, setRejectionReason] = useState("");
     const [showRejectModal, setShowRejectModal] = useState(false);
     const { flash } = usePage().props;
 
     const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
+        return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
         }).format(amount);
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
+        return new Date(dateString).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
         });
     };
 
     const handleApprove = (withdrawal) => {
-        router.post(`/admin/wallet/withdrawals/${withdrawal.id}/approve`, {}, {
-            preserveScroll: true,
-        });
+        router.post(
+            `/admin/wallet/withdrawals/${withdrawal.id}/approve`,
+            {},
+            {
+                preserveScroll: true,
+            },
+        );
     };
 
     const handleReject = (withdrawal) => {
@@ -39,34 +43,51 @@ export default function Withdrawals({ withdrawals, filters }) {
 
     const submitRejection = () => {
         if (!rejectionReason.trim()) {
-            alert('Please provide a rejection reason');
+            alert("Please provide a rejection reason");
             return;
         }
 
-        router.post(`/admin/wallet/withdrawals/${selectedWithdrawal.id}/reject`, {
-            reason: rejectionReason,
-        }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                setShowRejectModal(false);
-                setRejectionReason('');
-                setSelectedWithdrawal(null);
+        router.post(
+            `/admin/wallet/withdrawals/${selectedWithdrawal.id}/reject`,
+            {
+                reason: rejectionReason,
             },
-        });
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setShowRejectModal(false);
+                    setRejectionReason("");
+                    setSelectedWithdrawal(null);
+                },
+            },
+        );
     };
 
     return (
         <div className="min-h-screen bg-cream-50">
             <div className="flex">
-                <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+                <AdminSidebar
+                    sidebarOpen={sidebarOpen}
+                    setSidebarOpen={setSidebarOpen}
+                />
 
                 <main className="flex-1 min-w-0">
                     <div className="px-4 sm:px-6 lg:px-8 py-8">
                         {/* Success Flash */}
                         {flash?.success && (
                             <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-5 py-3.5 rounded-lg text-sm font-medium flex items-center gap-3">
-                                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <svg
+                                    className="w-5 h-5 shrink-0"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
                                 </svg>
                                 {flash.success}
                             </div>
@@ -75,8 +96,18 @@ export default function Withdrawals({ withdrawals, filters }) {
                         {/* Error Flash */}
                         {flash?.error && (
                             <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-5 py-3.5 rounded-lg text-sm font-medium flex items-center gap-3">
-                                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <svg
+                                    className="w-5 h-5 shrink-0"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
                                 </svg>
                                 {flash.error}
                             </div>
@@ -86,8 +117,13 @@ export default function Withdrawals({ withdrawals, filters }) {
                         <div className="mb-8">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-gray-900">Withdrawal Requests</h1>
-                                    <p className="mt-2 text-gray-600">Approve or reject user withdrawal requests</p>
+                                    <h1 className="text-3xl font-bold text-gray-900">
+                                        Withdrawal Requests
+                                    </h1>
+                                    <p className="mt-2 text-gray-600">
+                                        Approve or reject user withdrawal
+                                        requests
+                                    </p>
                                 </div>
                                 <Link
                                     href="/admin/wallet"
@@ -102,18 +138,27 @@ export default function Withdrawals({ withdrawals, filters }) {
                         <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 mb-6">
                             <div className="flex gap-3">
                                 {[
-                                    { value: 'pending_approval', label: 'Pending Approval' },
-                                    { value: 'pending', label: 'Processing' },
-                                    { value: 'completed', label: 'Completed' },
-                                    { value: 'cancelled', label: 'Rejected' },
+                                    {
+                                        value: "pending_approval",
+                                        label: "Pending Approval",
+                                    },
+                                    { value: "pending", label: "Processing" },
+                                    { value: "completed", label: "Completed" },
+                                    { value: "cancelled", label: "Rejected" },
                                 ].map((status) => (
                                     <button
                                         key={status.value}
-                                        onClick={() => router.get('/admin/wallet/withdrawals', { status: status.value }, { preserveScroll: true })}
+                                        onClick={() =>
+                                            router.get(
+                                                "/admin/wallet/withdrawals",
+                                                { status: status.value },
+                                                { preserveScroll: true },
+                                            )
+                                        }
                                         className={`px-4 py-2 rounded-xl font-semibold transition-colors ${
                                             filters.status === status.value
-                                                ? 'bg-brand-600 text-white'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                ? "bg-brand-600 text-white"
+                                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                                         }`}
                                     >
                                         {status.label}
@@ -130,71 +175,126 @@ export default function Withdrawals({ withdrawals, filters }) {
                                         <table className="w-full">
                                             <thead className="bg-gray-50">
                                                 <tr>
-                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
-                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
-                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Method</th>
-                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Requested</th>
-                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        User
+                                                    </th>
+                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        Amount
+                                                    </th>
+                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        Method
+                                                    </th>
+                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        Status
+                                                    </th>
+                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        Requested
+                                                    </th>
+                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        Actions
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-200">
-                                                {withdrawals.data.map((withdrawal) => (
-                                                    <tr key={withdrawal.id} className="hover:bg-gray-50">
-                                                        <td className="px-6 py-4 whitespace-nowrap">
-                                                            <div className="text-sm font-medium text-gray-900">
-                                                                {withdrawal.wallet.user.name}
-                                                            </div>
-                                                            <div className="text-xs text-gray-500">
-                                                                {withdrawal.wallet.user.email}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                                                            {formatCurrency(Math.abs(withdrawal.amount))}
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                                            {withdrawal.metadata?.payment_method && (
-                                                                <span className="capitalize">
-                                                                    {withdrawal.metadata.payment_method.replace('_', ' ')}
-                                                                </span>
-                                                            )}
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap">
-                                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize ${
-                                                                withdrawal.status === 'pending_approval'
-                                                                    ? 'bg-yellow-100 text-yellow-800'
-                                                                    : withdrawal.status === 'pending'
-                                                                    ? 'bg-blue-100 text-blue-800'
-                                                                    : withdrawal.status === 'completed'
-                                                                    ? 'bg-green-100 text-green-800'
-                                                                    : 'bg-red-100 text-red-800'
-                                                            }`}>
-                                                                {withdrawal.status.replace('_', ' ')}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                            {formatDate(withdrawal.created_at)}
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                            {withdrawal.status === 'pending_approval' && (
-                                                                <div className="flex gap-2">
-                                                                    <button
-                                                                        onClick={() => handleApprove(withdrawal)}
-                                                                        className="px-3 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg font-semibold transition-colors"
-                                                                    >
-                                                                        Approve
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => handleReject(withdrawal)}
-                                                                        className="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-semibold transition-colors"
-                                                                    >
-                                                                        Reject
-                                                                    </button>
+                                                {withdrawals.data.map(
+                                                    (withdrawal) => (
+                                                        <tr
+                                                            key={withdrawal.id}
+                                                            className="hover:bg-gray-50"
+                                                        >
+                                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                                <div className="text-sm font-medium text-gray-900">
+                                                                    {
+                                                                        withdrawal
+                                                                            .wallet
+                                                                            .user
+                                                                            .name
+                                                                    }
                                                                 </div>
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                ))}
+                                                                <div className="text-xs text-gray-500">
+                                                                    {
+                                                                        withdrawal
+                                                                            .wallet
+                                                                            .user
+                                                                            .email
+                                                                    }
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                                                                {formatCurrency(
+                                                                    Math.abs(
+                                                                        withdrawal.amount,
+                                                                    ),
+                                                                )}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                                {withdrawal
+                                                                    .metadata
+                                                                    ?.payment_method && (
+                                                                    <span className="capitalize">
+                                                                        {withdrawal.metadata.payment_method.replace(
+                                                                            "_",
+                                                                            " ",
+                                                                        )}
+                                                                    </span>
+                                                                )}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                                <span
+                                                                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize ${
+                                                                        withdrawal.status ===
+                                                                        "pending_approval"
+                                                                            ? "bg-yellow-100 text-yellow-800"
+                                                                            : withdrawal.status ===
+                                                                                "pending"
+                                                                              ? "bg-blue-100 text-blue-800"
+                                                                              : withdrawal.status ===
+                                                                                  "completed"
+                                                                                ? "bg-green-100 text-green-800"
+                                                                                : "bg-red-100 text-red-800"
+                                                                    }`}
+                                                                >
+                                                                    {withdrawal.status.replace(
+                                                                        "_",
+                                                                        " ",
+                                                                    )}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                {formatDate(
+                                                                    withdrawal.created_at,
+                                                                )}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                                {withdrawal.status ===
+                                                                    "pending_approval" && (
+                                                                    <div className="flex gap-2">
+                                                                        <button
+                                                                            onClick={() =>
+                                                                                handleApprove(
+                                                                                    withdrawal,
+                                                                                )
+                                                                            }
+                                                                            className="px-3 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg font-semibold transition-colors"
+                                                                        >
+                                                                            Approve
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() =>
+                                                                                handleReject(
+                                                                                    withdrawal,
+                                                                                )
+                                                                            }
+                                                                            className="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-semibold transition-colors"
+                                                                        >
+                                                                            Reject
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    ),
+                                                )}
                                             </tbody>
                                         </table>
                                     </div>
@@ -204,25 +304,49 @@ export default function Withdrawals({ withdrawals, filters }) {
                                         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
                                             <div className="flex items-center justify-between">
                                                 <div className="text-sm text-gray-700">
-                                                    Showing {withdrawals.from} to {withdrawals.to} of {withdrawals.total} withdrawals
+                                                    Showing {withdrawals.from}{" "}
+                                                    to {withdrawals.to} of{" "}
+                                                    {withdrawals.total}{" "}
+                                                    withdrawals
                                                 </div>
                                                 <div className="flex space-x-1">
-                                                    {withdrawals.links.map((link, index) => (
-                                                        <button
-                                                            key={index}
-                                                            onClick={() => link.url && router.get(link.url, {}, { preserveScroll: true })}
-                                                            className={`px-3 py-1 text-sm rounded ${
-                                                                link.active
-                                                                    ? 'bg-brand-600 text-white'
-                                                                    : link.url
-                                                                    ? 'text-brand-600 hover:bg-brand-50'
-                                                                    : 'text-gray-400 cursor-not-allowed'
-                                                            }`}
-                                                            disabled={!link.url}
-                                                        >
-                                                            {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
-                                                        </button>
-                                                    ))}
+                                                    {withdrawals.links.map(
+                                                        (link, index) => (
+                                                            <button
+                                                                key={index}
+                                                                onClick={() =>
+                                                                    link.url &&
+                                                                    router.get(
+                                                                        link.url,
+                                                                        {},
+                                                                        {
+                                                                            preserveScroll: true,
+                                                                        },
+                                                                    )
+                                                                }
+                                                                className={`px-3 py-1 text-sm rounded ${
+                                                                    link.active
+                                                                        ? "bg-brand-600 text-white"
+                                                                        : link.url
+                                                                          ? "text-brand-600 hover:bg-brand-50"
+                                                                          : "text-gray-400 cursor-not-allowed"
+                                                                }`}
+                                                                disabled={
+                                                                    !link.url
+                                                                }
+                                                            >
+                                                                {link.label
+                                                                    .replace(
+                                                                        "&laquo;",
+                                                                        "«",
+                                                                    )
+                                                                    .replace(
+                                                                        "&raquo;",
+                                                                        "»",
+                                                                    )}
+                                                            </button>
+                                                        ),
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -230,11 +354,26 @@ export default function Withdrawals({ withdrawals, filters }) {
                                 </>
                             ) : (
                                 <div className="text-center py-12">
-                                    <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    <svg
+                                        className="w-16 h-16 text-gray-300 mx-auto mb-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={1}
+                                            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                                        />
                                     </svg>
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No withdrawals</h3>
-                                    <p className="text-gray-500">There are no pending withdrawal requests at the moment.</p>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                        No withdrawals
+                                    </h3>
+                                    <p className="text-gray-500">
+                                        There are no pending withdrawal requests
+                                        at the moment.
+                                    </p>
                                 </div>
                             )}
                         </div>
@@ -246,9 +385,13 @@ export default function Withdrawals({ withdrawals, filters }) {
             {showRejectModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                     <div className="bg-white rounded-3xl shadow-lg p-8 max-w-md w-full mx-4">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-4">Reject Withdrawal</h2>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                            Reject Withdrawal
+                        </h2>
                         <p className="text-gray-600 mb-4">
-                            Please provide a reason for rejecting this withdrawal request. The user will be notified and their funds will be refunded.
+                            Please provide a reason for rejecting this
+                            withdrawal request. The user will be notified and
+                            their funds will be refunded.
                         </p>
 
                         <textarea

@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PasswordResetMail;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
-use Carbon\Carbon;
-use App\Mail\PasswordResetMail;
 
 class PasswordResetController extends Controller
 {
@@ -25,7 +25,7 @@ class PasswordResetController extends Controller
     public function sendReset(Request $request)
     {
         $request->validate([
-            'email' => ['required','email']
+            'email' => ['required', 'email'],
         ]);
 
         $email = $request->email;
@@ -45,7 +45,8 @@ class PasswordResetController extends Controller
         try {
             Mail::to($email)->send(new PasswordResetMail($token, $email));
         } catch (\Exception $e) {
-            \Log::error('Password reset mail error: ' . $e->getMessage());
+            \Log::error('Password reset mail error: '.$e->getMessage());
+
             return back()->withErrors(['email' => 'Could not send reset email.']);
         }
 
@@ -62,7 +63,7 @@ class PasswordResetController extends Controller
     public function showReset(Request $request, $token)
     {
         $email = $request->query('email');
-        if (!$email) {
+        if (! $email) {
             return redirect()->route('login')->withErrors(['email' => 'Invalid reset link.']);
         }
 
@@ -71,7 +72,7 @@ class PasswordResetController extends Controller
             ->orderByDesc('created_at')
             ->first();
 
-        if (!$record) {
+        if (! $record) {
             return redirect()->route('login')->withErrors(['email' => 'Invalid or expired token.']);
         }
 
@@ -82,7 +83,7 @@ class PasswordResetController extends Controller
         }
 
         // Verify token
-        if (!Hash::check($token, $record->token)) {
+        if (! Hash::check($token, $record->token)) {
             return redirect()->route('login')->withErrors(['email' => 'Invalid token.']);
         }
 
@@ -96,9 +97,9 @@ class PasswordResetController extends Controller
     public function reset(Request $request)
     {
         $request->validate([
-            'email' => ['required','email'],
+            'email' => ['required', 'email'],
             'token' => ['required'],
-            'password' => ['required','confirmed','min:8','regex:/[A-Z]/','regex:/[!@#$%^&*(),.?":{}|<>]/']
+            'password' => ['required', 'confirmed', 'min:8', 'regex:/[A-Z]/', 'regex:/[!@#$%^&*(),.?":{}|<>]/'],
         ]);
 
         $email = $request->email;
@@ -109,7 +110,7 @@ class PasswordResetController extends Controller
             ->orderByDesc('created_at')
             ->first();
 
-        if (!$record) {
+        if (! $record) {
             return back()->withErrors(['email' => 'Invalid or expired token.']);
         }
 
@@ -118,12 +119,12 @@ class PasswordResetController extends Controller
             return back()->withErrors(['email' => 'Token has expired.']);
         }
 
-        if (!Hash::check($token, $record->token)) {
+        if (! Hash::check($token, $record->token)) {
             return back()->withErrors(['email' => 'Invalid token.']);
         }
 
         $user = User::where('email', $email)->first();
-        if (!$user) {
+        if (! $user) {
             return back()->withErrors(['email' => 'No user found with that email.']);
         }
 

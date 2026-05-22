@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class Message extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory;
 
     protected $fillable = [
         'uuid',
@@ -26,6 +26,15 @@ class Message extends Model
     protected $casts = [
         'read' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Message $message) {
+            if (empty($message->uuid)) {
+                $message->uuid = (string) Str::uuid();
+            }
+        });
+    }
 
     public function getRouteKeyName(): string
     {

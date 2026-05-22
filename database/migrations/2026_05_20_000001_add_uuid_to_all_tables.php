@@ -64,7 +64,7 @@ return new class extends Migration
         // Add UUID to subscriptions table
         if (Schema::hasTable('subscriptions')) {
             Schema::table('subscriptions', function (Blueprint $table) {
-                if (!Schema::hasColumn('subscriptions', 'uuid')) {
+                if (! Schema::hasColumn('subscriptions', 'uuid')) {
                     $table->uuid('uuid')->nullable()->unique()->after('id');
                 }
             });
@@ -73,7 +73,7 @@ return new class extends Migration
         // Add UUID to commission_settings table
         if (Schema::hasTable('commission_settings')) {
             Schema::table('commission_settings', function (Blueprint $table) {
-                if (!Schema::hasColumn('commission_settings', 'uuid')) {
+                if (! Schema::hasColumn('commission_settings', 'uuid')) {
                     $table->uuid('uuid')->nullable()->unique()->after('id');
                 }
             });

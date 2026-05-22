@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class Notification extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory;
 
     protected $fillable = [
         'uuid',
@@ -30,6 +30,15 @@ class Notification extends Model
         'updated_at' => 'datetime',
         'read_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Notification $notification) {
+            if (empty($notification->uuid)) {
+                $notification->uuid = (string) Str::uuid();
+            }
+        });
+    }
 
     public function getRouteKeyName(): string
     {
@@ -57,7 +66,7 @@ class Notification extends Model
      */
     public function markAsRead(): void
     {
-        if (!$this->read) {
+        if (! $this->read) {
             $this->update([
                 'read' => true,
                 'read_at' => now(),
@@ -74,5 +83,13 @@ class Notification extends Model
             'read' => false,
             'read_at' => null,
         ]);
+    }
+
+    /**
+     * Get the conversation related to this notification
+     */
+    public function conversation(): BelongsTo
+    {
+        return $this->belongsTo(Conversation::class);
     }
 }

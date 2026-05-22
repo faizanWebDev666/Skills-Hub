@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Laravel\Socialite\Facades\Socialite;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class OAuthController extends Controller
 {
@@ -28,10 +28,12 @@ class OAuthController extends Controller
     {
         try {
             $user = Socialite::driver('google')->user();
+
             return $this->loginOrCreateUser($user, 'google');
         } catch (Exception $e) {
-            \Log::error('Google OAuth error: ' . $e->getMessage());
-            return redirect('/login')->with('error', 'Unable to authenticate with Google: ' . $e->getMessage());
+            \Log::error('Google OAuth error: '.$e->getMessage());
+
+            return redirect('/login')->with('error', 'Unable to authenticate with Google: '.$e->getMessage());
         }
     }
 
@@ -53,10 +55,12 @@ class OAuthController extends Controller
     {
         try {
             $user = Socialite::driver('facebook')->user();
+
             return $this->loginOrCreateUser($user, 'facebook');
         } catch (Exception $e) {
-            \Log::error('Facebook OAuth error: ' . $e->getMessage());
-            return redirect('/login')->with('error', 'Unable to authenticate with Facebook: ' . $e->getMessage());
+            \Log::error('Facebook OAuth error: '.$e->getMessage());
+
+            return redirect('/login')->with('error', 'Unable to authenticate with Facebook: '.$e->getMessage());
         }
     }
 
@@ -71,14 +75,14 @@ class OAuthController extends Controller
             ->first();
 
         // If not found, check by email
-        if (!$user) {
+        if (! $user) {
             $user = User::where('email', $oauthUser->getEmail())->first();
         }
 
-        if (!$user) {
+        if (! $user) {
             // Generate unique username from email
             $name = $oauthUser->getName() ?? explode('@', $oauthUser->getEmail())[0];
-            
+
             // Create new user
             $user = User::create([
                 'name' => $name,
@@ -91,27 +95,27 @@ class OAuthController extends Controller
 
             // Assign default customer role
             $user->assignRole('customer');
-            
-            \Log::info("New user created via {$provider}: " . $user->email);
+
+            \Log::info("New user created via {$provider}: ".$user->email);
         } else {
             // Update OAuth information if not present
-            if (!$user->oauth_id || !$user->oauth_provider) {
+            if (! $user->oauth_id || ! $user->oauth_provider) {
                 $user->update([
                     'oauth_id' => $oauthUser->getId(),
                     'oauth_provider' => $provider,
                 ]);
-                \Log::info("OAuth info added for existing user: " . $user->email);
+                \Log::info('OAuth info added for existing user: '.$user->email);
             }
 
             // Update avatar if available and not set
-            if ($oauthUser->getAvatar() && !$user->avatar) {
+            if ($oauthUser->getAvatar() && ! $user->avatar) {
                 $user->update(['avatar' => $oauthUser->getAvatar()]);
             }
         }
 
         // Log user in
         Auth::login($user);
-        \Log::info("User logged in via {$provider}: " . $user->email);
+        \Log::info("User logged in via {$provider}: ".$user->email);
 
         // Redirect based on role
         return redirect($this->redirectAfterLogin($user));
@@ -133,4 +137,3 @@ class OAuthController extends Controller
         return route('home');
     }
 }
-

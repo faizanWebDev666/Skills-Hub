@@ -1,24 +1,25 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\GigController;
-use App\Http\Controllers\VendorController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ChatController;
-use App\Http\Controllers\WishlistController;
-use App\Http\Controllers\WalletController;
 use App\Http\Controllers\AdminWalletController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\OAuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\GigController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\VendorController;
+use App\Http\Controllers\WalletController;
+use App\Http\Controllers\WishlistController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/home', [HomeController::class, 'index']);
 Route::get('/how-it-works', [HomeController::class, 'howItWorks'])->name('how-it-works');
+Route::get('/gigs/suggestions', [GigController::class, 'suggestions'])->name('gigs.suggestions');
 Route::resource('gigs', GigController::class)->only(['index', 'show']);
 
 Route::middleware('guest')->group(function () {
@@ -73,13 +74,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat/{conversation}', [ChatController::class, 'show'])->name('chat.show');
     Route::post('/chat/{conversation}', [ChatController::class, 'store'])->name('chat.store');
     Route::get('/chat/user/{user}', [ChatController::class, 'createWithUser'])->name('chat.with-user');
-    
+
     // Notification routes
     Route::get('/notifications/unread-count', [ChatController::class, 'getUnreadNotifications'])->name('notifications.unread-count');
     Route::get('/notifications', [ChatController::class, 'getNotifications'])->name('notifications.index');
     Route::post('/notifications/{notification}/read', [ChatController::class, 'markNotificationAsRead'])->name('notifications.read');
     Route::post('/notifications/mark-all-read', [ChatController::class, 'markAllNotificationsAsRead'])->name('notifications.mark-all-read');
-    
+
     Route::get('/gigs/{gig}/checkout', [GigController::class, 'checkout'])->name('gigs.checkout');
     Route::post('/gigs/{gig}/order', [GigController::class, 'order'])->name('gigs.order');
     Route::get('/orders/{order}/success', [GigController::class, 'paymentSuccess'])->name('gigs.payment.success');
@@ -107,7 +108,7 @@ Route::middleware(['auth', 'role:freelancer|vendor|admin'])->group(function () {
     Route::get('/vendor/subscriptions/cancel', [VendorController::class, 'subscriptionCancel'])->name('vendor.subscriptions.cancel');
     Route::get('/vendor/reviews', [VendorController::class, 'reviews'])->name('vendor.reviews');
     Route::post('/vendor/reviews/{review}/reply', [VendorController::class, 'replyReview'])->name('vendor.reviews.reply');
-    
+
     // Vendor Profile
     Route::put('/vendor/profile', [VendorController::class, 'updateProfile'])->name('vendor.profile.update');
     Route::post('/vendor/profile/avatar', [VendorController::class, 'updateAvatar'])->name('vendor.profile.avatar');

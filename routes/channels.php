@@ -4,8 +4,9 @@ use App\Models\Conversation;
 use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
 
-Broadcast::channel('chat.{conversationId}', function (User $user, int $conversationId) {
-    $conversation = Conversation::find($conversationId);
+Broadcast::channel('chat.{conversationUuid}', function (User $user, string $conversationUuid) {
+    $conversation = Conversation::where('uuid', $conversationUuid)->first();
+
     return $conversation && ($conversation->user_one_id === $user->id || $conversation->user_two_id === $user->id);
 });
 

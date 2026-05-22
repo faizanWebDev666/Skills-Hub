@@ -3,12 +3,16 @@
 namespace App\Services;
 
 use Exception;
+use GuzzleHttp\Client;
 
 class PayPalPaymentService
 {
     protected $clientId;
+
     protected $clientSecret;
+
     protected $mode;
+
     protected $apiEndpoint;
 
     public function __construct()
@@ -30,7 +34,7 @@ class PayPalPaymentService
             $response = $this->makeRequest('POST', '/oauth2/token', [
                 'grant_type' => 'client_credentials',
             ], [
-                'Authorization' => 'Basic ' . base64_encode("{$this->clientId}:{$this->clientSecret}"),
+                'Authorization' => 'Basic '.base64_encode("{$this->clientId}:{$this->clientSecret}"),
             ]);
 
             return $response['access_token'] ?? null;
@@ -42,11 +46,11 @@ class PayPalPaymentService
     /**
      * Create a payment for deposit
      */
-    public function createPayment(float $amount, string $currency = 'USD', string $returnUrl = null, string $cancelUrl = null): array
+    public function createPayment(float $amount, string $currency = 'USD', ?string $returnUrl = null, ?string $cancelUrl = null): array
     {
         try {
             $accessToken = $this->getAccessToken();
-            if (!$accessToken) {
+            if (! $accessToken) {
                 throw new Exception('Failed to obtain PayPal access token');
             }
 
@@ -108,7 +112,7 @@ class PayPalPaymentService
     {
         try {
             $accessToken = $this->getAccessToken();
-            if (!$accessToken) {
+            if (! $accessToken) {
                 throw new Exception('Failed to obtain PayPal access token');
             }
 
@@ -140,7 +144,7 @@ class PayPalPaymentService
     {
         try {
             $accessToken = $this->getAccessToken();
-            if (!$accessToken) {
+            if (! $accessToken) {
                 throw new Exception('Failed to obtain PayPal access token');
             }
 
@@ -179,7 +183,7 @@ class PayPalPaymentService
      */
     protected function makeRequest(string $method, string $endpoint, array $data = [], array $headers = []): array
     {
-        $url = $this->apiEndpoint . $endpoint;
+        $url = $this->apiEndpoint.$endpoint;
 
         $defaultHeaders = [
             'Content-Type' => 'application/json',
@@ -191,7 +195,7 @@ class PayPalPaymentService
             'timeout' => 10,
         ];
 
-        $client = new \GuzzleHttp\Client();
+        $client = new Client;
         $response = $client->request($method, $url, $options);
 
         return json_decode((string) $response->getBody(), true) ?? [];

@@ -3,15 +3,13 @@
 namespace App\Models;
 
 use App\Mail\TransactionNotification;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class WalletTransaction extends Model
 {
-    use HasUuids;
-
     protected $fillable = [
         'uuid',
         'wallet_id',
@@ -24,7 +22,7 @@ class WalletTransaction extends Model
         'description',
         'status',
         'metadata',
-        'processed_at'
+        'processed_at',
     ];
 
     protected $casts = [
@@ -38,6 +36,15 @@ class WalletTransaction extends Model
     public function getRouteKeyName(): string
     {
         return 'uuid';
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (WalletTransaction $transaction) {
+            if (empty($transaction->uuid)) {
+                $transaction->uuid = (string) Str::uuid();
+            }
+        });
     }
 
     public function wallet(): BelongsTo
@@ -87,7 +94,8 @@ class WalletTransaction extends Model
     {
         $amount = floatval($this->amount);
         $symbol = $amount > 0 ? '+' : '';
-        return $symbol . '$' . number_format(abs($amount), 2);
+
+        return $symbol.'$'.number_format(abs($amount), 2);
     }
 
     /**

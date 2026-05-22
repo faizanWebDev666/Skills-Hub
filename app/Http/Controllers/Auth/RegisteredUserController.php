@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Mail\VerificationCodeMail;
+use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +23,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', 'min:8', 'regex:/[A-Z]/', 'regex:/[!@#$%^&*(),.?":{}|<>]/'],
             'role' => ['required', 'in:customer,freelancer'],
         ], [
@@ -47,9 +47,10 @@ class RegisteredUserController extends Controller
         try {
             Mail::to($request->email)->send(new VerificationCodeMail($code));
         } catch (\Exception $e) {
-            \Log::error('Registration Mail Error: ' . $e->getMessage());
+            \Log::error('Registration Mail Error: '.$e->getMessage());
             // Clear session data since registration is cancelled
             $request->session()->forget('registration_data');
+
             return back()->withErrors(['email' => 'Could not send verification email. Please verify your SMTP credentials.']);
         }
 
@@ -58,12 +59,12 @@ class RegisteredUserController extends Controller
 
     public function verify()
     {
-        if (!session()->has('registration_data')) {
+        if (! session()->has('registration_data')) {
             return redirect()->route('register');
         }
 
         return Inertia::render('Auth/VerifyEmailCode', [
-            'email' => session('registration_data')['email']
+            'email' => session('registration_data')['email'],
         ]);
     }
 
@@ -73,7 +74,7 @@ class RegisteredUserController extends Controller
             'code' => ['required', 'string', 'size:8'],
         ]);
 
-        if (!session()->has('registration_data')) {
+        if (! session()->has('registration_data')) {
             return redirect()->route('register')->withErrors(['error' => 'Registration session expired.']);
         }
 

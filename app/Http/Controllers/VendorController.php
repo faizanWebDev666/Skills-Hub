@@ -2,7 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Conversation;
 use App\Models\Gig;
+use App\Models\Message;
+use App\Models\Review;
+use App\Models\Subscription;
+use App\Models\User;
+use App\Services\StripePaymentService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -26,20 +32,20 @@ class VendorController extends Controller
 
         $myGigs = $user->gigs()->latest()->take(5)->get();
 
-        $currentSubscription = \App\Models\Subscription::where('user_id', $user->id)->where('active', true)->latest()->first();
+        $currentSubscription = Subscription::where('user_id', $user->id)->where('active', true)->latest()->first();
 
         // Load conversations and unread message count
-        $conversations = \App\Models\Conversation::forUser($user)
+        $conversations = Conversation::forUser($user)
             ->with(['userOne:id,name,avatar', 'userTwo:id,name,avatar', 'latestMessage'])
             ->orderBy('last_message_at', 'desc')
             ->get()
             ->map(function ($conversation) use ($user) {
                 $otherUser = $conversation->getOtherUser($user);
-                $unreadCount = \App\Models\Message::where('conversation_id', $conversation->id)
+                $unreadCount = Message::where('conversation_id', $conversation->id)
                     ->where('user_id', '!=', $user->id)
                     ->where('read', false)
                     ->count();
-                
+
                 return [
                     'id' => $conversation->id,
                     'other_user' => [
@@ -69,7 +75,7 @@ class VendorController extends Controller
     public function subscriptions()
     {
         $user = auth()->user();
-        $currentSubscription = \App\Models\Subscription::where('user_id', $user->id)->where('active', true)->latest()->first();
+        $currentSubscription = Subscription::where('user_id', $user->id)->where('active', true)->latest()->first();
 
         return Inertia::render('Vendor/Subscriptions', [
             'user' => $user,
@@ -77,7 +83,7 @@ class VendorController extends Controller
         ]);
     }
 
-    public function purchaseSubscription(Request $request, \App\Services\StripePaymentService $stripeService)
+    public function purchaseSubscription(Request $request, StripePaymentService $stripeService)
     {
         $request->validate([
             'plan' => 'required|string|in:starter,growth,pro',
@@ -95,7 +101,7 @@ class VendorController extends Controller
         $price = $prices[$plan] ?? 0;
 
         // Create inactive subscription to store intent
-        $subscription = \App\Models\Subscription::create([
+        $subscription = Subscription::create([
             'user_id' => $user->id,
             'plan' => $plan,
             'price' => $price,
@@ -119,7 +125,7 @@ class VendorController extends Controller
         return response()->json(['session_url' => $session['session_url']]);
     }
 
-    public function subscriptionSuccess(Request $request, \App\Services\StripePaymentService $stripeService)
+    public function subscriptionSuccess(Request $request, StripePaymentService $stripeService)
     {
         $sessionId = $request->query('session_id');
         $subscriptionId = $request->query('subscription_id');
@@ -128,7 +134,7 @@ class VendorController extends Controller
             return redirect()->route('vendor.subscriptions')->with('error', 'Invalid payment return data.');
         }
 
-        $subscription = \App\Models\Subscription::where('id', $subscriptionId)
+        $subscription = Subscription::where('id', $subscriptionId)
             ->where('user_id', auth()->id())
             ->first();
 
@@ -149,14 +155,14 @@ class VendorController extends Controller
         $expiresAt = now()->addDays($durations[$subscription->plan] ?? 7);
 
         // deactivate other subscriptions
-        \App\Models\Subscription::where('user_id', auth()->id())->update(['active' => false]);
+        Subscription::where('user_id', auth()->id())->update(['active' => false]);
 
         $subscription->update([
             'active' => true,
             'expires_at' => $expiresAt,
         ]);
 
-        return redirect()->route('vendor.dashboard')->with('success', 'Subscription activated: ' . ucfirst($subscription->plan));
+        return redirect()->route('vendor.dashboard')->with('success', 'Subscription activated: '.ucfirst($subscription->plan));
     }
 
     public function subscriptionCancel()
@@ -187,6 +193,7 @@ class VendorController extends Controller
     public function gigs()
     {
         $gigs = auth()->user()->gigs()->latest()->paginate(10);
+
         return Inertia::render('Vendor/Gigs', [
             'gigs' => $gigs,
         ]);
@@ -285,6 +292,7 @@ class VendorController extends Controller
         }
 
         $gig->delete();
+
         return back()->with('success', 'Gig deleted successfully.');
     }
 
@@ -294,39 +302,40 @@ class VendorController extends Controller
             abort(403);
         }
 
-        $gig->update(['active' => !$gig->active]);
+        $gig->update(['active' => ! $gig->active]);
+
         return back()->with('success', 'Gig status updated.');
     }
 
     public function profile()
     {
         $user = auth()->user()->load('gigs');
-        
+
         // Calculate profile completion percentage
         $fields = [
-            'name' => !empty($user->name),
-            'email' => !empty($user->email),
-            'bio' => !empty($user->bio),
-            'phone' => !empty($user->phone),
-            'location' => !empty($user->location),
-            'professional_title' => !empty($user->professional_title),
-            'country' => !empty($user->country),
-            'city' => !empty($user->city),
-            'address' => !empty($user->address),
-            'languages' => !empty($user->languages) && count($user->languages) > 0,
-            'years_of_experience' => !empty($user->years_of_experience),
-            'hourly_rate' => !empty($user->hourly_rate),
-            'delivery_time' => !empty($user->delivery_time),
-            'available_days' => !empty($user->available_days) && count($user->available_days) > 0,
-            'service_type' => !empty($user->service_type),
-            'portfolio_images' => !empty($user->portfolio_images) && count($user->portfolio_images) > 0,
-            'certifications' => !empty($user->certifications) && count($user->certifications) > 0,
+            'name' => ! empty($user->name),
+            'email' => ! empty($user->email),
+            'bio' => ! empty($user->bio),
+            'phone' => ! empty($user->phone),
+            'location' => ! empty($user->location),
+            'professional_title' => ! empty($user->professional_title),
+            'country' => ! empty($user->country),
+            'city' => ! empty($user->city),
+            'address' => ! empty($user->address),
+            'languages' => ! empty($user->languages) && count($user->languages) > 0,
+            'years_of_experience' => ! empty($user->years_of_experience),
+            'hourly_rate' => ! empty($user->hourly_rate),
+            'delivery_time' => ! empty($user->delivery_time),
+            'available_days' => ! empty($user->available_days) && count($user->available_days) > 0,
+            'service_type' => ! empty($user->service_type),
+            'portfolio_images' => ! empty($user->portfolio_images) && count($user->portfolio_images) > 0,
+            'certifications' => ! empty($user->certifications) && count($user->certifications) > 0,
         ];
-        
+
         $completedFields = array_sum($fields);
         $totalFields = count($fields);
         $profileCompletion = round(($completedFields / $totalFields) * 100);
-        
+
         return Inertia::render('Vendor/Profile', [
             'user' => $user,
             'profileCompletion' => $profileCompletion,
@@ -339,7 +348,7 @@ class VendorController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'bio' => 'nullable|string|max:1000',
             'phone' => 'nullable|string|max:20',
             'location' => 'nullable|string|max:255',
@@ -423,7 +432,7 @@ class VendorController extends Controller
 
         $user = auth()->user();
         $path = $request->file('certificate')->store('certificates', 'public');
-        
+
         $certificates = $user->certifications ?? [];
         $certificates[] = $path;
         $user->update(['certifications' => $certificates]);
@@ -435,7 +444,7 @@ class VendorController extends Controller
     {
         $user = auth()->user();
         $certificates = $user->certifications ?? [];
-        
+
         if (isset($certificates[$index])) {
             unset($certificates[$index]);
             $user->update(['certifications' => array_values($certificates)]);
@@ -452,7 +461,7 @@ class VendorController extends Controller
 
         $user = auth()->user();
         $path = $request->file('portfolio_image')->store('portfolio/images', 'public');
-        
+
         $images = $user->portfolio_images ?? [];
         $images[] = $path;
         $user->update(['portfolio_images' => $images]);
@@ -464,7 +473,7 @@ class VendorController extends Controller
     {
         $user = auth()->user();
         $images = $user->portfolio_images ?? [];
-        
+
         if (isset($images[$index])) {
             unset($images[$index]);
             $user->update(['portfolio_images' => array_values($images)]);
@@ -481,7 +490,7 @@ class VendorController extends Controller
 
         $user = auth()->user();
         $path = $request->file('portfolio_video')->store('portfolio/videos', 'public');
-        
+
         $videos = $user->portfolio_videos ?? [];
         $videos[] = $path;
         $user->update(['portfolio_videos' => $videos]);
@@ -493,7 +502,7 @@ class VendorController extends Controller
     {
         $user = auth()->user();
         $videos = $user->portfolio_videos ?? [];
-        
+
         if (isset($videos[$index])) {
             unset($videos[$index]);
             $user->update(['portfolio_videos' => array_values($videos)]);
@@ -526,15 +535,15 @@ class VendorController extends Controller
     public function reviews(Request $request)
     {
         $user = auth()->user();
-        
+
         $gigId = $request->query('gig_id', 'all');
         $status = $request->query('status', 'all');
 
-        $query = \App\Models\Review::where('reviewee_id', $user->id)
+        $query = Review::where('reviewee_id', $user->id)
             ->with(['order.gig', 'reviewer']);
 
         if ($gigId !== 'all') {
-            $query->whereHas('order', function($q) use ($gigId) {
+            $query->whereHas('order', function ($q) use ($gigId) {
                 $q->where('gig_id', $gigId);
             });
         }
@@ -546,7 +555,7 @@ class VendorController extends Controller
         }
 
         $reviews = $query->latest()->paginate(15)->withQueryString();
-        
+
         $gigs = $user->gigs()->select('id', 'title')->get();
 
         return Inertia::render('Vendor/Reviews', [
@@ -555,11 +564,11 @@ class VendorController extends Controller
             'filters' => [
                 'gig_id' => $gigId,
                 'status' => $status,
-            ]
+            ],
         ]);
     }
 
-    public function replyReview(Request $request, \App\Models\Review $review)
+    public function replyReview(Request $request, Review $review)
     {
         if ($review->reviewee_id !== auth()->id()) {
             abort(403);
@@ -579,7 +588,8 @@ class VendorController extends Controller
 
     public function showFreelancer($user)
     {
-        $user = \App\Models\User::with(['gigs', 'reviewsReceived'])->findOrFail($user);
+        $user = User::with(['gigs', 'reviewsReceived'])->findOrFail($user);
+
         return Inertia::render('Vendor/Show', [
             'user' => $user,
         ]);

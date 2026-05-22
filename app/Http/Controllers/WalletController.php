@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
-use App\Services\StripePaymentService;
 use App\Services\PayPalPaymentService;
+use App\Services\StripePaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -14,6 +15,7 @@ use Inertia\Inertia;
 class WalletController extends Controller
 {
     protected $stripeService;
+
     protected $paypalService;
 
     public function __construct(StripePaymentService $stripeService, PayPalPaymentService $paypalService)
@@ -56,8 +58,8 @@ class WalletController extends Controller
         // Filter by date range
         if ($request->filled(['start_date', 'end_date'])) {
             $query->whereBetween('created_at', [
-                $request->start_date . ' 00:00:00',
-                $request->end_date . ' 23:59:59'
+                $request->start_date.' 00:00:00',
+                $request->end_date.' 23:59:59',
             ]);
         }
 
@@ -133,6 +135,7 @@ class WalletController extends Controller
 
         if (! $session['success']) {
             $transaction->update(['status' => 'failed', 'metadata' => array_merge($transaction->metadata ?? [], ['error' => $session['error']])]);
+
             return response()->json(['error' => $session['error']], 500);
         }
 
@@ -171,6 +174,7 @@ class WalletController extends Controller
 
         if (! $payment['success']) {
             $transaction->update(['status' => 'failed', 'metadata' => array_merge($transaction->metadata ?? [], ['error' => $payment['error']])]);
+
             return response()->json(['error' => $payment['error']], 500);
         }
 
@@ -199,7 +203,7 @@ class WalletController extends Controller
         $user = auth()->user();
         $wallet = $user->wallet ?? $this->createWalletForUser($user);
 
-        if (!$wallet->canDebit($request->amount)) {
+        if (! $wallet->canDebit($request->amount)) {
             return back()->withErrors(['amount' => 'Insufficient available balance.']);
         }
 
@@ -208,7 +212,7 @@ class WalletController extends Controller
             'amount' => -abs($request->amount),
             'balance_before' => $wallet->balance,
             'balance_after' => $wallet->balance,
-            'description' => 'Withdrawal request to ' . str_replace('_', ' ', $request->payment_method),
+            'description' => 'Withdrawal request to '.str_replace('_', ' ', $request->payment_method),
             'status' => 'pending_approval',
             'metadata' => [
                 'payment_method' => $request->payment_method,
@@ -235,7 +239,7 @@ class WalletController extends Controller
         ]);
 
         $sender = auth()->user();
-        $recipient = \App\Models\User::where('email', $request->recipient_email)->first();
+        $recipient = User::where('email', $request->recipient_email)->first();
 
         if (! $recipient) {
             return back()->withErrors(['recipient_email' => 'Recipient email does not match an active user.']);
@@ -248,7 +252,7 @@ class WalletController extends Controller
         $senderWallet = $sender->wallet ?? $this->createWalletForUser($sender);
         $recipientWallet = $recipient->wallet ?? $this->createWalletForUser($recipient);
 
-        if (!$senderWallet->canDebit($request->amount)) {
+        if (! $senderWallet->canDebit($request->amount)) {
             return back()->withErrors(['amount' => 'Insufficient available balance.']);
         }
 
@@ -258,14 +262,14 @@ class WalletController extends Controller
             $senderWallet->debit(
                 $request->amount,
                 'transfer',
-                "Transfer to {$recipient->name}" . $message,
+                "Transfer to {$recipient->name}".$message,
                 ['recipient_id' => $recipient->id]
             );
 
             $recipientWallet->credit(
                 $request->amount,
                 'transfer',
-                "Transfer from {$sender->name}" . $message,
+                "Transfer from {$sender->name}".$message,
                 ['sender_id' => $sender->id]
             );
         });

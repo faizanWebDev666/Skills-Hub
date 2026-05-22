@@ -27,7 +27,7 @@ return new class extends Migration
         foreach ($tables as $table) {
             // Get all records that don't have a UUID yet
             $records = DB::table($table)->whereNull('uuid')->get();
-            
+
             foreach ($records as $record) {
                 DB::table($table)
                     ->where('id', $record->id)
@@ -40,7 +40,7 @@ return new class extends Migration
         foreach ($optionalTables as $table) {
             if (Schema::hasTable($table)) {
                 $records = DB::table($table)->whereNull('uuid')->get();
-                
+
                 foreach ($records as $record) {
                     DB::table($table)
                         ->where('id', $record->id)

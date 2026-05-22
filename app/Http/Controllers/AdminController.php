@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\CommissionSetting;
 use App\Models\Gig;
 use App\Models\Order;
 use App\Models\Review;
-use App\Models\CommissionSetting;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
@@ -35,7 +36,7 @@ class AdminController extends Controller
         )->first();
 
         $gigCount = Gig::selectRaw('COUNT(*) as total, SUM(CASE WHEN active = true THEN 1 ELSE 0 END) as active')->first();
-        
+
         $orderStats = Order::selectRaw('
             COUNT(*) as total,
             SUM(CASE WHEN status = "pending" THEN 1 ELSE 0 END) as pending,
@@ -66,6 +67,7 @@ class AdminController extends Controller
 
         $chartData = $dates->map(function ($date) use ($orderTrends) {
             $day = $orderTrends->get($date);
+
             return [
                 'date' => $date,
                 'label' => now()->parse($date)->format('D'),
@@ -108,7 +110,7 @@ class AdminController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -198,9 +200,10 @@ class AdminController extends Controller
 
     public function toggleGig(Gig $gig)
     {
-        $gig->update(['active' => !$gig->active]);
+        $gig->update(['active' => ! $gig->active]);
 
         $status = $gig->active ? 'activated' : 'deactivated';
+
         return back()->with('success', "Gig has been {$status}.");
     }
 
@@ -243,7 +246,7 @@ class AdminController extends Controller
             'vendor_level' => 'required|integer|min:1|max:4',
         ]);
 
-        if (!$user->hasAnyRole(['vendor', 'freelancer'])) {
+        if (! $user->hasAnyRole(['vendor', 'freelancer'])) {
             return back()->with('error', 'Only vendors and freelancers can be assigned levels.');
         }
 
@@ -266,8 +269,8 @@ class AdminController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', "%{$search}%")
-                  ->orWhereHas('customer', fn($q) => $q->where('name', 'like', "%{$search}%"))
-                  ->orWhereHas('freelancer', fn($q) => $q->where('name', 'like', "%{$search}%"));
+                    ->orWhereHas('customer', fn ($q) => $q->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('freelancer', fn ($q) => $q->where('name', 'like', "%{$search}%"));
             });
         }
 
@@ -310,9 +313,9 @@ class AdminController extends Controller
             ->withCount('reviewsReceived as total_reviews');
 
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -323,7 +326,7 @@ class AdminController extends Controller
         }
 
         if ($minRating !== '') {
-            $query->having('average_rating', '>=', (float)$minRating);
+            $query->having('average_rating', '>=', (float) $minRating);
         }
 
         if ($sort === 'rating_desc') {
@@ -350,7 +353,7 @@ class AdminController extends Controller
     public function vendorReviews(User $user)
     {
         // Ensure the user is actually a vendor/freelancer
-        if (!$user->hasAnyRole(['vendor', 'freelancer'])) {
+        if (! $user->hasAnyRole(['vendor', 'freelancer'])) {
             return redirect()->route('admin.reviews')->with('error', 'User is not a vendor.');
         }
 
@@ -358,7 +361,7 @@ class AdminController extends Controller
         $vendor = $user->loadCount(['freelancerOrders as delivered_orders_count' => function ($query) {
             $query->whereIn('status', ['delivered', 'completed']);
         }])->loadAvg('reviewsReceived as average_rating', 'rating')
-           ->loadCount('reviewsReceived as total_reviews');
+            ->loadCount('reviewsReceived as total_reviews');
 
         // Fetch detailed reviews
         $reviews = Review::where('reviewee_id', $vendor->id)
@@ -396,11 +399,11 @@ class AdminController extends Controller
             return back()->with('error', 'Funds have already been released for this order.');
         }
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($order) {
+        DB::transaction(function () use ($order) {
             $gigCategory = $order->gig->category;
             $commissionSetting = CommissionSetting::where('category', $gigCategory)->first();
             $percentage = $commissionSetting ? $commissionSetting->percentage : 20.00; // Default 20%
-            
+
             $adminCommission = $order->amount * ($percentage / 100);
             $freelancerEarning = $order->amount - $adminCommission;
 
@@ -434,7 +437,7 @@ class AdminController extends Controller
     {
         $categories = Gig::distinct()->pluck('category')->filter()->values()->toArray();
         $commissions = CommissionSetting::all()->keyBy('category')->map->percentage->toArray();
-        
+
         $categoryCommissions = [];
         foreach ($categories as $category) {
             $categoryCommissions[$category] = $commissions[$category] ?? 20; // Default 20%
@@ -448,7 +451,7 @@ class AdminController extends Controller
                 'maxGigPrice' => (float) config('app.max_gig_price', 10000),
                 'minGigPrice' => (float) config('app.min_gig_price', 5),
             ],
-            'categoryCommissions' => collect($categoryCommissions)->map(fn($v, $k) => ['category' => $k, 'percentage' => $v])->values(),
+            'categoryCommissions' => collect($categoryCommissions)->map(fn ($v, $k) => ['category' => $k, 'percentage' => $v])->values(),
             'sidebarLinks' => $this->getSidebarLinks(),
         ]);
     }

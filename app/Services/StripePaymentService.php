@@ -4,13 +4,16 @@ namespace App\Services;
 
 use Exception;
 use Stripe\Checkout\Session;
-use Stripe\Stripe;
 use Stripe\PaymentIntent;
+use Stripe\Refund;
+use Stripe\Stripe;
 
 class StripePaymentService
 {
     protected $apiKey;
+
     protected $publishableKey;
+
     protected $apiVersion = '2023-08-16';
 
     public function __construct()
@@ -65,7 +68,7 @@ class StripePaymentService
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => $successUrl . '?session_id={CHECKOUT_SESSION_ID}&transaction_id=' . $transactionId,
+                'success_url' => $successUrl.'?session_id={CHECKOUT_SESSION_ID}&transaction_id='.$transactionId,
                 'cancel_url' => $cancelUrl,
                 'metadata' => [
                     'transaction_id' => $transactionId,
@@ -97,15 +100,15 @@ class StripePaymentService
                     'price_data' => [
                         'currency' => $currency,
                         'product_data' => [
-                            'name' => 'Vendor Subscription - ' . ucfirst($planName),
-                            'description' => 'Subscription plan: ' . ucfirst($planName),
+                            'name' => 'Vendor Subscription - '.ucfirst($planName),
+                            'description' => 'Subscription plan: '.ucfirst($planName),
                         ],
                         'unit_amount' => $this->convertToLowestCurrency($amount, $currency),
                     ],
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => $successUrl . '?session_id={CHECKOUT_SESSION_ID}&subscription_id=' . $subscriptionId,
+                'success_url' => $successUrl.'?session_id={CHECKOUT_SESSION_ID}&subscription_id='.$subscriptionId,
                 'cancel_url' => $cancelUrl,
                 'metadata' => [
                     'subscription_id' => $subscriptionId,
@@ -180,7 +183,7 @@ class StripePaymentService
         try {
             return [
                 'success' => true,
-                'payout_id' => 'po_' . uniqid(),
+                'payout_id' => 'po_'.uniqid(),
                 'status' => 'pending',
             ];
         } catch (Exception $e) {
@@ -202,7 +205,7 @@ class StripePaymentService
                 $refundData['amount'] = $this->convertToLowestCurrency($amount);
             }
 
-            $refund = \Stripe\Refund::create($refundData);
+            $refund = Refund::create($refundData);
 
             return [
                 'success' => true,

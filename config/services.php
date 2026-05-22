@@ -36,8 +36,8 @@ return [
     ],
 
     'stripe' => [
-        'key' => env('STRIPE_KEY', 'pk_test_TYooMQauvdEDq54NiTphI7jx'),
-        'secret' => env('STRIPE_SECRET', ''),
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
     ],
 
     'google' => [

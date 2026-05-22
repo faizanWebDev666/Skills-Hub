@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,8 +6,10 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans:
+        "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
 
     /* ============================================
        COLOR SYSTEM — Single source of truth
@@ -16,51 +18,51 @@
        ============================================ */
 
     /* Cream — Page backgrounds & surfaces */
-    --color-cream-50:  #FDFBF7;
-    --color-cream-100: #F6EEDE;
-    --color-cream-200: #EFE5D0;
-    --color-cream-300: #E5D7BC;
-    --color-cream-400: #D4C19E;
-    --color-cream-500: #BFA87A;
+    --color-cream-50: #fdfbf7;
+    --color-cream-100: #f6eede;
+    --color-cream-200: #efe5d0;
+    --color-cream-300: #e5d7bc;
+    --color-cream-400: #d4c19e;
+    --color-cream-500: #bfa87a;
 
     /* Brand — Primary actions, links, CTAs */
-    --color-brand-50:  #EEF2FF;
-    --color-brand-100: #E0E7FF;
-    --color-brand-200: #C7D2FE;
-    --color-brand-300: #A5B4FC;
-    --color-brand-400: #818CF8;
-    --color-brand-500: #6366F1;
-    --color-brand-600: #4F46E5;
-    --color-brand-700: #4338CA;
-    --color-brand-800: #3730A3;
-    --color-brand-900: #312E81;
+    --color-brand-50: #eef2ff;
+    --color-brand-100: #e0e7ff;
+    --color-brand-200: #c7d2fe;
+    --color-brand-300: #a5b4fc;
+    --color-brand-400: #818cf8;
+    --color-brand-500: #6366f1;
+    --color-brand-600: #4f46e5;
+    --color-brand-700: #4338ca;
+    --color-brand-800: #3730a3;
+    --color-brand-900: #312e81;
 
     /* Accent — Highlights, badges, secondary CTAs */
-    --color-accent-50:  #FFFBEB;
-    --color-accent-100: #FEF3C7;
-    --color-accent-200: #FDE68A;
-    --color-accent-300: #FCD34D;
-    --color-accent-400: #FBBF24;
-    --color-accent-500: #F59E0B;
-    --color-accent-600: #D97706;
+    --color-accent-50: #fffbeb;
+    --color-accent-100: #fef3c7;
+    --color-accent-200: #fde68a;
+    --color-accent-300: #fcd34d;
+    --color-accent-400: #fbbf24;
+    --color-accent-500: #f59e0b;
+    --color-accent-600: #d97706;
 
     /* Success — Positive states, confirmations */
-    --color-success-50:  #ECFDF5;
-    --color-success-100: #D1FAE5;
-    --color-success-200: #A7F3D0;
-    --color-success-500: #10B981;
+    --color-success-50: #ecfdf5;
+    --color-success-100: #d1fae5;
+    --color-success-200: #a7f3d0;
+    --color-success-500: #10b981;
     --color-success-600: #059669;
     --color-success-700: #047857;
 
     /* Danger — Errors, deletions, warnings */
-    --color-danger-50:  #FFF1F2;
-    --color-danger-100: #FFE4E6;
-    --color-danger-500: #F43F5E;
-    --color-danger-600: #E11D48;
-    --color-danger-700: #BE123C;
+    --color-danger-50: #fff1f2;
+    --color-danger-100: #ffe4e6;
+    --color-danger-500: #f43f5e;
+    --color-danger-600: #e11d48;
+    --color-danger-700: #be123c;
 
     /* Sidebar — Dark navigation panel */
-    --color-sidebar:       #1E293B;
+    --color-sidebar: #1e293b;
     --color-sidebar-light: #334155;
     --color-sidebar-hover: #475569;
 }

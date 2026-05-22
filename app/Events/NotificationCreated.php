@@ -3,7 +3,6 @@
 namespace App\Events;
 
 use App\Models\Notification;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -43,6 +42,7 @@ class NotificationCreated implements ShouldBroadcast
                 'avatar' => $this->notification->fromUser->avatar,
             ] : null,
             'read' => $this->notification->read,
+            'conversation_id' => $this->notification->conversation ? $this->notification->conversation->uuid : null,
             'created_at' => $this->notification->created_at->toIso8601String(),
         ];
     }
