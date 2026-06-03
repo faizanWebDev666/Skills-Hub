@@ -1,14 +1,21 @@
 import React, { useState } from "react";
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import Navbar from "../../components/Navbar";
+import VendorNavbar from "../../components/VendorNavbar";
 import ChatSidebar from "../../components/ChatSidebar";
 
-export default function ChatIndex({ conversations, user }) {
+export default function ChatIndex({ conversations }) {
+    const { props } = usePage();
+    const user = props.auth?.user;
     const [searchQuery, setSearchQuery] = useState("");
+    const isVendor = user?.roles?.some(
+        (role) => role.name === "freelancer" || role.name === "vendor",
+    );
+    const NavbarComponent = isVendor ? VendorNavbar : Navbar;
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-            <Navbar user={user} />
+            <NavbarComponent user={user} />
 
             <div className="flex-1 flex overflow-hidden">
                 <div className="max-w-[1400px] w-full mx-auto flex h-[calc(100vh-76px)] shadow-sm bg-slate-50 overflow-hidden lg:rounded-3xl lg:border lg:border-slate-200 lg:h-[calc(100vh-76px)]">

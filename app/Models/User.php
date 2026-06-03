@@ -34,6 +34,7 @@ class User extends Authenticatable
         'address',
         'languages',
         'years_of_experience',
+        'custom_years_of_experience',
         'cnic',
         'selfie_verification',
         'business_registration',
@@ -46,6 +47,7 @@ class User extends Authenticatable
         'delivery_time',
         'available_days',
         'service_type',
+        'custom_service_type',
         'emergency_service',
         'linkedin',
         'github',
@@ -58,6 +60,7 @@ class User extends Authenticatable
         'vendor_level',
         'banned_at',
         'last_active_at',
+        'locked_until',
     ];
 
     protected $hidden = [
@@ -75,6 +78,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'banned_at' => 'datetime',
+            'locked_until' => 'datetime',
             'last_active_at' => 'datetime',
             'password' => 'hashed',
             'languages' => 'array',
@@ -137,6 +141,16 @@ class User extends Authenticatable
     public function subscription(): HasOne
     {
         return $this->hasOne(Subscription::class)->where('active', true)->latestOfMany();
+    }
+
+    public function outgoingCalls(): HasMany
+    {
+        return $this->hasMany(Call::class, 'caller_id');
+    }
+
+    public function incomingCalls(): HasMany
+    {
+        return $this->hasMany(Call::class, 'receiver_id');
     }
 
     // Backward compatibility for wallet_balance

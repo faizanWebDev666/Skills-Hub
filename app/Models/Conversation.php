@@ -59,6 +59,11 @@ class Conversation extends Model
         return $this->hasOne(Message::class)->latestOfMany();
     }
 
+    public function calls(): HasMany
+    {
+        return $this->hasMany(Call::class);
+    }
+
     public function getOtherUser(User $user): User
     {
         return $this->user_one_id === $user->id ? $this->userTwo : $this->userOne;

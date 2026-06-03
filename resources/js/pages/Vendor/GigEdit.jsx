@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { useForm, Link, usePage } from "@inertiajs/react";
 import VendorNavbar from "../../components/VendorNavbar";
 import VendorSidebar from "../../components/VendorSidebar";
+import CreatableSelect from "react-select/creatable";
 
 const categories = [
     {
@@ -22,36 +23,108 @@ const categories = [
                 label: "Programming Languages",
                 type: "tags",
                 placeholder: "Add programming languages...",
+                suggestions: [
+                    "JavaScript",
+                    "TypeScript",
+                    "Python",
+                    "Java",
+                    "PHP",
+                    "Go",
+                    "Rust",
+                    "Swift",
+                    "Kotlin",
+                    "C#",
+                    "C++",
+                    "Other",
+                ],
             },
             {
                 name: "frameworks",
                 label: "Frameworks",
                 type: "tags",
                 placeholder: "Add frameworks...",
+                suggestions: [
+                    "Laravel",
+                    "React",
+                    "Vue",
+                    "Angular",
+                    "Node.js",
+                    "Express",
+                    "Next.js",
+                    "Nuxt.js",
+                    "Django",
+                    "Flask",
+                    "Spring Boot",
+                    "Other",
+                ],
             },
             {
                 name: "databases",
                 label: "Databases",
                 type: "tags",
                 placeholder: "Add databases...",
+                suggestions: [
+                    "MySQL",
+                    "PostgreSQL",
+                    "MongoDB",
+                    "SQLite",
+                    "Redis",
+                    "Oracle",
+                    "SQL Server",
+                    "Firebase",
+                    "Other",
+                ],
             },
             {
                 name: "cloud_platforms",
                 label: "Cloud Platforms",
                 type: "tags",
                 placeholder: "Add cloud platforms...",
+                suggestions: [
+                    "AWS",
+                    "Google Cloud",
+                    "Azure",
+                    "DigitalOcean",
+                    "Vercel",
+                    "Netlify",
+                    "Heroku",
+                    "Firebase",
+                    "Other",
+                ],
             },
             {
                 name: "technologies",
                 label: "Technologies",
                 type: "tags",
                 placeholder: "Add technologies...",
+                suggestions: [
+                    "Git",
+                    "Docker",
+                    "Kubernetes",
+                    "REST API",
+                    "GraphQL",
+                    "WebSocket",
+                    "Redis",
+                    "Elasticsearch",
+                    "Other",
+                ],
             },
             {
                 name: "project_type",
                 label: "Project Type",
                 type: "tags",
                 placeholder: "Add project types...",
+                suggestions: [
+                    "Web App",
+                    "Mobile App",
+                    "E-commerce",
+                    "API",
+                    "Dashboard",
+                    "Landing Page",
+                    "SaaS",
+                    "MVP",
+                    "Other",
+                ],
             },
         ],
     },
@@ -73,12 +146,34 @@ const categories = [
                 label: "Design Tools",
                 type: "tags",
                 placeholder: "Add design tools...",
+                suggestions: [
+                    "Figma",
+                    "Adobe XD",
+                    "Sketch",
+                    "Photoshop",
+                    "Illustrator",
+                    "InDesign",
+                    "Canva",
+                    "FigJam",
+                    "Other",
+                ],
             },
             {
                 name: "design_specialization",
                 label: "Design Specialization",
                 type: "tags",
                 placeholder: "Add specializations...",
+                suggestions: [
+                    "UI Design",
+                    "UX Design",
+                    "Graphic Design",
+                    "Product Design",
+                    "Web Design",
+                    "Mobile Design",
+                    "Brand Identity",
+                    "Motion Design",
+                    "Other",
+                ],
             },
             {
                 name: "portfolio_link",
@@ -106,6 +201,17 @@ const categories = [
                 label: "Writing Specialization",
                 type: "tags",
                 placeholder: "Add specializations...",
+                suggestions: [
+                    "Content Writing",
+                    "Copywriting",
+                    "Blog Writing",
+                    "Technical Writing",
+                    "Creative Writing",
+                    "SEO Writing",
+                    "Social Media",
+                    "Ghostwriting",
+                    "Other",
+                ],
             },
             {
                 name: "portfolio_link",
@@ -133,6 +239,17 @@ const categories = [
                 label: "Photography Style",
                 type: "tags",
                 placeholder: "Add styles...",
+                suggestions: [
+                    "Portrait",
+                    "Wedding",
+                    "Event",
+                    "Product",
+                    "Fashion",
+                    "Landscape",
+                    "Street",
+                    "Architectural",
+                    "Other",
+                ],
             },
             {
                 name: "portfolio_link",
@@ -160,6 +277,17 @@ const categories = [
                 label: "Video Tools",
                 type: "tags",
                 placeholder: "Add tools...",
+                suggestions: [
+                    "Premiere Pro",
+                    "After Effects",
+                    "Final Cut Pro",
+                    "DaVinci Resolve",
+                    "CapCut",
+                    "Filmora",
+                    "iMovie",
+                    "Avid Media Composer",
+                    "Other",
+                ],
             },
             {
                 name: "portfolio_link",
@@ -187,6 +315,18 @@ const categories = [
                 label: "Music Genres",
                 type: "tags",
                 placeholder: "Add genres...",
+                suggestions: [
+                    "Pop",
+                    "Rock",
+                    "Hip Hop",
+                    "Jazz",
+                    "Classical",
+                    "Electronic",
+                    "R&B",
+                    "Country",
+                    "EDM",
+                    "Other",
+                ],
             },
             {
                 name: "portfolio_link",
@@ -214,12 +354,33 @@ const categories = [
                 label: "Subjects",
                 type: "tags",
                 placeholder: "Add subjects...",
+                suggestions: [
+                    "Mathematics",
+                    "Physics",
+                    "Chemistry",
+                    "Biology",
+                    "English",
+                    "Programming",
+                    "History",
+                    "Economics",
+                    "Other",
+                ],
             },
             {
                 name: "teaching_level",
                 label: "Teaching Level",
                 type: "tags",
                 placeholder: "Add levels...",
+                suggestions: [
+                    "Beginner",
+                    "Intermediate",
+                    "Advanced",
+                    "High School",
+                    "College",
+                    "University",
+                    "Professional",
+                    "Other",
+                ],
             },
         ],
     },
@@ -241,6 +402,17 @@ const categories = [
                 label: "Consulting Areas",
                 type: "tags",
                 placeholder: "Add areas...",
+                suggestions: [
+                    "Business Strategy",
+                    "Marketing",
+                    "Finance",
+                    "Operations",
+                    "Human Resources",
+                    "IT Consulting",
+                    "Digital Transformation",
+                    "Startups",
+                    "Other",
+                ],
             },
             {
                 name: "portfolio_link",
@@ -595,63 +767,59 @@ export default function GigEdit({ gig, user }) {
                                                             />
                                                         )}
 
-                                                        {field.type ===
-                                                            "tags" && (
-                                                            <>
-                                                                <input
-                                                                    type="text"
-                                                                    onKeyPress={(
-                                                                        e,
-                                                                    ) =>
-                                                                        addCategoryTag(
-                                                                            field.name,
-                                                                            e,
-                                                                        )
-                                                                    }
-                                                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-4 focus:ring-brand-100 focus:border-brand-500 transition-all"
-                                                                    placeholder={
-                                                                        field.placeholder
-                                                                    }
-                                                                />
-                                                                {getCategoryTags(
-                                                                    field.name,
-                                                                ).length >
-                                                                    0 && (
-                                                                    <div className="mt-3 flex flex-wrap gap-2">
-                                                                        {getCategoryTags(
-                                                                            field.name,
-                                                                        ).map(
-                                                                            (
-                                                                                tag,
-                                                                                i,
-                                                                            ) => (
-                                                                                <span
-                                                                                    key={
-                                                                                        i
-                                                                                    }
-                                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-100 text-brand-800 font-medium text-sm"
-                                                                                >
-                                                                                    {
-                                                                                        tag
-                                                                                    }
-                                                                                    <button
-                                                                                        type="button"
-                                                                                        onClick={() =>
-                                                                                            removeCategoryTag(
-                                                                                                field.name,
-                                                                                                tag,
-                                                                                            )
-                                                                                        }
-                                                                                        className="hover:text-red-600 transition-colors"
-                                                                                    >
-                                                                                        ×
-                                                                                    </button>
-                                                                                </span>
-                                                                            ),
-                                                                        )}
-                                                                    </div>
-                                                                )}
-                                                            </>
+                                                        {field.type === "tags" && (
+                                                            <CreatableSelect
+                                                                isMulti
+                                                                value={(getCategoryTags(field.name) || []).map((v) => ({
+                                                                    value: v,
+                                                                    label: v,
+                                                                }))}
+                                                                onChange={(newValue) => {
+                                                                    const tags = newValue
+                                                                        ? newValue.map((v) => v.value)
+                                                                        : [];
+                                                                    setData("category_field_tags", {
+                                                                        ...data.category_field_tags,
+                                                                        [field.name]: tags,
+                                                                    });
+                                                                }}
+                                                                options={(field.suggestions || []).map((s) => ({
+                                                                    value: s,
+                                                                    label: s,
+                                                                }))}
+                                                                placeholder={field.placeholder}
+                                                                className="w-full"
+                                                                styles={{
+                                                                    control: (base) => ({
+                                                                        ...base,
+                                                                        borderRadius: "0.75rem",
+                                                                        borderColor: "#e5e7eb",
+                                                                        padding: "0.25rem 0.5rem",
+                                                                        "&:hover": {
+                                                                            borderColor: "#e5e7eb",
+                                                                        },
+                                                                    }),
+                                                                    multiValue: (base) => ({
+                                                                        ...base,
+                                                                        backgroundColor: "#dbeafe",
+                                                                        color: "#1e40af",
+                                                                        borderRadius: "9999px",
+                                                                        padding: "0.25rem 0.5rem",
+                                                                    }),
+                                                                    multiValueLabel: (base) => ({
+                                                                        ...base,
+                                                                        color: "#1e40af",
+                                                                    }),
+                                                                    multiValueRemove: (base) => ({
+                                                                        ...base,
+                                                                        color: "#1e40af",
+                                                                        "&:hover": {
+                                                                            backgroundColor: "#bfdbfe",
+                                                                            color: "#1e3a8a",
+                                                                        },
+                                                                    }),
+                                                                }}
+                                                            />
                                                         )}
                                                     </div>
                                                 ),

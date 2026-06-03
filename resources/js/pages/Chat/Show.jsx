@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import Navbar from "../../components/Navbar";
+import VendorNavbar from "../../components/VendorNavbar";
 import ChatSidebar from "../../components/ChatSidebar";
 import { echo } from "../../echo";
 
@@ -166,12 +167,18 @@ const EMOJIS = [
     "🩸",
 ];
 
-export default function ChatShow({ conversation, conversations, user }) {
+export default function ChatShow({ conversation, conversations }) {
+    const { props } = usePage();
+    const user = props.auth?.user;
     const [message, setMessage] = useState("");
     const [attachment, setAttachment] = useState(null);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const isVendor = user?.roles?.some(
+        (role) => role.name === "freelancer" || role.name === "vendor",
+    );
+    const NavbarComponent = isVendor ? VendorNavbar : Navbar;
 
     const fileInputRef = useRef(null);
     const cameraInputRef = useRef(null);
@@ -481,7 +488,7 @@ export default function ChatShow({ conversation, conversations, user }) {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-            <Navbar user={user} />
+            <NavbarComponent user={user} />
 
             <div className="flex-1 flex overflow-hidden">
                 <div className="max-w-[1400px] w-full mx-auto flex h-[calc(100vh-76px)] shadow-sm bg-slate-50 overflow-hidden lg:rounded-3xl lg:border lg:border-slate-200 lg:h-[calc(100vh-76px)]">

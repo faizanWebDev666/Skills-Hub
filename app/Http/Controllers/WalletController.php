@@ -35,12 +35,47 @@ class WalletController extends Controller
             ->with('wallet.user')
             ->paginate(20);
 
-        return Inertia::render('Wallet/Show', [
+        $props = [
             'wallet' => $wallet,
             'transactions' => $transactions,
             'balance' => $wallet->available_balance,
             'stripePublishableKey' => $this->stripeService->getPublishableKey(),
-        ]);
+        ];
+
+        // Check if user is vendor/freelancer/admin to add vendor-specific props
+        if ($user->hasAnyRole(['freelancer', 'vendor', 'admin'])) {
+            $conversations = \App\Models\Conversation::forUser($user)
+                ->with(['userOne:id,name,avatar', 'userTwo:id,name,avatar', 'latestMessage'])
+                ->orderBy('last_message_at', 'desc')
+                ->get()
+                ->map(function ($conversation) use ($user) {
+                    $otherUser = $conversation->getOtherUser($user);
+                    $unreadCount = \App\Models\Message::where('conversation_id', $conversation->id)
+                        ->where('user_id', '!=', $user->id)
+                        ->where('read', false)
+                        ->count();
+
+                    return [
+                        'id' => $conversation->id,
+                        'other_user' => [
+                            'id' => $otherUser->id,
+                            'name' => $otherUser->name,
+                            'avatar' => $otherUser->avatar,
+                        ],
+                        'latest_message' => $conversation->latestMessage,
+                        'unread_count' => $unreadCount,
+                        'last_message_at' => $conversation->last_message_at,
+                    ];
+                });
+
+            $totalUnreadMessages = $conversations->sum('unread_count');
+
+            $props['user'] = $user;
+            $props['conversations'] = $conversations;
+            $props['totalUnreadMessages'] = $totalUnreadMessages;
+        }
+
+        return Inertia::render('Wallet/Show', $props);
     }
 
     public function transactions(Request $request)
@@ -70,11 +105,46 @@ class WalletController extends Controller
 
         $transactions = $query->paginate(20)->appends($request->query());
 
-        return Inertia::render('Wallet/Transactions', [
+        $props = [
             'transactions' => $transactions,
             'filters' => $request->only(['type', 'start_date', 'end_date', 'status']),
             'wallet' => $wallet,
-        ]);
+        ];
+
+        // Check if user is vendor/freelancer/admin to add vendor-specific props
+        if ($user->hasAnyRole(['freelancer', 'vendor', 'admin'])) {
+            $conversations = \App\Models\Conversation::forUser($user)
+                ->with(['userOne:id,name,avatar', 'userTwo:id,name,avatar', 'latestMessage'])
+                ->orderBy('last_message_at', 'desc')
+                ->get()
+                ->map(function ($conversation) use ($user) {
+                    $otherUser = $conversation->getOtherUser($user);
+                    $unreadCount = \App\Models\Message::where('conversation_id', $conversation->id)
+                        ->where('user_id', '!=', $user->id)
+                        ->where('read', false)
+                        ->count();
+
+                    return [
+                        'id' => $conversation->id,
+                        'other_user' => [
+                            'id' => $otherUser->id,
+                            'name' => $otherUser->name,
+                            'avatar' => $otherUser->avatar,
+                        ],
+                        'latest_message' => $conversation->latestMessage,
+                        'unread_count' => $unreadCount,
+                        'last_message_at' => $conversation->last_message_at,
+                    ];
+                });
+
+            $totalUnreadMessages = $conversations->sum('unread_count');
+
+            $props['user'] = $user;
+            $props['conversations'] = $conversations;
+            $props['totalUnreadMessages'] = $totalUnreadMessages;
+        }
+
+        return Inertia::render('Wallet/Transactions', $props);
     }
 
     public function deposit(Request $request)

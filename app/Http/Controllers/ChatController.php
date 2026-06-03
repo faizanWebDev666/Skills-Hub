@@ -98,7 +98,6 @@ class ChatController extends Controller
                 'messages' => $messages,
             ],
             'conversations' => $conversations,
-            'user' => $user,
         ]);
     }
 
@@ -201,6 +200,27 @@ class ChatController extends Controller
         return redirect()->route('chat.show', $conversation);
     }
 
+    public function searchUsers(Request $request)
+    {
+        $query = trim($request->input('query', ''));
+
+        $users = [];
+
+        if ($query !== '') {
+            $users = User::role(['vendor', 'freelancer'])
+                ->where('id', '!=', auth()->id())
+                ->where(function ($q) use ($query) {
+                    $q->where('name', 'like', "%{$query}%")
+                        ->orWhere('professional_title', 'like', "%{$query}%")
+                        ->orWhere('service_type', 'like', "%{$query}%");
+                })
+                ->limit(12)
+                ->get(['uuid', 'name', 'avatar', 'professional_title', 'service_type']);
+        }
+
+        return response()->json(['users' => $users]);
+    }
+
     /**
      * Get unread notifications count for the authenticated user
      */
@@ -229,7 +249,7 @@ class ChatController extends Controller
             ->get()
             ->map(function ($notification) {
                 return [
-                    'id' => $notification->id,
+                    'id' => $notification->uuid,
                     'type' => $notification->type,
                     'title' => $notification->title,
                     'message' => $notification->message,

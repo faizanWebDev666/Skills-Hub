@@ -32,7 +32,7 @@ class NotificationCreated implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'id' => $this->notification->id,
+            'id' => $this->notification->uuid,
             'type' => $this->notification->type,
             'title' => $this->notification->title,
             'message' => $this->notification->message,

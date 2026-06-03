@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import {
@@ -10,49 +10,61 @@ import {
     Building,
     Briefcase,
     Feather,
+    Star,
+    TrendingUp,
+    CheckCircle,
+    Users,
+    Award,
 } from "lucide-react";
 
 export default function Home({ user, featuredGigs = [] }) {
+    const [hoveredCategory, setHoveredCategory] = useState(null);
+
     const categories = [
         {
             id: "developers",
-            name: "Developers",
+            name: "Development",
             icon: Code2,
             count: 2850,
             color: "from-blue-500 to-cyan-500",
-            description: "Web, Mobile, & Software Developers",
+            description: "Web, Mobile, & Software Development",
+            bgImage: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         },
         {
             id: "designers",
-            name: "Designers",
+            name: "Design",
             icon: Paintbrush,
             count: 1850,
             color: "from-purple-500 to-pink-500",
-            description: "UI/UX, Graphic, & Product Designers",
+            description: "UI/UX, Graphic, & Product Design",
+            bgImage: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
         },
         {
             id: "tutors",
-            name: "Tutors",
+            name: "Education",
             icon: GraduationCap,
             count: 1420,
             color: "from-green-500 to-emerald-500",
-            description: "Online & In-Person Tutoring Experts",
+            description: "Online & In-Person Tutoring",
+            bgImage: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
         },
         {
             id: "electricians",
-            name: "Electricians",
+            name: "Services",
             icon: Zap,
             count: 890,
             color: "from-yellow-500 to-orange-500",
-            description: "Licensed Electrical Services",
+            description: "Technical & Professional Services",
+            bgImage: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
         },
         {
             id: "repair_experts",
-            name: "Repair Experts",
+            name: "Repair & Maintenance",
             icon: Wrench,
             count: 1180,
             color: "from-red-500 to-rose-500",
-            description: "Home, Auto, & Tech Repair Specialists",
+            description: "Home, Auto, & Tech Repair",
+            bgImage: "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)",
         },
         {
             id: "agencies",
@@ -60,23 +72,26 @@ export default function Home({ user, featuredGigs = [] }) {
             icon: Building,
             count: 520,
             color: "from-indigo-500 to-violet-500",
-            description: "Full-Service Creative & Marketing Agencies",
+            description: "Full-Service Creative Teams",
+            bgImage: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         },
         {
             id: "freelancers",
-            name: "Freelancers",
+            name: "Consulting",
             icon: Briefcase,
             count: 3240,
             color: "from-teal-500 to-cyan-500",
-            description: "All-in-One Multi-Talented Professionals",
+            description: "Expert Consulting & Strategy",
+            bgImage: "linear-gradient(135deg, #06ffa5 0%, #086788 100%)",
         },
         {
             id: "writers",
-            name: "Writers",
+            name: "Writing & Content",
             icon: Feather,
             count: 950,
             color: "from-amber-500 to-yellow-500",
-            description: "Content, Copy, & Creative Writers",
+            description: "Content & Copywriting Experts",
+            bgImage: "linear-gradient(135deg, #ffd89b 0%, #19547b 100%)",
         },
     ];
 
@@ -88,7 +103,7 @@ export default function Home({ user, featuredGigs = [] }) {
         if (!carousel) return;
 
         let frameId;
-        const speed = 1;
+        const speed = 0.5;
 
         const step = () => {
             if (!pauseRef.current) {
@@ -105,225 +120,221 @@ export default function Home({ user, featuredGigs = [] }) {
     }, []);
 
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col bg-white overflow-x-hidden">
             <Navbar user={user} />
 
-            {/* Hero Section */}
-            <section className="relative overflow-hidden bg-slate-950 text-white">
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"></div>
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(56,189,248,0.22),_transparent_24%),radial-gradient(circle_at_bottom_left,_rgba(168,85,247,0.18),_transparent_30%)]"></div>
-                <div className="pointer-events-none absolute top-14 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-cyan-400/10 blur-3xl sm:h-72 sm:w-72"></div>
-                <div className="pointer-events-none absolute -top-6 right-6 h-28 w-28 rounded-full bg-violet-500/15 blur-3xl sm:h-40 sm:w-40"></div>
+            {/* HERO SECTION - Premium Design */}
+            <section className="relative w-full overflow-hidden pt-6 pb-12 sm:pt-8 sm:pb-16 md:pt-16 md:pb-24 lg:pt-20 lg:pb-32">
+                {/* Animated Background */}
+                <div className="absolute inset-0 overflow-hidden">
+                    <div className="absolute -top-32 -right-32 sm:-top-40 sm:-right-40 w-64 h-64 sm:w-80 sm:h-80 bg-gradient-to-br from-blue-400/30 to-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute top-10 sm:top-20 -left-24 sm:-left-32 w-60 h-60 sm:w-72 sm:h-72 bg-gradient-to-br from-cyan-400/20 to-blue-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+                    <div className="hidden md:block absolute bottom-0 right-1/3 w-96 h-96 bg-gradient-to-br from-violet-300/20 to-purple-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+                </div>
 
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                    <div className="grid gap-10 lg:grid-cols-2 items-center py-12 sm:py-14 lg:py-20">
-                        <div className="max-w-full min-w-0">
-                            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs sm:text-sm text-slate-100 backdrop-blur">
-                                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                Trusted by 50,000+ businesses globally
-                            </span>
+                <div className="w-full max-w-full">
+                    <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
+                        <div className="grid gap-8 sm:gap-10 md:gap-12 lg:gap-16 lg:grid-cols-2 items-center">
+                            {/* Left Content */}
+                            <div className="space-y-5 sm:space-y-6 md:space-y-8 w-full">
+                                {/* Badge */}
+                                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-gradient-to-r from-white to-slate-50 px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 text-[11px] sm:text-xs md:text-sm font-medium text-slate-700 shadow-sm">
+                                    <span className="flex h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span className="truncate sm:truncate">Join 50,000+ successful businesses</span>
+                                </div>
 
-                            <h1 className="mt-7 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
-                                Build smarter with elite freelance talent.
-                            </h1>
+                                {/* Main Heading */}
+                                <div className="space-y-3 sm:space-y-4 md:space-y-6 w-full">
+                                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-slate-900 leading-tight tracking-tight break-words">
+                                        Hire Experts.
+                                        <br />
+                                        <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                                            Scale Fast.
+                                        </span>
+                                    </h1>
+                                    <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-lg">
+                                        Connect with top-rated freelancers and agencies. Get professional work done in days, not months. Perfect for startups, businesses, and enterprises.
+                                    </p>
+                                </div>
 
-                            <p className="mt-5 text-sm sm:text-base md:text-lg text-slate-300 max-w-3xl leading-relaxed">
-                                Discover top-rated experts, scale your projects quickly, and deliver modern work with confidence.
-                            </p>
-
-                            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-                                <a
-                                    href="/gigs"
-                                    className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 to-sky-500 px-6 py-3 text-base font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:brightness-105"
-                                >
-                                    Find Talent
-                                    <svg
-                                        className="ml-2 h-5 w-5"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
+                                {/* CTA Buttons */}
+                                <div className="flex flex-col xs:flex-row gap-2.5 sm:gap-3 md:gap-4 pt-3 sm:pt-4 md:pt-6 w-full">
+                                    <a
+                                        href="/gigs"
+                                        className="group inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 text-xs sm:text-sm md:text-base font-semibold text-white shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 transition-all duration-300 hover:-translate-y-1 active:translate-y-0 flex-shrink-0"
                                     >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M13 7l5 5m0 0l-5 5m5-5H6"
-                                        />
-                                    </svg>
-                                </a>
-                                <a
-                                    href="/register"
-                                    className="w-full sm:w-auto inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3 text-base font-semibold text-white transition hover:bg-white/10"
-                                >
-                                    Start Selling
-                                </a>
+                                        Find Talent
+                                        <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 ml-1.5 sm:ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                    </a>
+                                    <a
+                                        href="/register"
+                                        className="group inline-flex items-center justify-center rounded-full border-2 border-slate-300 bg-white px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 text-xs sm:text-sm md:text-base font-semibold text-slate-900 hover:bg-slate-50 hover:border-slate-400 transition-all duration-300 active:bg-slate-100 flex-shrink-0"
+                                    >
+                                        Start Selling
+                                        <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 ml-1.5 sm:ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                    </a>
+                                </div>
+
+                                {/* Stats */}
+                                <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6 pt-6 sm:pt-8 md:pt-12 border-t border-slate-200 w-full">
+                                    <div>
+                                        <p className="text-[10px] sm:text-xs md:text-sm text-slate-500 uppercase tracking-wider font-medium">Avg. Delivery</p>
+                                        <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-slate-900 mt-1 sm:mt-2">24h</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] sm:text-xs md:text-sm text-slate-500 uppercase tracking-wider font-medium">Avg. Rating</p>
+                                        <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-slate-900 mt-1 sm:mt-2">4.9★</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] sm:text-xs md:text-sm text-slate-500 uppercase tracking-wider font-medium">Total Experts</p>
+                                        <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-slate-900 mt-1 sm:mt-2">8k+</p>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="mt-10 grid gap-3 sm:grid-cols-3">
-                                <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 sm:p-5 backdrop-blur-xl shadow-lg shadow-slate-950/20">
-                                    <p className="text-xs sm:text-sm uppercase tracking-[0.18em] text-slate-400">Fast delivery</p>
-                                    <p className="mt-3 text-2xl sm:text-3xl font-semibold text-white">24h avg.</p>
-                                </div>
-                                <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 sm:p-5 backdrop-blur-xl shadow-lg shadow-slate-950/20">
-                                    <p className="text-xs sm:text-sm uppercase tracking-[0.18em] text-slate-400">Positive reviews</p>
-                                    <p className="mt-3 text-2xl sm:text-3xl font-semibold text-white">4.9★</p>
-                                </div>
-                                <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 sm:p-5 backdrop-blur-xl shadow-lg shadow-slate-950/20">
-                                    <p className="text-xs sm:text-sm uppercase tracking-[0.18em] text-slate-400">Talent pool</p>
-                                    <p className="mt-3 text-2xl sm:text-3xl font-semibold text-white">8k+</p>
-                                </div>
-                            </div>
-
-                            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                                <div className="rounded-3xl bg-slate-900/70 p-4 sm:p-5 border border-white/10">
-                                    <p className="text-xs sm:text-sm text-slate-400">Verified vendors</p>
-                                    <p className="mt-2 text-lg sm:text-xl font-semibold text-white">1,000+</p>
-                                </div>
-                                <div className="rounded-3xl bg-slate-900/70 p-4 sm:p-5 border border-white/10">
-                                    <p className="text-xs sm:text-sm text-slate-400">Secure payments</p>
-                                    <p className="mt-2 text-lg sm:text-xl font-semibold text-white">Built in</p>
-                                </div>
-                                <div className="rounded-3xl bg-slate-900/70 p-4 sm:p-5 border border-white/10">
-                                    <p className="text-xs sm:text-sm text-slate-400">Satisfaction</p>
-                                    <p className="mt-2 text-lg sm:text-xl font-semibold text-white">Guarantee</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="relative w-full max-w-xl mx-auto min-w-0">
-                            <div className="absolute -right-8 top-8 h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-cyan-400/20 blur-3xl"></div>
-                            <div className="absolute left-4 bottom-0 h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-violet-500/20 blur-3xl"></div>
-
-                            <div className="relative w-full rounded-[36px] border border-white/10 bg-white/5 p-5 sm:p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl overflow-hidden">
-                                <div className="absolute -top-20 -right-20 h-40 w-40 rounded-full bg-cyan-400/15 blur-3xl"></div>
-                                <div className="absolute -bottom-20 left-0 h-36 w-36 rounded-full bg-violet-500/10 blur-3xl"></div>
-                                <div className="relative grid gap-4">
-                                    <div className="rounded-[28px] bg-slate-950/70 p-6 border border-white/5">
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div>
-                                                <p className="text-sm uppercase tracking-[0.18em] text-slate-400">Top category</p>
-                                                <h3 className="mt-3 text-2xl font-semibold text-white">Design & Branding</h3>
+                            {/* Right Side - Visual */}
+                            <div className="relative hidden lg:flex justify-end">
+                                <div className="relative w-full max-w-md">
+                                    {/* Floating Cards */}
+                                    <div className="absolute -top-10 -right-0 w-64 sm:w-72 h-80 bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 transform hover:scale-105 transition-transform duration-300 z-20">
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex-shrink-0"></div>
+                                                <div className="space-y-1 min-w-0">
+                                                    <p className="font-semibold text-slate-900 truncate">Alex Johnson</p>
+                                                    <p className="text-xs text-slate-500">UX Designer</p>
+                                                </div>
                                             </div>
-                                            <div className="rounded-3xl bg-cyan-400/15 px-3 py-2 text-cyan-300 text-xs font-semibold">Trending</div>
+                                            <p className="text-sm text-slate-600">Completed 200+ projects</p>
+                                            <div className="flex items-center gap-1 flex-wrap">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                                ))}
+                                                <span className="text-xs text-slate-500 ml-2">4.98 (125 reviews)</span>
+                                            </div>
+                                            <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-shadow">
+                                                View Profile
+                                            </button>
                                         </div>
-                                        <p className="mt-4 text-sm leading-relaxed text-slate-300">Modern visual systems, UI refreshes, and identity work from award-winning creators.</p>
                                     </div>
-                                    <div className="grid gap-4 sm:grid-cols-2">
-                                        <div className="rounded-[28px] bg-white/5 p-5 border border-white/10">
-                                            <p className="text-sm text-slate-400">Secure booking</p>
-                                            <p className="mt-3 text-xl font-semibold text-white">Instant setup</p>
-                                        </div>
-                                        <div className="rounded-[28px] bg-white/5 p-5 border border-white/10">
-                                            <p className="text-sm text-slate-400">Project launch</p>
-                                            <p className="mt-3 text-xl font-semibold text-white">Launch in days</p>
+
+                                    {/* Bottom Card */}
+                                    <div className="absolute -bottom-20 left-0 w-72 sm:w-80 h-auto bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 transform hover:scale-105 transition-transform duration-300 z-10">
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between gap-2">
+                                                <span className="text-sm font-semibold text-slate-900">Project in Progress</span>
+                                                <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium whitespace-nowrap">Active</span>
+                                            </div>
+                                            <p className="text-sm text-slate-600">Website Redesign - E-commerce</p>
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between items-center text-xs">
+                                                    <span className="text-slate-500">Progress</span>
+                                                    <span className="font-semibold text-slate-900">75%</span>
+                                                </div>
+                                                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                                                    <div className="h-full w-3/4 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2 pt-2">
+                                                <div className="w-8 h-8 bg-gradient-to-br from-pink-400 to-pink-600 rounded-full"></div>
+                                                <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full -ml-3"></div>
+                                                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full -ml-3"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                     </div>
                 </div>
+            </div>
             </section>
 
-            {/* Categories Section */}
-            <section className="py-16 md:py-20 lg:py-24 bg-cream-100">
-                <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-                    <div className="text-center mb-10 md:mb-16">
-                        <p className="text-sm uppercase tracking-[0.35em] font-semibold text-brand-600 mb-4">
-                            Featured Categories
-                        </p>
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 md:mb-5 leading-tight">
-                            Find trusted expertise in every major category.
-                        </h2>
-                        <p className="text-sm sm:text-base md:text-lg text-slate-600 max-w-2xl mx-auto">
-                            Explore categories built for businesses and
-                            individuals who want professional talent, fast.
-                        </p>
-                    </div>
+            {/* CATEGORIES SECTION - Enhanced Design */}
+            <section className="w-full overflow-hidden py-12 sm:py-16 md:py-24 lg:py-32 bg-gradient-to-b from-slate-50 to-white relative">
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    <div className="absolute top-10 sm:top-20 left-1/4 w-48 h-48 sm:w-64 sm:h-64 bg-blue-100/30 rounded-full blur-3xl"></div>
+                    <div className="absolute bottom-10 sm:bottom-20 right-1/4 w-56 h-56 sm:w-96 sm:h-96 bg-purple-100/20 rounded-full blur-3xl"></div>
+                </div>
 
-                    <div className="relative overflow-hidden">
-                        <div
-                            ref={carouselRef}
-                            onMouseEnter={() => (pauseRef.current = true)}
-                            onMouseLeave={() => (pauseRef.current = false)}
-                            className="flex gap-6 md:gap-8 overflow-hidden px-4 py-4 md:px-6 md:py-6"
-                        >
-                            {[...categories, ...categories].map(
-                                (category, index) => (
-                                    <div
-                                        key={`${category.id}-${index}`}
-                                        onClick={() =>
-                                            (window.location.href = `/gigs?category=${category.id}`)
-                                        }
-                                        className="min-w-[240px] sm:min-w-[260px] md:min-w-[280px] lg:min-w-[300px] snap-center group cursor-pointer h-full"
-                                    >
-                                        <div className="h-full rounded-[40px] border border-slate-200 bg-white shadow-[0_24px_70px_-35px_rgba(15,23,42,0.18)] transition-all duration-300 group hover:-translate-y-1.5 hover:shadow-[0_32px_90px_-40px_rgba(15,23,42,0.22)] overflow-hidden flex flex-col">
-                                            <div className="relative flex-1 px-6 py-10 md:px-8 md:py-12">
-                                                <div className="absolute inset-x-6 top-0 h-24 rounded-[32px] bg-gradient-to-br from-white/80 to-slate-100 blur-2xl opacity-80"></div>
-                                                <div className="relative flex flex-col items-center text-center gap-5">
-                                                    <div className={`relative flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-[28px] bg-gradient-to-br ${category.color} text-white shadow-xl`}>
-                                                        <category.icon className="h-10 w-10 md:h-12 md:w-12" aria-hidden="true" />
-                                                    </div>
-                                                    <div className="space-y-3">
-                                                        <h3 className="text-xl md:text-2xl font-semibold text-slate-950">
-                                                            {category.name}
-                                                        </h3>
-                                                        <p className="text-sm md:text-base text-slate-500 max-w-xs mx-auto leading-relaxed">
-                                                            {category.description}
-                                                        </p>
-                                                    </div>
-                                                </div>
+                <div className="w-full max-w-full">
+                    <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
+                        {/* Section Header */}
+                        <div className="text-center mb-10 sm:mb-12 md:mb-16 lg:mb-20 space-y-3 sm:space-y-4">
+                            <p className="text-xs sm:text-sm md:text-base uppercase tracking-[0.35em] font-bold text-blue-600">
+                                EXPLORE CATEGORIES
+                            </p>
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-slate-900 leading-tight">
+                                Find Expertise in Every Field
+                            </h2>
+                            <p className="text-sm sm:text-base md:text-lg text-slate-600 max-w-2xl mx-auto px-2">
+                                Browse through 50+ specialized categories and connect with top talent across all industries.
+                            </p>
+                        </div>
+
+                        {/* Categories Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
+                            {categories.map((category) => (
+                                <div
+                                    key={category.id}
+                                    onClick={() => (window.location.href = `/gigs?category=${category.id}`)}
+                                    onMouseEnter={() => setHoveredCategory(category.id)}
+                                    onMouseLeave={() => setHoveredCategory(null)}
+                                    className="group cursor-pointer"
+                                >
+                                    <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 active:translate-y-0">
+                                        {/* Background Image/Gradient */}
+                                        <div
+                                            className="absolute inset-0 transition-transform duration-700 group-hover:scale-110"
+                                            style={{
+                                                background: category.bgImage,
+                                            }}
+                                        ></div>
+
+                                        {/* Overlay */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-70 group-hover:opacity-60 transition-opacity duration-300"></div>
+
+                                        {/* Content */}
+                                        <div className="relative h-56 sm:h-64 md:h-72 lg:h-80 flex flex-col justify-end p-4 sm:p-6 md:p-8">
+                                            {/* Icon */}
+                                            <div className="mb-4 sm:mb-6 inline-flex h-11 w-11 sm:h-12 sm:w-12 md:h-14 md:w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-lg transition-transform duration-300 group-hover:scale-110 group-hover:bg-white/30">
+                                                <category.icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-white" />
                                             </div>
-                                            <div className="border-t border-slate-100 bg-slate-50 px-6 py-5 md:px-7 md:py-6">
-                                                <div className="flex items-center justify-between gap-3">
-                                                    <div>
-                                                        <p className="text-[11px] uppercase tracking-[0.32em] text-slate-400">
-                                                            Experts
-                                                        </p>
-                                                        <p className="mt-1 text-sm md:text-base font-semibold text-slate-950">
-                                                            {category.count.toLocaleString()}
-                                                        </p>
-                                                    </div>
-                                                    <span className="inline-flex items-center justify-center rounded-full bg-brand-600/10 text-brand-700 w-11 h-11">
-                                                        <svg
-                                                            className="w-4 h-4"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M9 5l7 7-7 7"
-                                                            />
-                                                        </svg>
-                                                    </span>
+
+                                            {/* Text */}
+                                            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 sm:mb-2">{category.name}</h3>
+                                            <p className="text-xs sm:text-sm md:text-base text-white/90 mb-3 sm:mb-4 line-clamp-2">{category.description}</p>
+
+                                            {/* Footer */}
+                                            <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-white/20">
+                                                <div>
+                                                    <p className="text-[10px] sm:text-xs text-white/70 uppercase tracking-wider font-medium">Experts</p>
+                                                    <p className="text-base sm:text-lg md:text-xl font-bold text-white mt-0.5 sm:mt-1">{category.count.toLocaleString()}</p>
+                                                </div>
+                                                <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-lg group-hover:bg-white group-hover:text-slate-900 transition-all duration-300">
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                                    </svg>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                ),
-                            )}
+                                </div>
+                            ))}
                         </div>
-                        <div className="mt-8 flex justify-center">
+
+                        {/* View All Button */}
+                        <div className="flex justify-center mt-10 sm:mt-12 md:mt-16">
                             <a
                                 href="/gigs"
-                                className="inline-flex items-center justify-center rounded-full bg-brand-600 px-8 py-3 text-sm md:text-base font-semibold text-white shadow-lg shadow-brand-600/20 hover:bg-brand-700 transition-colors"
+                                className="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-6 sm:px-8 md:px-10 py-2.5 sm:py-3 md:py-4 text-sm sm:text-base md:text-lg font-semibold text-white shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 transition-all duration-300 hover:-translate-y-1 active:translate-y-0"
                             >
-                                View All Services
-                                <svg
-                                    className="w-4 h-4 ml-2"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 5l7 7-7 7"
-                                    />
+                                View All Categories
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                 </svg>
                             </a>
                         </div>
@@ -331,141 +342,165 @@ export default function Home({ user, featuredGigs = [] }) {
                 </div>
             </section>
 
-            {/* Featured Gigs Section */}
-            <section className="py-12 md:py-16 lg:py-20">
-                <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-10 md:mb-12">
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-                            Popular Gigs
-                        </h2>
-                        <a
-                            href="/gigs"
-                            className="inline-flex items-center justify-center rounded-full bg-brand-600 px-8 py-3 text-sm md:text-base font-semibold text-white shadow-lg shadow-brand-600/20 hover:bg-brand-700 transition-colors"
-                        >
-                            View All Gigs
-                            <svg
-                                className="w-4 h-4 ml-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+            {/* GIGS SECTION - Premium Cards */}
+            <section className="w-full overflow-hidden py-12 sm:py-16 md:py-24 lg:py-32 bg-white relative">
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    <div className="absolute -top-32 sm:-top-40 -right-32 sm:-right-40 w-64 h-64 sm:w-96 sm:h-96 bg-blue-100/20 rounded-full blur-3xl"></div>
+                </div>
+
+                <div className="w-full max-w-full">
+                    <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
+                        {/* Section Header */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-10 sm:mb-12 md:mb-16">
+                            <div className="space-y-2">
+                                <p className="text-xs sm:text-sm md:text-base uppercase tracking-[0.35em] font-bold text-blue-600">
+                                    TOP SELLERS
+                                </p>
+                                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900">
+                                    Trending Gigs
+                                </h2>
+                            </div>
+                            <a
+                                href="/gigs"
+                                className="group inline-flex items-center gap-2 rounded-full border-2 border-slate-300 bg-white px-5 sm:px-6 md:px-8 py-2 md:py-3 text-xs sm:text-sm md:text-base font-semibold text-slate-900 hover:bg-slate-50 hover:border-slate-400 transition-all duration-300 whitespace-nowrap active:bg-slate-100"
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 5l7 7-7 7"
-                                />
-                            </svg>
-                        </a>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
-                        {featuredGigs.map((gig) => (
-                            <div
-                                key={gig.id}
-                                className="bg-white rounded-lg md:rounded-xl lg:rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                            >
-                                <div className="h-32 sm:h-40 md:h-48 overflow-hidden">
-                                    {gig.image ? (
-                                        <img
-                                            src={`/storage/${gig.image}`}
-                                            alt={gig.title}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full bg-gradient-to-r from-brand-400 to-brand-600"></div>
-                                    )}
-                                </div>
-                                <div className="p-3 md:p-4 lg:p-6">
-                                    <h3 className="font-semibold text-xs md:text-sm lg:text-lg mb-1 md:mb-2 lg:mb-3 line-clamp-2">
-                                        {gig.title}
-                                    </h3>
-                                    <div className="flex items-center mb-2 md:mb-3 lg:mb-4">
-                                        <div className="w-5 h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 bg-gray-300 rounded-full mr-2"></div>
-                                        <span className="text-xs md:text-sm lg:text-base text-gray-600">
-                                            {gig.user?.name || "Seller"}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between text-xs md:text-sm">
-                                        <div className="flex items-center">
-                                            <span className="text-yellow-500 mr-1">
-                                                ★
-                                            </span>
-                                            <span className="font-semibold">
-                                                {gig.user
-                                                    ?.reviews_received_avg_rating
-                                                    ? Number(
-                                                          gig.user
-                                                              .reviews_received_avg_rating,
-                                                      ).toFixed(1)
+                                View All Gigs
+                                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </a>
+                        </div>
+
+                        {/* Gigs Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+                            {featuredGigs.map((gig) => (
+                                <a
+                                    key={gig.id}
+                                    href={`/gigs/${gig.id}`}
+                                    className="group bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 active:translate-y-0"
+                                >
+                                    {/* Image Container */}
+                                    <div className="relative overflow-hidden h-40 sm:h-48 md:h-56 bg-gradient-to-br from-slate-200 to-slate-300">
+                                        {gig.image ? (
+                                            <img
+                                                src={`/storage/${gig.image}`}
+                                                alt={gig.title}
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                                                <span className="text-white/30 text-4xl sm:text-5xl">📦</span>
+                                            </div>
+                                        )}
+                                        {/* Badge */}
+                                        <div className="absolute top-2 sm:top-3 right-2 sm:right-3 inline-flex items-center gap-1 bg-white/95 backdrop-blur-lg px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs md:text-sm font-semibold text-slate-900 shadow-lg">
+                                            <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
+                                            <span>
+                                                {gig.user?.reviews_received_avg_rating
+                                                    ? Number(gig.user.reviews_received_avg_rating).toFixed(1)
                                                     : "New"}
                                             </span>
-                                            <span className="text-gray-500 ml-1">
-                                                (
-                                                {gig.user
-                                                    ?.reviews_received_count ??
-                                                    0}
-                                                )
-                                            </span>
-                                        </div>
-                                        <div className="font-bold text-brand-600 md:text-base lg:text-lg">
-                                            ${gig.price}
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        ))}
+
+                                    {/* Content */}
+                                    <div className="p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4">
+                                        {/* Seller Info */}
+                                        <div className="flex items-center gap-2 sm:gap-3 pb-3 sm:pb-4 border-b border-slate-200">
+                                            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex-shrink-0 flex items-center justify-center text-white font-semibold text-sm sm:text-base">
+                                                {gig.user?.name?.charAt(0) || "S"}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs sm:text-sm font-semibold text-slate-900 truncate">
+                                                    {gig.user?.name || "Seller"}
+                                                </p>
+                                                <div className="flex items-center gap-0.5">
+                                                    <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-yellow-400 text-yellow-400" />
+                                                    <span className="text-[10px] sm:text-xs text-slate-600">
+                                                        (
+                                                        {gig.user?.reviews_received_count ?? 0}
+                                                        )
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Gig Title */}
+                                        <h3 className="text-xs sm:text-sm md:text-base font-semibold text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                                            {gig.title}
+                                        </h3>
+
+                                        {/* Description snippet */}
+                                        <p className="text-[10px] sm:text-xs md:text-sm text-slate-600 line-clamp-2">
+                                            {gig.description || "Professional service"}
+                                        </p>
+
+                                        {/* Footer */}
+                                        <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-slate-200">
+                                            <div className="space-y-0.5 sm:space-y-1">
+                                                <p className="text-[10px] sm:text-xs text-slate-500">Starting at</p>
+                                                <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900">
+                                                    ${gig.price}
+                                                </p>
+                                            </div>
+                                            <div className="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-blue-100 group-hover:bg-blue-600 transition-colors duration-300 flex-shrink-0">
+                                                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+
+                        {/* CTA */}
+                        <div className="mt-10 sm:mt-12 md:mt-16 lg:mt-20 text-center">
+                            <p className="text-slate-600 text-sm sm:text-base md:text-lg mb-4 md:mb-6">Ready to get started?</p>
+                            <a
+                                href="/gigs"
+                                className="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-6 sm:px-8 md:px-12 py-2.5 sm:py-3 md:py-4 text-sm sm:text-base md:text-lg font-semibold text-white shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 transition-all duration-300 hover:-translate-y-1 active:translate-y-0"
+                            >
+                                Explore All Gigs
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* How It Works Section */}
-            <section className="py-12 md:py-16 lg:py-20 bg-cream-100">
-                <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 md:mb-12 lg:mb-16">
-                        How It Works
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
-                        <div className="text-center">
-                            <div className="w-16 md:w-18 lg:w-20 h-16 md:h-18 lg:h-20 bg-brand-600 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
-                                <span className="text-white text-2xl md:text-3xl lg:text-4xl font-bold">
-                                    1
-                                </span>
+            {/* TRUST SECTION */}
+            <section className="w-full overflow-hidden py-12 sm:py-16 md:py-20 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 relative">
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    <div className="absolute -top-32 sm:top-0 -right-32 sm:-right-40 w-64 h-64 sm:w-96 sm:h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+                </div>
+
+                <div className="w-full max-w-full">
+                    <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 md:gap-12">
+                            <div className="text-center md:text-left space-y-3 sm:space-y-4">
+                                <div className="flex items-center justify-center md:justify-start gap-2 sm:gap-3 mb-3 sm:mb-4">
+                                    <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-emerald-400 flex-shrink-0" />
+                                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-white">Verified Professionals</h3>
+                                </div>
+                                <p className="text-xs sm:text-sm md:text-base text-slate-300">Every freelancer is verified and reviewed. Only the best talent makes it to our platform.</p>
                             </div>
-                            <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3">
-                                Find the Right Talent
-                            </h3>
-                            <p className="text-sm md:text-base text-gray-600">
-                                Browse through our marketplace and find the
-                                perfect freelancer for your project needs.
-                            </p>
-                        </div>
-                        <div className="text-center">
-                            <div className="w-16 md:w-18 lg:w-20 h-16 md:h-18 lg:h-20 bg-brand-800 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
-                                <span className="text-white text-2xl md:text-3xl lg:text-4xl font-bold">
-                                    2
-                                </span>
+                            <div className="text-center md:text-left space-y-3 sm:space-y-4">
+                                <div className="flex items-center justify-center md:justify-start gap-2 sm:gap-3 mb-3 sm:mb-4">
+                                    <Award className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-yellow-400 flex-shrink-0" />
+                                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-white">Secure Payments</h3>
+                                </div>
+                                <p className="text-xs sm:text-sm md:text-base text-slate-300">Pay safely with our secure payment system. Money is held until you're satisfied with the work.</p>
                             </div>
-                            <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-3">
-                                Hire and Collaborate
-                            </h3>
-                            <p className="text-sm md:text-base text-gray-600">
-                                Communicate directly with freelancers, share
-                                requirements, and get your project started.
-                            </p>
-                        </div>
-                        <div className="text-center">
-                            <div className="w-20 h-20 bg-success-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <span className="text-white text-3xl font-bold">
-                                    3
-                                </span>
+                            <div className="text-center md:text-left space-y-3 sm:space-y-4">
+                                <div className="flex items-center justify-center md:justify-start gap-2 sm:gap-3 mb-3 sm:mb-4">
+                                    <Users className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-blue-400 flex-shrink-0" />
+                                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-white">24/7 Support</h3>
+                                </div>
+                                <p className="text-xs sm:text-sm md:text-base text-slate-300">Our support team is always available to help you get the best results from your project.</p>
                             </div>
-                            <h3 className="text-xl font-semibold mb-3">
-                                Get Work Done
-                            </h3>
-                            <p className="text-gray-600">
-                                Receive high-quality work on time, with secure
-                                payments and satisfaction guaranteed.
-                            </p>
                         </div>
                     </div>
                 </div>

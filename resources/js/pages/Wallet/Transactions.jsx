@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import { Head, Link, router, usePage } from "@inertiajs/react";
 import Navbar from "../../components/Navbar";
 import CustomerSidebar from "../../components/CustomerSidebar";
+import VendorNavbar from "../../components/VendorNavbar";
+import VendorSidebar from "../../components/VendorSidebar";
 
-export default function Transactions({ transactions, filters, wallet }) {
+export default function Transactions({ transactions, filters, wallet, user, conversations, totalUnreadMessages }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { flash } = usePage().props;
+    const { flash, auth } = usePage().props;
+    const isVendor = auth?.user?.roles?.some(role => ['freelancer', 'vendor', 'admin'].includes(role.name));
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat("en-US", {
@@ -162,14 +165,28 @@ export default function Transactions({ transactions, filters, wallet }) {
 
     return (
         <div className="min-h-screen bg-cream-50">
-            <Navbar user={usePage().props.auth.user} />
+            {isVendor ? (
+                <VendorNavbar user={user || auth.user} />
+            ) : (
+                <Navbar user={auth.user} />
+            )}
 
             <div className="flex">
-                <CustomerSidebar
-                    user={usePage().props.auth.user}
-                    sidebarOpen={sidebarOpen}
-                    setSidebarOpen={setSidebarOpen}
-                />
+                {isVendor ? (
+                    <VendorSidebar
+                        user={user || auth.user}
+                        sidebarOpen={sidebarOpen}
+                        setSidebarOpen={setSidebarOpen}
+                        conversations={conversations || []}
+                        totalUnreadMessages={totalUnreadMessages || 0}
+                    />
+                ) : (
+                    <CustomerSidebar
+                        user={auth.user}
+                        sidebarOpen={sidebarOpen}
+                        setSidebarOpen={setSidebarOpen}
+                    />
+                )}
 
                 <main className="flex-1 min-w-0">
                     <div className="px-4 sm:px-6 lg:px-8 py-8">

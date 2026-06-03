@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useForm, Link } from "@inertiajs/react";
 import Navbar from "../../components/Navbar";
+import VendorNavbar from "../../components/VendorNavbar";
 import CreatableSelect from "react-select/creatable";
 
 const categories = [
@@ -34,6 +35,7 @@ const categories = [
                     "Kotlin",
                     "C#",
                     "C++",
+                    "Other",
                 ],
             },
             {
@@ -53,6 +55,7 @@ const categories = [
                     "Django",
                     "Flask",
                     "Spring Boot",
+                    "Other",
                 ],
             },
             {
@@ -69,6 +72,7 @@ const categories = [
                     "Oracle",
                     "SQL Server",
                     "Firebase",
+                    "Other",
                 ],
             },
             {
@@ -85,6 +89,7 @@ const categories = [
                     "Netlify",
                     "Heroku",
                     "Firebase",
+                    "Other",
                 ],
             },
             {
@@ -101,6 +106,7 @@ const categories = [
                     "WebSocket",
                     "Redis",
                     "Elasticsearch",
+                    "Other",
                 ],
             },
             {
@@ -117,6 +123,7 @@ const categories = [
                     "Landing Page",
                     "SaaS",
                     "MVP",
+                    "Other",
                 ],
             },
         ],
@@ -148,6 +155,7 @@ const categories = [
                     "InDesign",
                     "Canva",
                     "FigJam",
+                    "Other",
                 ],
             },
             {
@@ -164,6 +172,7 @@ const categories = [
                     "Mobile Design",
                     "Brand Identity",
                     "Motion Design",
+                    "Other",
                 ],
             },
             {
@@ -201,6 +210,7 @@ const categories = [
                     "SEO Writing",
                     "Social Media",
                     "Ghostwriting",
+                    "Other",
                 ],
             },
             {
@@ -238,6 +248,7 @@ const categories = [
                     "Landscape",
                     "Street",
                     "Architectural",
+                    "Other",
                 ],
             },
             {
@@ -275,6 +286,7 @@ const categories = [
                     "Filmora",
                     "iMovie",
                     "Avid Media Composer",
+                    "Other",
                 ],
             },
             {
@@ -313,6 +325,7 @@ const categories = [
                     "R&B",
                     "Country",
                     "EDM",
+                    "Other",
                 ],
             },
             {
@@ -350,6 +363,7 @@ const categories = [
                     "Programming",
                     "History",
                     "Economics",
+                    "Other",
                 ],
             },
             {
@@ -365,6 +379,7 @@ const categories = [
                     "College",
                     "University",
                     "Professional",
+                    "Other",
                 ],
             },
         ],
@@ -396,6 +411,7 @@ const categories = [
                     "IT Consulting",
                     "Digital Transformation",
                     "Startups",
+                    "Other",
                 ],
             },
             {
@@ -421,8 +437,34 @@ export default function Create({ user, submitPath, cancelPath }) {
         image: null,
     });
     const fileInputRef = useRef(null);
+    const [showModal, setShowModal] = useState(false);
+    const [modalStep, setModalStep] = useState(1);
+    const [termsAccepted, setTermsAccepted] = useState(false);
+    const [showGigForm, setShowGigForm] = useState(false);
+    
+    // Check if terms were already accepted in this session
+    const hasAcceptedTerms = localStorage.getItem('terms_accepted') === 'true';
+
+    const isVendor = user?.roles?.some(
+        (role) => role.name === "freelancer" || role.name === "vendor",
+    );
+    const NavbarComponent = isVendor ? VendorNavbar : Navbar;
 
     const selectedCategory = categories.find((c) => c.id === data.category);
+
+    const handleCategorySelect = (categoryId) => {
+        setData("category", categoryId);
+        if (hasAcceptedTerms) {
+            // If terms already accepted, skip modal and show form directly
+            setShowGigForm(true);
+            setShowModal(false);
+        } else {
+            setShowModal(true);
+            setModalStep(1);
+            setTermsAccepted(false);
+            setShowGigForm(false);
+        }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -513,7 +555,7 @@ export default function Create({ user, submitPath, cancelPath }) {
 
     return (
         <div className="min-h-screen bg-cream-50">
-            <Navbar user={user} />
+            <NavbarComponent user={user} />
             <div className="py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="mb-8">
@@ -537,7 +579,7 @@ export default function Create({ user, submitPath, cancelPath }) {
                                         <div
                                             key={category.id}
                                             onClick={() =>
-                                                setData("category", category.id)
+                                                handleCategorySelect(category.id)
                                             }
                                             className="p-4 sm:p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] border-gray-200 hover:border-gray-300 bg-white"
                                         >
@@ -554,6 +596,50 @@ export default function Create({ user, submitPath, cancelPath }) {
                                             </div>
                                         </div>
                                     ))}
+                                </div>
+                            </div>
+                        ) : !showGigForm ? (
+                            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8">
+                                <h2 className="text-xl font-bold text-gray-900 mb-4">
+                                    You've selected a category!
+                                </h2>
+                                <p className="text-gray-600 mb-6">
+                                    Please review and accept our terms to continue.
+                                </p>
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold ${selectedCategory?.color} text-white`}>
+                                        {selectedCategory?.icon}
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-gray-900">
+                                            {selectedCategory?.name}
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            {selectedCategory?.description}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="mt-6 flex gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setData("category", "")}
+                                        className="px-6 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
+                                    >
+                                        Change Category
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (hasAcceptedTerms) {
+                                                setShowGigForm(true);
+                                            } else {
+                                                setShowModal(true);
+                                            }
+                                        }}
+                                        className="px-6 py-2.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors"
+                                    >
+                                        {hasAcceptedTerms ? 'Continue to Create Gig' : 'Continue to Terms'}
+                                    </button>
                                 </div>
                             </div>
                         ) : (
@@ -958,7 +1044,7 @@ export default function Create({ user, submitPath, cancelPath }) {
                             </div>
                         )}
 
-                        {data.category && (
+                        {data.category && showGigForm && (
                             <div className="flex flex-col sm:flex-row gap-4 pt-4">
                                 <Link
                                     href={cancelPath || "/gigs"}
@@ -978,6 +1064,190 @@ export default function Create({ user, submitPath, cancelPath }) {
                             </div>
                         )}
                     </form>
+
+                    {/* Terms & Conditions Modal */}
+                    {showModal && (
+                        <div className="fixed inset-0 z-50 overflow-y-auto">
+                            <div className="flex min-h-screen items-center justify-center p-4">
+                                {/* Backdrop */}
+                                <div
+                                    className="fixed inset-0 bg-black/50 transition-opacity"
+                                    onClick={() => setShowModal(false)}
+                                />
+                                
+                                {/* Modal Content */}
+                                <div className="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+                                    {/* Modal Header */}
+                                    <div className="p-6 sm:p-8 border-b border-gray-100">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h2 className="text-2xl font-extrabold text-gray-900">
+                                                {modalStep === 1 ? "Terms & Conditions" : "Gig Guidelines"}
+                                            </h2>
+                                            <button
+                                                onClick={() => setShowModal(false)}
+                                                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                        {/* Step Indicator */}
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-colors ${modalStep >= 1 ? 'bg-brand-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                                    1
+                                                </div>
+                                                <span className={`font-semibold ${modalStep >= 1 ? 'text-brand-600' : 'text-gray-400'}`}>
+                                                    Terms
+                                                </span>
+                                            </div>
+                                            <div className={`h-0.5 w-12 flex-1 max-w-24 ${modalStep >= 2 ? 'bg-brand-600' : 'bg-gray-200'}`} />
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-colors ${modalStep >= 2 ? 'bg-brand-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                                    2
+                                                </div>
+                                                <span className={`font-semibold ${modalStep >= 2 ? 'text-brand-600' : 'text-gray-400'}`}>
+                                                    Guidelines
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Modal Body */}
+                                    <div className="flex-1 overflow-y-auto p-6 sm:p-8">
+                                        {modalStep === 1 ? (
+                                            <div className="space-y-6">
+                                                <div className="bg-cream-50 rounded-2xl p-6 border border-cream-200">
+                                                    <h3 className="text-lg font-bold text-gray-900 mb-4">Terms & Conditions</h3>
+                                                    <div className="space-y-4 text-gray-600">
+                                                        <p>
+                                                            <strong>1. Service Quality:</strong> You agree to provide high-quality services that meet the expectations set in your gig description.
+                                                        </p>
+                                                        <p>
+                                                            <strong>2. Communication:</strong> You must maintain professional and timely communication with clients throughout the project.
+                                                        </p>
+                                                        <p>
+                                                            <strong>3. Pricing:</strong> All prices listed must be transparent and include all necessary fees. No hidden charges are allowed.
+                                                        </p>
+                                                        <p>
+                                                            <strong>4. Delivery:</strong> You agree to deliver services within the timeframe specified in your gig.
+                                                        </p>
+                                                        <p>
+                                                            <strong>5. Compliance:</strong> You must comply with all local laws and regulations regarding the services you offer.
+                                                        </p>
+                                                        <p>
+                                                            <strong>6. Accountability:</strong> You are responsible for the content of your gigs and ensuring they do not violate our community guidelines.
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-start gap-3 bg-gray-50 rounded-xl p-4">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="terms-checkbox"
+                                                        checked={termsAccepted}
+                                                        onChange={(e) => setTermsAccepted(e.target.checked)}
+                                                        className="mt-1 w-5 h-5 text-brand-600 rounded focus:ring-brand-500"
+                                                    />
+                                                    <label htmlFor="terms-checkbox" className="text-gray-700 font-medium">
+                                                        I agree to all Terms & Conditions
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-6">
+                                                <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
+                                                    <h3 className="text-lg font-bold text-gray-900 mb-4">Gig Creation Best Practices</h3>
+                                                    <div className="space-y-4 text-gray-600">
+                                                        <div className="flex gap-3">
+                                                            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0">
+                                                                ✓
+                                                            </div>
+                                                            <div>
+                                                                <strong className="text-gray-900">Clear Title:</strong> Use a descriptive title that accurately represents your service.
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-3">
+                                                            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0">
+                                                                ✓
+                                                            </div>
+                                                            <div>
+                                                                <strong className="text-gray-900">Detailed Description:</strong> Explain exactly what clients will receive.
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-3">
+                                                            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0">
+                                                                ✓
+                                                            </div>
+                                                            <div>
+                                                                <strong className="text-gray-900">High-Quality Images:</strong> Upload clear, professional images that showcase your work.
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-3">
+                                                            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0">
+                                                                ✓
+                                                            </div>
+                                                            <div>
+                                                                <strong className="text-gray-900">Fair Pricing:</strong> Set competitive prices that reflect the value of your services.
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-3">
+                                                            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0">
+                                                                ✓
+                                                            </div>
+                                                            <div>
+                                                                <strong className="text-gray-900">Relevant Tags:</strong> Use tags that help clients find your service easily.
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Modal Footer */}
+                                    <div className="p-6 sm:p-8 border-t border-gray-100 flex gap-3">
+                                        {modalStep === 1 ? (
+                                            <>
+                                                <button
+                                                    onClick={() => setShowModal(false)}
+                                                    className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button
+                                                    onClick={() => setModalStep(2)}
+                                                    disabled={!termsAccepted}
+                                                    className="flex-1 px-6 py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    Next: View Guidelines
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <button
+                                                    onClick={() => setModalStep(1)}
+                                                    className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
+                                                >
+                                                    Back to Terms
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        // Save terms acceptance to localStorage
+                                                        localStorage.setItem('terms_accepted', 'true');
+                                                        setShowModal(false);
+                                                        setShowGigForm(true);
+                                                    }}
+                                                    className="flex-1 px-6 py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors"
+                                                >
+                                                    Continue to Create Gig
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

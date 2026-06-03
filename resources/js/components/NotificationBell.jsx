@@ -113,10 +113,9 @@ export default function NotificationBell() {
             );
 
             if (response.ok) {
+                // Remove the notification from the list instead of just marking as read
                 setNotifications((prev) =>
-                    prev.map((n) =>
-                        n.id === notificationId ? { ...n, read: true } : n,
-                    ),
+                    prev.filter((n) => n.id !== notificationId),
                 );
                 setUnreadCount((prev) => Math.max(0, prev - 1));
             }
@@ -138,9 +137,8 @@ export default function NotificationBell() {
             });
 
             if (response.ok) {
-                setNotifications((prev) =>
-                    prev.map((n) => ({ ...n, read: true })),
-                );
+                // Remove all notifications from the list
+                setNotifications([]);
                 setUnreadCount(0);
             }
         } catch (error) {

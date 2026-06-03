@@ -32,5 +32,6 @@ class DatabaseSeeder extends Seeder
         $admin->assignRole('admin');
 
         $this->call(GigSeeder::class);
+        $this->call(OrderSeeder::class);
     }
 }

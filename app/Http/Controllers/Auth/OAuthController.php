@@ -27,13 +27,13 @@ class OAuthController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            $user = Socialite::driver('google')->user();
+            $user = Socialite::driver('google')->stateless()->user();
 
             return $this->loginOrCreateUser($user, 'google');
         } catch (Exception $e) {
-            \Log::error('Google OAuth error: '.$e->getMessage());
+            \Log::error('Google OAuth error: '.get_class($e).' - '.$e->getMessage(), ['exception' => $e]);
 
-            return redirect('/login')->with('error', 'Unable to authenticate with Google: '.$e->getMessage());
+            return redirect('/login')->with('error', 'Unable to authenticate with Google. Please try again.');
         }
     }
 
@@ -44,7 +44,7 @@ class OAuthController extends Controller
     {
         return Socialite::driver('facebook')
             ->scopes(['public_profile'])
-            ->fields(['id', 'name', 'email', 'picture.type(large)'])
+            ->fields(['id', 'name', 'picture.type(large)'])
             ->redirect();
     }
 
@@ -54,13 +54,13 @@ class OAuthController extends Controller
     public function handleFacebookCallback()
     {
         try {
-            $user = Socialite::driver('facebook')->user();
+            $user = Socialite::driver('facebook')->stateless()->user();
 
             return $this->loginOrCreateUser($user, 'facebook');
         } catch (Exception $e) {
-            \Log::error('Facebook OAuth error: '.$e->getMessage());
+            \Log::error('Facebook OAuth error: '.get_class($e).' - '.$e->getMessage(), ['exception' => $e]);
 
-            return redirect('/login')->with('error', 'Unable to authenticate with Facebook: '.$e->getMessage());
+            return redirect('/login')->with('error', 'Unable to authenticate with Facebook. Please try again.');
         }
     }
 
@@ -74,19 +74,22 @@ class OAuthController extends Controller
             ->where('oauth_provider', $provider)
             ->first();
 
-        // If not found, check by email
-        if (! $user) {
+        // If not found, check by email (if available)
+        if (! $user && $oauthUser->getEmail()) {
             $user = User::where('email', $oauthUser->getEmail())->first();
         }
 
         if (! $user) {
-            // Generate unique username from email
-            $name = $oauthUser->getName() ?? explode('@', $oauthUser->getEmail())[0];
+            // Generate unique username/email if email is not available
+            $name = $oauthUser->getName() ?? 'Facebook User';
+            
+            // Create a dummy email if Facebook doesn't provide one
+            $email = $oauthUser->getEmail() ?? "facebook_{$oauthUser->getId()}@example.com";
 
             // Create new user
             $user = User::create([
                 'name' => $name,
-                'email' => $oauthUser->getEmail(),
+                'email' => $email,
                 'oauth_id' => $oauthUser->getId(),
                 'oauth_provider' => $provider,
                 'avatar' => $oauthUser->getAvatar(),

@@ -118,4 +118,19 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Password updated successfully.');
     }
+
+    public function becomeVendor()
+    {
+        $user = auth()->user();
+
+        // Check if user already has vendor or freelancer role
+        if ($user->hasRole(['vendor', 'freelancer'])) {
+            return redirect()->route('vendor.dashboard')->with('info', 'You are already a seller.');
+        }
+
+        // Assign vendor role
+        $user->assignRole('vendor');
+
+        return redirect()->route('vendor.dashboard')->with('success', 'Welcome! You are now a seller. Complete your profile to get started.');
+    }
 }

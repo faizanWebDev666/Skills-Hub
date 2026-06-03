@@ -61,6 +61,9 @@ class VendorController extends Controller
 
         $totalUnreadMessages = $conversations->sum('unread_count');
 
+        // Get initial chart data (last 7 days)
+        $initialChartData = $this->getChartDataForPeriod($user, '7days');
+
         return Inertia::render('Vendor/Dashboard', [
             'user' => $user,
             'stats' => $stats,
@@ -69,6 +72,120 @@ class VendorController extends Controller
             'subscription' => $currentSubscription,
             'conversations' => $conversations,
             'totalUnreadMessages' => $totalUnreadMessages,
+            'initialChartData' => $initialChartData,
+        ]);
+    }
+
+    private function getChartDataForPeriod($user, $period, $startDate = null, $endDate = null)
+    {
+        $query = $user->freelancerOrders();
+
+        // Determine date range
+        if ($period === 'today') {
+            $query->whereDate('created_at', today());
+        } elseif ($period === 'yesterday') {
+            $query->whereDate('created_at', today()->subDay());
+        } elseif ($period === '7days') {
+            $query->where('created_at', '>=', today()->subDays(7));
+        } elseif ($period === '30days') {
+            $query->where('created_at', '>=', today()->subDays(30));
+        } elseif ($period === 'custom' && $startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        } else {
+            $query->where('created_at', '>=', today()->subDays(7));
+        }
+
+        $orders = $query->orderBy('created_at')->get();
+
+        // Group orders by date
+        $groupedOrders = $orders->groupBy(function ($order) {
+            return $order->created_at->format('Y-m-d');
+        });
+
+        // Prepare chart data
+        $chartData = [];
+        $statuses = ['pending', 'in_progress', 'completed', 'cancelled'];
+
+        // Get date range
+        if ($period === 'today') {
+            $dates = [today()];
+        } elseif ($period === 'yesterday') {
+            $dates = [today()->subDay()];
+        } elseif ($period === '7days') {
+            $dates = collect();
+            for ($i = 6; $i >= 0; $i--) {
+                $dates->push(today()->subDays($i));
+            }
+        } elseif ($period === '30days') {
+            $dates = collect();
+            for ($i = 29; $i >= 0; $i--) {
+                $dates->push(today()->subDays($i));
+            }
+        } elseif ($period === 'custom' && $startDate && $endDate) {
+            $start = \Illuminate\Support\Carbon::parse($startDate);
+            $end = \Illuminate\Support\Carbon::parse($endDate);
+            $dates = collect();
+            for ($date = $start; $date->lte($end); $date->addDay()) {
+                $dates->push($date->copy());
+            }
+        } else {
+            $dates = collect();
+            for ($i = 6; $i >= 0; $i--) {
+                $dates->push(today()->subDays($i));
+            }
+        }
+
+        foreach ($dates as $date) {
+            $dateStr = $date->format('Y-m-d');
+            $dayOrders = $groupedOrders->get($dateStr, collect());
+
+            $dataPoint = [
+                'date' => $date->format('M d'),
+            ];
+
+            foreach ($statuses as $status) {
+                $dataPoint[$status] = $dayOrders->where('status', $status)->count();
+            }
+
+            $chartData[] = $dataPoint;
+        }
+
+        return $chartData;
+    }
+
+    public function getOrderStats(Request $request)
+    {
+        $user = auth()->user();
+        $period = $request->query('period', '7days');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        \Log::info('Fetching order stats for user: ' . $user->id . ', period: ' . $period);
+
+        $chartData = $this->getChartDataForPeriod($user, $period, $startDate, $endDate);
+        
+        // Get total orders for the period
+        $query = $user->freelancerOrders();
+        if ($period === 'today') {
+            $query->whereDate('created_at', today());
+        } elseif ($period === 'yesterday') {
+            $query->whereDate('created_at', today()->subDay());
+        } elseif ($period === '7days') {
+            $query->where('created_at', '>=', today()->subDays(7));
+        } elseif ($period === '30days') {
+            $query->where('created_at', '>=', today()->subDays(30));
+        } elseif ($period === 'custom' && $startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        } else {
+            $query->where('created_at', '>=', today()->subDays(7));
+        }
+        $totalOrders = $query->count();
+
+        \Log::info('Chart data prepared: ' . json_encode($chartData));
+
+        return response()->json([
+            'chartData' => $chartData,
+            'totalOrders' => $totalOrders,
         ]);
     }
 
@@ -202,6 +319,7 @@ class VendorController extends Controller
     public function createGig()
     {
         return Inertia::render('Gigs/Create', [
+            'user' => auth()->user(),
             'submitPath' => route('vendor.gigs.store'),
             'cancelPath' => route('vendor.gigs'),
             'backPath' => route('vendor.dashboard'),
@@ -311,6 +429,14 @@ class VendorController extends Controller
     {
         $user = auth()->user()->load('gigs');
 
+        // Calculate category distribution
+        $categoryDistribution = $user->gigs->groupBy('category')->map(function ($gigs, $category) {
+            return [
+                'name' => $category,
+                'count' => $gigs->count(),
+            ];
+        })->values();
+
         // Calculate profile completion percentage
         $fields = [
             'name' => ! empty($user->name),
@@ -339,6 +465,7 @@ class VendorController extends Controller
         return Inertia::render('Vendor/Profile', [
             'user' => $user,
             'profileCompletion' => $profileCompletion,
+            'categoryDistribution' => $categoryDistribution,
         ]);
     }
 
@@ -358,10 +485,12 @@ class VendorController extends Controller
             'address' => 'nullable|string',
             'languages' => 'nullable|array',
             'years_of_experience' => 'nullable|string|max:255',
+            'custom_years_of_experience' => 'nullable|string|max:255',
             'hourly_rate' => 'nullable|numeric|min:0',
             'delivery_time' => 'nullable|string|max:255',
             'available_days' => 'nullable|array',
             'service_type' => 'nullable|string|max:255',
+            'custom_service_type' => 'nullable|string|max:255',
             'emergency_service' => 'nullable|boolean',
             'linkedin' => 'nullable|url|max:255',
             'github' => 'nullable|url|max:255',
@@ -385,10 +514,12 @@ class VendorController extends Controller
             'address',
             'languages',
             'years_of_experience',
+            'custom_years_of_experience',
             'hourly_rate',
             'delivery_time',
             'available_days',
             'service_type',
+            'custom_service_type',
             'emergency_service',
             'linkedin',
             'github',

@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import Navbar from "../../components/Navbar";
 import CustomerSidebar from "../../components/CustomerSidebar";
+import VendorNavbar from "../../components/VendorNavbar";
+import VendorSidebar from "../../components/VendorSidebar";
 
-export default function Show({ wallet, transactions, balance }) {
+export default function Show({ wallet, transactions, balance, user, conversations, totalUnreadMessages }) {
     const [activeTab, setActiveTab] = useState("overview");
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [depositError, setDepositError] = useState(null);
-    const { flash } = usePage().props;
+    const { flash, auth } = usePage().props;
+    const isVendor = auth?.user?.roles?.some(role => ['freelancer', 'vendor', 'admin'].includes(role.name));
 
     const depositForm = useForm({
         amount: "",
@@ -110,14 +113,28 @@ export default function Show({ wallet, transactions, balance }) {
 
     return (
         <div className="min-h-screen bg-cream-50">
-            <Navbar user={usePage().props.auth.user} />
+            {isVendor ? (
+                <VendorNavbar user={user || auth.user} />
+            ) : (
+                <Navbar user={auth.user} />
+            )}
 
             <div className="flex">
-                <CustomerSidebar
-                    user={usePage().props.auth.user}
-                    sidebarOpen={sidebarOpen}
-                    setSidebarOpen={setSidebarOpen}
-                />
+                {isVendor ? (
+                    <VendorSidebar
+                        user={user || auth.user}
+                        sidebarOpen={sidebarOpen}
+                        setSidebarOpen={setSidebarOpen}
+                        conversations={conversations || []}
+                        totalUnreadMessages={totalUnreadMessages || 0}
+                    />
+                ) : (
+                    <CustomerSidebar
+                        user={auth.user}
+                        sidebarOpen={sidebarOpen}
+                        setSidebarOpen={setSidebarOpen}
+                    />
+                )}
 
                 <main className="flex-1 min-w-0">
                     <div className="px-4 sm:px-6 lg:px-8 py-8">

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useForm } from "@inertiajs/react";
+import React, { useState, useEffect } from "react";
+import { useForm, usePage } from "@inertiajs/react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import SocialLogin from "../../components/SocialLogin";
@@ -10,9 +10,22 @@ export default function Login() {
         password: "",
         remember: false,
     });
+    const { flash = {} } = usePage().props || {};
+    const [lockedUntil, setLockedUntil] = useState(flash.lockedUntil || null);
+    const [lockedEmail, setLockedEmail] = useState(flash.lockedEmail || "");
+
+    useEffect(() => {
+        setLockedUntil(flash.lockedUntil || null);
+        setLockedEmail(flash.lockedEmail || "");
+    }, [flash.lockedUntil, flash.lockedEmail]);
+
+    const isEmailLocked = lockedUntil && lockedEmail && lockedEmail === data.email;
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (isEmailLocked) {
+            return;
+        }
         post("/login");
     };
 
@@ -177,11 +190,20 @@ export default function Login() {
 
                                 <button
                                     type="submit"
-                                    disabled={processing}
+                                    disabled={processing || isEmailLocked}
                                     className="w-full rounded-2xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    {processing ? "Signing in..." : "Sign In"}
+                                    {processing
+                                        ? "Signing in..."
+                                        : isEmailLocked
+                                        ? "Locked"
+                                        : "Sign In"}
                                 </button>
+                                {isEmailLocked && lockedUntil && (
+                                    <p className="mt-3 text-sm text-rose-400">
+                                        This email is locked until {new Date(lockedUntil).toLocaleString()}.
+                                    </p>
+                                )}
                             </form>
 
                             <div className="mt-6 sm:mt-8 text-center text-slate-400">
