@@ -1,48 +1,54 @@
 import React, { useState } from "react";
-import { Link, router } from "@inertiajs/react";
-import AdminNavbar from "../../components/AdminNavbar";
+import { Link } from "@inertiajs/react";
+import Navbar from "../../components/Navbar";
 import AdminSidebar from "../../components/AdminSidebar";
 import SearchFilters from "../../components/SearchFilters";
 import Modal from "../../components/Modal";
 
-export default function Orders({ orders, filters, user, sidebarLinks, categories }) {
+export default function OrdersTrash({ orders, filters, user, sidebarLinks }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [releaseModal, setReleaseModal] = useState({
+    const [restoreModal, setRestoreModal] = useState({
         isOpen: false,
         orderId: null,
-        orderAmount: 0,
+        orderUuid: null,
     });
-    const [deleteModal, setDeleteModal] = useState({
+    const [forceDeleteModal, setForceDeleteModal] = useState({
         isOpen: false,
         orderId: null,
         orderUuid: null,
     });
     const [processing, setProcessing] = useState(false);
 
-    const handleReleaseFunds = async () => {
-        if (!releaseModal.orderId) return;
+    const handleRestore = async () => {
+        if (!restoreModal.orderUuid) return;
         setProcessing(true);
         try {
-            await router.post(
-                `/admin/orders/${releaseModal.orderId}/release-funds`,
-            );
+            await fetch(`/admin/orders/${restoreModal.orderUuid}/restore`, {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN":
+                        document.querySelector('meta[name="csrf-token"]')
+                            ?.content || "",
+                },
+            });
+            window.location.reload();
         } catch (error) {
-            console.error("Error releasing funds:", error);
+            console.error("Error restoring order:", error);
         } finally {
             setProcessing(false);
-            setReleaseModal({
+            setRestoreModal({
                 isOpen: false,
                 orderId: null,
-                orderAmount: 0,
+                orderUuid: null,
             });
         }
     };
 
-    const handleDelete = async () => {
-        if (!deleteModal.orderUuid) return;
+    const handleForceDelete = async () => {
+        if (!forceDeleteModal.orderUuid) return;
         setProcessing(true);
         try {
-            await fetch(`/admin/orders/${deleteModal.orderUuid}`, {
+            await fetch(`/admin/orders/${forceDeleteModal.orderUuid}/force`, {
                 method: "DELETE",
                 headers: {
                     "X-CSRF-TOKEN":
@@ -52,10 +58,10 @@ export default function Orders({ orders, filters, user, sidebarLinks, categories
             });
             window.location.reload();
         } catch (error) {
-            console.error("Error deleting order:", error);
+            console.error("Error permanently deleting order:", error);
         } finally {
             setProcessing(false);
-            setDeleteModal({
+            setForceDeleteModal({
                 isOpen: false,
                 orderId: null,
                 orderUuid: null,
@@ -107,43 +113,52 @@ export default function Orders({ orders, filters, user, sidebarLinks, categories
                 <main className="flex-1 min-w-0">
                     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
                         <Modal
-                            isOpen={releaseModal.isOpen}
+                            isOpen={restoreModal.isOpen}
                             onClose={() =>
-                                setReleaseModal({
-                                    isOpen: false,
-                                    orderId: null,
-                                    orderAmount: 0,
-                                })
-                            }
-                            title="Release Funds"
-                            message={`Are you sure you want to release funds for order #${releaseModal.orderId}? This will deduct the platform commission and add the remaining amount to the vendor's wallet.`}
-                            type="success"
-                            confirmText="Release Funds"
-                            onConfirm={handleReleaseFunds}
-                            isProcessing={processing}
-                        />
-                        <Modal
-                            isOpen={deleteModal.isOpen}
-                            onClose={() =>
-                                setDeleteModal({
+                                setRestoreModal({
                                     isOpen: false,
                                     orderId: null,
                                     orderUuid: null,
                                 })
                             }
-                            title="Delete Order"
-                            message={`Are you sure you want to delete order #${deleteModal.orderId}? It will be moved to trash.`}
+                            title="Restore Order"
+                            message={`Are you sure you want to restore order #${restoreModal.orderId}? It will be reactivated on the platform.`}
+                            type="success"
+                            confirmText="Restore"
+                            onConfirm={handleRestore}
+                            isProcessing={processing}
+                        />
+                        <Modal
+                            isOpen={forceDeleteModal.isOpen}
+                            onClose={() =>
+                                setForceDeleteModal({
+                                    isOpen: false,
+                                    orderId: null,
+                                    orderUuid: null,
+                                })
+                            }
+                            title="Permanently Delete Order"
+                            message={`Are you sure you want to permanently delete order #${forceDeleteModal.orderId}? All its data will be removed and cannot be recovered. This action is irreversible.`}
                             type="error"
                             confirmText="Delete"
-                            onConfirm={handleDelete}
+                            onConfirm={handleForceDelete}
                             isProcessing={processing}
                         />
                         <div className="mb-8">
+                            <Link 
+                                href="/admin/orders" 
+                                className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Back to Orders
+                            </Link>
                             <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
-                                Orders Management
+                                Orders Trash
                             </h1>
                             <p className="text-gray-500 mt-1 text-sm">
-                                Track and manage all orders
+                                Manage deleted orders and restore or permanently delete them
                             </p>
                         </div>
 
@@ -156,7 +171,7 @@ export default function Orders({ orders, filters, user, sidebarLinks, categories
                                     Object.entries(formFilters).forEach(([key, value]) => {
                                         if (value) params.set(key, value);
                                     });
-                                    window.location.href = `/admin/orders?${params.toString()}`;
+                                    window.location.href = `/admin/orders/trash?${params.toString()}`;
                                 }}
                             />
                         </div>
@@ -183,6 +198,9 @@ export default function Orders({ orders, filters, user, sidebarLinks, categories
                                             </th>
                                             <th className="pb-3 font-medium">
                                                 Status
+                                            </th>
+                                            <th className="pb-3 font-medium">
+                                                Deleted At
                                             </th>
                                             <th className="pb-3 font-medium">
                                                 Actions
@@ -226,84 +244,26 @@ export default function Orders({ orders, filters, user, sidebarLinks, categories
                                                         )}
                                                     </span>
                                                 </td>
+                                                <td className="py-4 text-gray-500">
+                                                    {new Date(order.deleted_at).toLocaleDateString()}
+                                                </td>
                                                 <td className="py-4">
                                                     <div className="flex items-center gap-2">
-                                                        <select
-                                                            defaultValue={
-                                                                order.status
-                                                            }
-                                                            onChange={(e) => {
-                                                                fetch(
-                                                                    `/admin/orders/${order.id}/status`,
-                                                                    {
-                                                                        method: "PATCH",
-                                                                        headers:
-                                                                            {
-                                                                                "Content-Type":
-                                                                                    "application/json",
-                                                                                "X-CSRF-TOKEN":
-                                                                                    document.querySelector(
-                                                                                        'meta[name="csrf-token"]',
-                                                                                    )
-                                                                                        ?.content ||
-                                                                                    "",
-                                                                            },
-                                                                        body: JSON.stringify(
-                                                                            {
-                                                                                status: e
-                                                                                    .target
-                                                                                    .value,
-                                                                            },
-                                                                        ),
-                                                                    },
-                                                                ).then(() =>
-                                                                    window.location.reload(),
-                                                                );
-                                                            }}
-                                                            className="px-2 py-1 text-xs border rounded-lg"
-                                                        >
-                                                            <option value="pending">
-                                                                Pending
-                                                            </option>
-                                                            <option value="in_progress">
-                                                                In Progress
-                                                            </option>
-                                                            <option value="delivered">
-                                                                Delivered
-                                                            </option>
-                                                            <option value="completed">
-                                                                Completed
-                                                            </option>
-                                                            <option value="cancelled">
-                                                                Cancelled
-                                                            </option>
-                                                        </select>
-
-                                                        {order.status ===
-                                                            "completed" &&
-                                                            !order.funds_released_at && (
-                                                                <button
-                                                                    onClick={() =>
-                                                                        setReleaseModal({
-                                                                            isOpen: true,
-                                                                            orderId: order.id,
-                                                                            orderAmount: order.amount,
-                                                                        })
-                                                                    }
-                                                                    className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg shadow-sm"
-                                                                >
-                                                                    Release
-                                                                    Funds
-                                                                </button>
-                                                            )}
-                                                        {order.funds_released_at && (
-                                                            <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs font-bold rounded-lg">
-                                                                Released
-                                                            </span>
-                                                        )}
                                                         <button
                                                             onClick={() =>
-                                                                setDeleteModal({
+                                                                setRestoreModal({
+                                                                    isOpen: true,
+                                                                    orderId: order.id,
+                                                                    orderUuid: order.uuid,
+                                                                })
+                                                            }
+                                                            className="px-2 py-1 text-xs bg-success-100 text-success-700 rounded-lg hover:bg-success-200"
+                                                        >
+                                                            Restore
+                                                        </button>
+                                                        <button
+                                                            onClick={() =>
+                                                                setForceDeleteModal({
                                                                     isOpen: true,
                                                                     orderId: order.id,
                                                                     orderUuid: order.uuid,

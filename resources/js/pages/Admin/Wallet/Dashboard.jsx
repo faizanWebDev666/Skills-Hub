@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Head, Link, usePage } from "@inertiajs/react";
+import AdminNavbar from "../../../components/AdminNavbar";
 import AdminSidebar from "../../../components/AdminSidebar";
 
 export default function Dashboard({
@@ -29,6 +30,7 @@ export default function Dashboard({
 
     return (
         <div className="min-h-screen bg-cream-50">
+            <AdminNavbar />
             <div className="flex">
                 <AdminSidebar
                     sidebarOpen={sidebarOpen}

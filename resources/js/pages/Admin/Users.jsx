@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
-import Navbar from "../../components/Navbar";
+import AdminNavbar from "../../components/AdminNavbar";
 import AdminSidebar from "../../components/AdminSidebar";
+import SearchFilters from "../../components/SearchFilters";
+import Modal from "../../components/Modal";
 
 export default function Users({ users, filters, roles, user, sidebarLinks }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -10,10 +12,98 @@ export default function Users({ users, filters, roles, user, sidebarLinks }) {
         : Array.isArray(users)
           ? users.filter(Boolean)
           : [];
+    const [deleteModal, setDeleteModal] = useState({
+        isOpen: false,
+        userUuid: null,
+        userName: "",
+    });
+    const [banUnbanModal, setBanUnbanModal] = useState({
+        isOpen: false,
+        userUuid: null,
+        userName: "",
+        isBanning: false, // true = ban, false = unban
+    });
+    const [processing, setProcessing] = useState(false);
+
+    const handleDeleteUser = async () => {
+        if (!deleteModal.userUuid) return;
+        setProcessing(true);
+        try {
+            await fetch(`/admin/users/${deleteModal.userUuid}`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRF-TOKEN":
+                        document.querySelector('meta[name="csrf-token"]')
+                            ?.content || "",
+                },
+            });
+            window.location.reload();
+        } catch (error) {
+            console.error("Error deleting user:", error);
+        } finally {
+            setProcessing(false);
+            setDeleteModal({ isOpen: false, userUuid: null, userName: "" });
+        }
+    };
+
+    const handleBanUnban = async () => {
+        if (!banUnbanModal.userUuid) return;
+        const endpoint = banUnbanModal.isBanning
+            ? `/admin/users/${banUnbanModal.userUuid}/ban`
+            : `/admin/users/${banUnbanModal.userUuid}/unban`;
+        setProcessing(true);
+        try {
+            await fetch(endpoint, {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN":
+                        document.querySelector('meta[name="csrf-token"]')
+                            ?.content || "",
+                },
+            });
+            window.location.reload();
+        } catch (error) {
+            console.error("Error changing user status:", error);
+        } finally {
+            setProcessing(false);
+            setBanUnbanModal({
+                isOpen: false,
+                userUuid: null,
+                userName: "",
+                isBanning: false,
+            });
+        }
+    };
+
+    const usersSearchFields = [
+        {
+            type: "search",
+            name: "search",
+            label: "user name or email",
+            placeholder: "Search user name or email...",
+        },
+        {
+            type: "select",
+            name: "role",
+            label: "roles",
+            placeholder: "All roles",
+            options: (roles || []).map((role) => ({ label: role, value: role })),
+        },
+        {
+            type: "select",
+            name: "status",
+            label: "status",
+            placeholder: "All status",
+            options: [
+                { label: "Active", value: "active" },
+                { label: "Banned", value: "banned" },
+            ],
+        },
+    ];
 
     return (
         <div className="min-h-screen bg-cream-50">
-            <Navbar user={user} />
+            <AdminNavbar user={user} />
 
             <div className="flex">
                 <AdminSidebar
@@ -25,6 +115,39 @@ export default function Users({ users, filters, roles, user, sidebarLinks }) {
 
                 <main className="flex-1 min-w-0">
                     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+                        <Modal
+                            isOpen={deleteModal.isOpen}
+                            onClose={() =>
+                                setDeleteModal({
+                                    isOpen: false,
+                                    userUuid: null,
+                                    userName: "",
+                                })
+                            }
+                            title="Delete User"
+                            message={`Are you sure you want to delete user "${deleteModal.userName}"? All their data will be permanently removed. This action cannot be undone.`}
+                            type="error"
+                            confirmText="Delete"
+                            onConfirm={handleDeleteUser}
+                            isProcessing={processing}
+                        />
+                        <Modal
+                            isOpen={banUnbanModal.isOpen}
+                            onClose={() =>
+                                setBanUnbanModal({
+                                    isOpen: false,
+                                    userUuid: null,
+                                    userName: "",
+                                    isBanning: false,
+                                })
+                            }
+                            title={`Confirm ${banUnbanModal.isBanning ? 'Ban' : 'Unban'}`}
+                            message={`Are you sure you want to ${banUnbanModal.isBanning ? 'ban' : 'unban'} user "${banUnbanModal.userName}"?${banUnbanModal.isBanning ? " They will no longer be able to log in or use the platform." : ""}`}
+                            type={banUnbanModal.isBanning ? 'error' : 'success'}
+                            confirmText={`Yes, ${banUnbanModal.isBanning ? 'Ban' : 'Unban'}`}
+                            onConfirm={handleBanUnban}
+                            isProcessing={processing}
+                        />
                         <div className="mb-8">
                             <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
                                 Users Management
@@ -32,6 +155,20 @@ export default function Users({ users, filters, roles, user, sidebarLinks }) {
                             <p className="text-gray-500 mt-1 text-sm">
                                 Manage all users on the platform
                             </p>
+                        </div>
+
+                        <div className="mb-6">
+                            <SearchFilters
+                                filters={filters}
+                                searchFields={usersSearchFields}
+                                onSubmit={(formFilters) => {
+                                    const params = new URLSearchParams();
+                                    Object.entries(formFilters).forEach(([key, value]) => {
+                                        if (value) params.set(key, value);
+                                    });
+                                    window.location.href = `/admin/users?${params.toString()}`;
+                                }}
+                            />
                         </div>
 
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -71,21 +208,18 @@ export default function Users({ users, filters, roles, user, sidebarLinks }) {
                                                 >
                                                     <td className="py-4">
                                                         <div className="flex items-center gap-3">
-                                                            {u.avatar ? (
-                                                                <img
-                                                                    src={
-                                                                        u.avatar
-                                                                    }
-                                                                    alt={u.name}
-                                                                    className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                                                                />
-                                                            ) : (
-                                                                <div className="w-10 h-10 bg-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                                                    {u.name?.charAt(
-                                                                        0,
-                                                                    ) || "U"}
-                                                                </div>
-                                                            )}
+                                                            <img
+                                                                src={
+                                                                    u.avatar ||
+                                                                    "/assets/user.png"
+                                                                }
+                                                                alt={u.name}
+                                                                onError={(e) => {
+                                                                    e.target.src =
+                                                                        "/assets/user.png";
+                                                                }}
+                                                                className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                                                            />
                                                             <span className="font-medium text-gray-900">
                                                                 {u.name}
                                                             </span>
@@ -186,84 +320,41 @@ export default function Users({ users, filters, roles, user, sidebarLinks }) {
                                                             </select>
                                                             {!u.banned_at ? (
                                                                 <button
-                                                                    onClick={() => {
-                                                                        fetch(
-                                                                            `/admin/users/${u.uuid}/ban`,
-                                                                            {
-                                                                                method: "POST",
-                                                                                headers:
-                                                                                    {
-                                                                                        "X-CSRF-TOKEN":
-                                                                                            document.querySelector(
-                                                                                                'meta[name="csrf-token"]',
-                                                                                            )
-                                                                                                ?.content ||
-                                                                                            "",
-                                                                                    },
-                                                                            },
-                                                                        ).then(
-                                                                            () =>
-                                                                                window.location.reload(),
-                                                                        );
-                                                                    }}
+                                                                    onClick={() =>
+                                                                        setBanUnbanModal({
+                                                                            isOpen: true,
+                                                                            userUuid: u.uuid,
+                                                                            userName: u.name,
+                                                                            isBanning: true,
+                                                                        })
+                                                                    }
                                                                     className="px-2 py-1 text-xs bg-warning-100 text-warning-700 rounded-lg hover:bg-warning-200"
                                                                 >
                                                                     Ban
                                                                 </button>
                                                             ) : (
                                                                 <button
-                                                                    onClick={() => {
-                                                                        fetch(
-                                                                            `/admin/users/${u.uuid}/unban`,
-                                                                            {
-                                                                                method: "POST",
-                                                                                headers:
-                                                                                    {
-                                                                                        "X-CSRF-TOKEN":
-                                                                                            document.querySelector(
-                                                                                                'meta[name="csrf-token"]',
-                                                                                            )
-                                                                                                ?.content ||
-                                                                                            "",
-                                                                                    },
-                                                                            },
-                                                                        ).then(
-                                                                            () =>
-                                                                                window.location.reload(),
-                                                                        );
-                                                                    }}
+                                                                    onClick={() =>
+                                                                        setBanUnbanModal({
+                                                                            isOpen: true,
+                                                                            userUuid: u.uuid,
+                                                                            userName: u.name,
+                                                                            isBanning: false,
+                                                                        })
+                                                                    }
                                                                     className="px-2 py-1 text-xs bg-success-100 text-success-700 rounded-lg hover:bg-success-200"
                                                                 >
                                                                     Unban
                                                                 </button>
                                                             )}
                                                             <button
-                                                                onClick={() => {
-                                                                    if (
-                                                                        confirm(
-                                                                            "Are you sure you want to delete this user?",
-                                                                        )
-                                                                    ) {
-                                                                        fetch(
-                                                                            `/admin/users/${u.uuid}`,
-                                                                            {
-                                                                                method: "DELETE",
-                                                                                headers:
-                                                                                    {
-                                                                                        "X-CSRF-TOKEN":
-                                                                                            document.querySelector(
-                                                                                                'meta[name="csrf-token"]',
-                                                                                            )
-                                                                                                ?.content ||
-                                                                                            "",
-                                                                                    },
-                                                                            },
-                                                                        ).then(
-                                                                            () =>
-                                                                                window.location.reload(),
-                                                                        );
-                                                                    }
-                                                                }}
+                                                                onClick={() =>
+                                                                    setDeleteModal({
+                                                                        isOpen: true,
+                                                                        userUuid: u.uuid,
+                                                                        userName: u.name,
+                                                                    })
+                                                                }
                                                                 className="px-2 py-1 text-xs bg-danger-100 text-danger-700 rounded-lg hover:bg-danger-200"
                                                             >
                                                                 Delete

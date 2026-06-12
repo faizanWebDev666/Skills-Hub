@@ -34,24 +34,11 @@ export default function VendorNavbar({ user }) {
                         href="/vendor/dashboard"
                         className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity"
                     >
-                        <div className="w-9 sm:w-10 h-9 sm:h-10 bg-brand-50 rounded-lg flex items-center justify-center border border-brand-200">
-                            <svg
-                                className="w-5 sm:w-6 h-5 sm:h-6 text-brand-600"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                                />
-                            </svg>
-                        </div>
-                        <span className="text-gray-900 font-bold text-sm sm:text-base hidden sm:block">
-                            Vendor Hub
-                        </span>
+                        <img
+                            src="/assets/logo/logo.png"
+                            alt="SkillHub Logo"
+                            className="h-8 sm:h-10 object-contain"
+                        />
                     </Link>
 
                     {/* Action Items - Right Side */}
@@ -99,9 +86,17 @@ export default function VendorNavbar({ user }) {
                                 className="flex items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-cream-100 transition-colors"
                                 title={currentUser?.name}
                             >
-                                <div className="w-8 sm:w-9 h-8 sm:h-9 bg-brand-600 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm shrink-0">
-                                    {currentUser?.name?.charAt(0) || "V"}
-                                </div>
+                                {currentUser?.avatar ? (
+                                    <img
+                                        src={`/storage/${currentUser.avatar}`}
+                                        alt={currentUser.name}
+                                        className="w-8 sm:w-9 h-8 sm:h-9 rounded-full object-cover flex-shrink-0"
+                                    />
+                                ) : (
+                                    <div className="w-8 sm:w-9 h-8 sm:h-9 bg-brand-600 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm shrink-0">
+                                        {currentUser?.name?.charAt(0) || "V"}
+                                    </div>
+                                )}
                                 <svg
                                     className="w-4 h-4 text-gray-600 hidden sm:block"
                                     fill="none"

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
-import Navbar from '../../components/Navbar';
+import AdminNavbar from '../../components/AdminNavbar';
 import AdminSidebar from '../../components/AdminSidebar';
 import { Star } from 'lucide-react';
+import Modal from '../../components/Modal';
 
 export default function Reviews({ vendors, filters, user, sidebarLinks }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -39,6 +40,7 @@ export default function Reviews({ vendors, filters, user, sidebarLinks }) {
 
     const [showModal, setShowModal] = useState(false);
     const [selectedVendor, setSelectedVendor] = useState(null);
+    const [processing, setProcessing] = useState(false);
 
     const confirmToggleStatus = (vendor) => {
         setSelectedVendor(vendor);
@@ -47,6 +49,7 @@ export default function Reviews({ vendors, filters, user, sidebarLinks }) {
 
     const executeToggle = () => {
         if (selectedVendor) {
+            setProcessing(true);
             router.post(
                 `/admin/reviews/${selectedVendor.uuid}/toggle-status`,
                 {},
@@ -56,6 +59,7 @@ export default function Reviews({ vendors, filters, user, sidebarLinks }) {
                         setShowModal(false);
                         setSelectedVendor(null);
                     },
+                    onFinish: () => setProcessing(false)
                 },
             );
         }
@@ -63,13 +67,26 @@ export default function Reviews({ vendors, filters, user, sidebarLinks }) {
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans selection:bg-brand-500/30">
-            <Navbar user={user} />
+            <AdminNavbar user={user} />
 
             <div className="flex">
                 <AdminSidebar user={user} sidebarLinks={sidebarLinks} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
                 <main className="flex-1 min-w-0">
                     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+                        <Modal
+                            isOpen={showModal}
+                            onClose={() => {
+                                setShowModal(false);
+                                setSelectedVendor(null);
+                            }}
+                            title={`Confirm ${selectedVendor?.banned_at ? 'Activation' : 'Deactivation'}`}
+                            message={`Are you sure you want to ${selectedVendor?.banned_at ? 'activate' : 'deactivate'} the vendor ${selectedVendor?.name}?${!selectedVendor?.banned_at && " They will no longer be able to log in or receive new orders."}`}
+                            type={selectedVendor?.banned_at ? 'success' : 'error'}
+                            confirmText={`Yes, ${selectedVendor?.banned_at ? 'Activate' : 'Deactivate'}`}
+                            onConfirm={executeToggle}
+                            isProcessing={processing}
+                        />
                         <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
                                 <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">Reviews & Ratings</h1>
@@ -232,39 +249,6 @@ export default function Reviews({ vendors, filters, user, sidebarLinks }) {
                     </div>
                 </main>
             </div>
-
-            {/* Confirmation Modal */}
-            {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 transform transition-all">
-                        <div className="mb-6">
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                Confirm {selectedVendor?.banned_at ? 'Activation' : 'Deactivation'}
-                            </h3>
-                            <p className="text-gray-600">
-                                Are you sure you want to {selectedVendor?.banned_at ? 'activate' : 'deactivate'} the vendor <strong>{selectedVendor?.name}</strong>? 
-                                {!selectedVendor?.banned_at && " They will no longer be able to log in or receive new orders."}
-                            </p>
-                        </div>
-                        <div className="flex justify-end gap-3">
-                            <button
-                                onClick={() => setShowModal(false)}
-                                className="px-4 py-2 text-sm font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={executeToggle}
-                                className={`px-4 py-2 text-sm font-bold text-white rounded-xl transition-colors ${
-                                    selectedVendor?.banned_at ? 'bg-success-600 hover:bg-success-700' : 'bg-danger-600 hover:bg-danger-700'
-                                }`}
-                            >
-                                Yes, {selectedVendor?.banned_at ? 'Activate' : 'Deactivate'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

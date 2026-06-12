@@ -364,10 +364,18 @@ export default function Navbar({ user }) {
                                         }
                                         className="flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 rounded-xl hover:bg-cream-200 transition-colors"
                                     >
-                                        <div className="w-8 lg:w-10 h-8 lg:h-10 bg-gradient-to-br from-brand-600 to-brand-800 rounded-full flex items-center justify-center text-white font-bold text-sm lg:text-base">
-                                            {currentUser?.name?.charAt(0) ||
-                                                "U"}
-                                        </div>
+                                        {currentUser?.avatar ? (
+                                            <img
+                                                src={`/storage/${currentUser.avatar}`}
+                                                alt={currentUser.name}
+                                                className="w-8 lg:w-10 h-8 lg:h-10 rounded-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-8 lg:w-10 h-8 lg:h-10 bg-gradient-to-br from-brand-600 to-brand-800 rounded-full flex items-center justify-center text-white font-bold text-sm lg:text-base">
+                                                {currentUser?.name?.charAt(0) ||
+                                                    "U"}
+                                            </div>
+                                        )}
                                         <span className="font-medium text-gray-700 hidden lg:inline text-sm">
                                             {currentUser?.name}
                                         </span>
@@ -389,9 +397,17 @@ export default function Navbar({ user }) {
                                     {isUserMenuOpen && (
                                         <div className="absolute right-0 mt-2 w-48 md:w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50">
                                             <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
-                                                <div className="w-10 h-10 bg-gradient-to-br from-brand-600 to-brand-800 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                                    {currentUser?.name?.charAt(0) || "U"}
-                                                </div>
+                                                {currentUser?.avatar ? (
+                                                    <img
+                                                        src={`/storage/${currentUser.avatar}`}
+                                                        alt={currentUser.name}
+                                                        className="w-10 h-10 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-10 h-10 bg-gradient-to-br from-brand-600 to-brand-800 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                                        {currentUser?.name?.charAt(0) || "U"}
+                                                    </div>
+                                                )}
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-semibold text-gray-900 truncate">
                                                         {currentUser?.name}
@@ -682,9 +698,17 @@ export default function Navbar({ user }) {
                             {currentUser && (
                                 <div className="flex flex-col gap-3 py-3 px-1 border-t">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-gradient-to-br from-brand-600 to-brand-800 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                            {currentUser.name?.charAt(0) || "U"}
-                                        </div>
+                                        {currentUser?.avatar ? (
+                                            <img
+                                                src={`/storage/${currentUser.avatar}`}
+                                                alt={currentUser.name}
+                                                className="w-10 h-10 rounded-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-10 h-10 bg-gradient-to-br from-brand-600 to-brand-800 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                                {currentUser.name?.charAt(0) || "U"}
+                                            </div>
+                                        )}
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-semibold text-gray-900 truncate">
                                                 {currentUser.name}

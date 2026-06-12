@@ -15,6 +15,7 @@ export default function Wallets({ wallets, filters }) {
 
     return (
         <div className="min-h-screen bg-cream-50">
+            <AdminNavbar />
             <div className="flex">
                 <AdminSidebar
                     sidebarOpen={sidebarOpen}

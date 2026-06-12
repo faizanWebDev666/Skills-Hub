@@ -29,14 +29,14 @@ export default function Register() {
         strengthScore === 3
             ? "Strong"
             : strengthScore === 2
-              ? "Medium"
-              : "Weak";
+                ? "Medium"
+                : "Weak";
     const strengthColor =
         strengthScore === 3
             ? "text-emerald-400"
             : strengthScore === 2
-              ? "text-amber-300"
-              : "text-rose-400";
+                ? "text-amber-300"
+                : "text-rose-400";
     const isPasswordValid = hasMinLength && hasUppercase && hasSpecialChar;
 
     return (
@@ -47,7 +47,6 @@ export default function Register() {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.25),_transparent_25%),radial-gradient(circle_at_bottom_right,_rgba(168,85,247,0.18),_transparent_20%)] pointer-events-none"></div>
                 <div
                     className="absolute inset-0 bg-cover bg-center opacity-30"
-                    style={{ backgroundImage: "url('/assets/bg.png')" }}
                 ></div>
                 <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
 

@@ -3,6 +3,7 @@ import { Link, router } from "@inertiajs/react";
 import Navbar from "../../components/Navbar";
 import AdminSidebar from "../../components/AdminSidebar";
 import { Star, ArrowLeft } from "lucide-react";
+import Modal from "../../components/Modal";
 
 export default function VendorReviews({ vendor, reviews, user, sidebarLinks }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -14,18 +15,21 @@ export default function VendorReviews({ vendor, reviews, user, sidebarLinks }) {
           : [];
 
     const [showModal, setShowModal] = useState(false);
+    const [processing, setProcessing] = useState(false);
 
     const handleToggleStatus = () => {
         setShowModal(true);
     };
 
     const executeToggle = () => {
+        setProcessing(true);
         router.post(
             `/admin/reviews/${vendor.uuid}/toggle-status`,
             {},
             {
                 preserveScroll: true,
                 onSuccess: () => setShowModal(false),
+                onFinish: () => setProcessing(false),
             },
         );
     };
@@ -47,7 +51,7 @@ export default function VendorReviews({ vendor, reviews, user, sidebarLinks }) {
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans selection:bg-brand-500/30">
-            <Navbar user={user} />
+            <AdminNavbar user={user} />
 
             <div className="flex">
                 <AdminSidebar
@@ -59,6 +63,16 @@ export default function VendorReviews({ vendor, reviews, user, sidebarLinks }) {
 
                 <main className="flex-1 min-w-0">
                     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+                        <Modal
+                            isOpen={showModal}
+                            onClose={() => setShowModal(false)}
+                            title={`Confirm ${vendor?.banned_at ? 'Activation' : 'Deactivation'}`}
+                            message={`Are you sure you want to ${vendor?.banned_at ? 'activate' : 'deactivate'} the vendor ${vendor?.name}?${!vendor?.banned_at && " They will no longer be able to log in or receive new orders."}`}
+                            type={vendor?.banned_at ? 'success' : 'error'}
+                            confirmText={`Yes, ${vendor?.banned_at ? 'Activate' : 'Deactivate'}`}
+                            onConfirm={executeToggle}
+                            isProcessing={processing}
+                        />
                         <div className="mb-6 flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <Link
@@ -299,48 +313,6 @@ export default function VendorReviews({ vendor, reviews, user, sidebarLinks }) {
                     </div>
                 </main>
             </div>
-
-            {/* Confirmation Modal */}
-            {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 transform transition-all">
-                        <div className="mb-6">
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                Confirm{" "}
-                                {vendor?.banned_at
-                                    ? "Activation"
-                                    : "Deactivation"}
-                            </h3>
-                            <p className="text-gray-600">
-                                Are you sure you want to{" "}
-                                {vendor?.banned_at ? "activate" : "deactivate"}{" "}
-                                the vendor <strong>{vendor?.name}</strong>?
-                                {!vendor?.banned_at &&
-                                    " They will no longer be able to log in or receive new orders."}
-                            </p>
-                        </div>
-                        <div className="flex justify-end gap-3">
-                            <button
-                                onClick={() => setShowModal(false)}
-                                className="px-4 py-2 text-sm font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={executeToggle}
-                                className={`px-4 py-2 text-sm font-bold text-white rounded-xl transition-colors ${
-                                    vendor?.banned_at
-                                        ? "bg-success-600 hover:bg-success-700"
-                                        : "bg-danger-600 hover:bg-danger-700"
-                                }`}
-                            >
-                                Yes,{" "}
-                                {vendor?.banned_at ? "Activate" : "Deactivate"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

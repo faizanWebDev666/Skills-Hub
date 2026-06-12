@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, router } from "@inertiajs/react";
 import VendorNavbar from "../../components/VendorNavbar";
 import VendorSidebar from "../../components/VendorSidebar";
+import Pagination from "../../components/Pagination";
 import { CheckCircle } from "lucide-react";
 
 export default function VendorOrders({ orders, filters, user }) {
@@ -280,28 +281,7 @@ export default function VendorOrders({ orders, filters, user }) {
                             </ul>
 
                             {/* Pagination */}
-                            {orders.links?.length > 3 && (
-                                <div className="border-t border-gray-100 bg-gray-50 p-4 sm:p-6 flex justify-center">
-                                    <div className="flex gap-1">
-                                        {orders.links.map((link, i) => (
-                                            <Link
-                                                key={i}
-                                                href={link.url}
-                                                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                                    link.active
-                                                        ? "bg-brand-600 text-white"
-                                                        : !link.url
-                                                          ? "text-gray-400 cursor-not-allowed"
-                                                          : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-                                                }`}
-                                                dangerouslySetInnerHTML={{
-                                                    __html: link.label,
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
+                            <Pagination links={orders.links} className="border-t border-gray-100 bg-gray-50" />
                         </div>
                     </div>
                 </main>

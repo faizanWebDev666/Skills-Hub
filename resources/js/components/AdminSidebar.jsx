@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
 
 export default function AdminSidebar({
@@ -10,38 +10,27 @@ export default function AdminSidebar({
     const { props } = usePage();
     const authUser = props.auth?.user;
     const currentUser = user ?? authUser;
+    const [expandedSections, setExpandedSections] = useState(['My Trash']);
 
-    const links = sidebarLinks || [
-        {
-            href: "/admin/dashboard",
-            label: "Dashboard",
-            icon: "M3 12l2-2m0 0l7-7 7 7M13 5v6h6",
-        },
-        {
-            href: "/admin/users",
-            label: "Users",
-            icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
-        },
-        {
-            href: "/admin/orders",
-            label: "Orders",
-            icon: "M3 3h18l-2 13H5L3 3z",
-        },
-        {
-            href: "/admin/wallet",
-            label: "Wallets",
-            icon: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z",
-        },
-        {
-            href: "/admin/wallet/withdrawals",
-            label: "Withdrawals",
-            icon: "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
-        },
-    ];
+    const toggleSection = (label) => {
+        setExpandedSections(prev => 
+            prev.includes(label) 
+                ? prev.filter(l => l !== label) 
+                : [...prev, label]
+        );
+    };
 
     const isActive = (href) => {
         if (typeof window !== "undefined") {
             return window.location.pathname === href;
+        }
+        return false;
+    };
+
+    const isSectionActive = (children) => {
+        if (!children) return false;
+        if (typeof window !== "undefined") {
+            return children.some(child => window.location.pathname === child.href);
         }
         return false;
     };
@@ -82,9 +71,17 @@ export default function AdminSidebar({
             >
                 <div className="mb-6 px-3">
                     <div className="flex items-center gap-3 p-3 bg-sidebar-light rounded-xl">
-                        <div className="w-10 h-10 bg-danger-500 rounded-full flex items-center justify-center text-white font-bold">
-                            {currentUser?.name?.charAt(0) || "A"}
-                        </div>
+                        {currentUser?.avatar ? (
+                            <img
+                                src={`/storage/${currentUser.avatar}`}
+                                alt={currentUser.name}
+                                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                            />
+                        ) : (
+                            <div className="w-10 h-10 bg-danger-500 rounded-full flex items-center justify-center text-white font-bold">
+                                {currentUser?.name?.charAt(0) || "A"}
+                            </div>
+                        )}
                         <div className="min-w-0">
                             <p className="font-semibold text-white text-sm truncate">
                                 {currentUser?.name || "Admin"}
@@ -98,31 +95,97 @@ export default function AdminSidebar({
 
                 <nav className="space-y-1">
                     {sidebarLinks.map((link) => (
-                        <Link
-                            key={link.href}
-                            href={link.href}
-                            onClick={() => setSidebarOpen(false)}
-                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                                isActive(link.href)
-                                    ? "bg-brand-600 text-white"
-                                    : "text-slate-300 hover:bg-sidebar-light hover:text-white"
-                            }`}
-                        >
-                            <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={1.5}
-                                    d={link.icon}
-                                />
-                            </svg>
-                            {link.label}
-                        </Link>
+                        <div key={link.href || link.label}>
+                            {link.href ? (
+                                <Link
+                                    href={link.href}
+                                    onClick={() => setSidebarOpen(false)}
+                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                                        isActive(link.href)
+                                            ? "bg-brand-600 text-white"
+                                            : "text-slate-300 hover:bg-sidebar-light hover:text-white"
+                                    }`}
+                                >
+                                    {link.icon && (
+                                        <svg
+                                            className="w-5 h-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={1.5}
+                                                d={link.icon}
+                                            />
+                                        </svg>
+                                    )}
+                                    {link.label}
+                                </Link>
+                            ) : (
+                                <div>
+                                    <button
+                                        onClick={() => toggleSection(link.label)}
+                                        className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                                            isSectionActive(link.children)
+                                                ? "bg-brand-600 text-white"
+                                                : "text-slate-300 hover:bg-sidebar-light hover:text-white"
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            {link.icon && (
+                                                <svg
+                                                    className="w-5 h-5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={1.5}
+                                                        d={link.icon}
+                                                    />
+                                                </svg>
+                                            )}
+                                            {link.label}
+                                        </div>
+                                        <svg
+                                            className={`w-4 h-4 transition-transform ${expandedSections.includes(link.label) ? "rotate-180" : ""}`}
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M19 9l-7 7-7-7"
+                                            />
+                                        </svg>
+                                    </button>
+                                </div>
+                            )}
+                            {link.children && expandedSections.includes(link.label) && (
+                                <div className="ml-6 mt-1 space-y-1">
+                                    {link.children.map((child) => (
+                                        <Link
+                                            key={child.href}
+                                            href={child.href}
+                                            onClick={() => setSidebarOpen(false)}
+                                            className={`block px-3 py-2 rounded-xl text-sm font-medium transition-all ${
+                                                isActive(child.href)
+                                                    ? "bg-brand-600 text-white"
+                                                    : "text-slate-400 hover:bg-sidebar-light hover:text-white"
+                                            }`}
+                                        >
+                                            {child.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     ))}
                 </nav>
 

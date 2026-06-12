@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, usePage } from "@inertiajs/react";
 
 const sidebarLinks = [
@@ -38,13 +38,11 @@ export default function VendorSidebar({
     user,
     sidebarOpen,
     setSidebarOpen,
-    conversations = [],
     totalUnreadMessages = 0,
 }) {
     const { props } = usePage();
     const authUser = props.auth?.user;
     const currentUser = user ?? authUser;
-    const [isMessagesOpen, setIsMessagesOpen] = useState(false);
 
     const isActive = (href) => {
         if (typeof window !== "undefined") {
@@ -93,9 +91,17 @@ export default function VendorSidebar({
                     {/* User Profile Card */}
                     <div className="px-4">
                         <div className="flex items-center gap-3 p-4 bg-brand-50 rounded-xl border border-brand-100">
-                            <div className="w-10 h-10 bg-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
-                                {currentUser?.name?.charAt(0) || "V"}
-                            </div>
+                            {currentUser?.avatar ? (
+                                <img
+                                    src={`/storage/${currentUser.avatar}`}
+                                    alt={currentUser.name}
+                                    className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                                />
+                            ) : (
+                                <div className="w-10 h-10 bg-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
+                                    {currentUser?.name?.charAt(0) || "V"}
+                                </div>
+                            )}
                             <div className="min-w-0 flex-1">
                                 <p className="font-semibold text-gray-900 text-sm truncate">
                                     {currentUser?.name || "Vendor"}
@@ -142,140 +148,37 @@ export default function VendorSidebar({
                             ))}
 
                             {/* Messages Section */}
-                            <div className="mt-2">
-                                <button
-                                    onClick={() =>
-                                        setIsMessagesOpen(!isMessagesOpen)
-                                    }
-                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative ${
-                                        isActive("/chat")
-                                            ? "bg-brand-50 text-brand-700 border-l-[3px] border-brand-600 pl-[9px]"
-                                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-l-[3px] border-transparent pl-[9px]"
-                                    }`}
+                            <Link
+                                href="/chat"
+                                onClick={() => setSidebarOpen(false)}
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative ${
+                                    isActive("/chat")
+                                        ? "bg-brand-50 text-brand-700 border-l-[3px] border-brand-600 pl-[9px]"
+                                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-l-[3px] border-transparent pl-[9px]"
+                                }`}
+                            >
+                                <svg
+                                    className={`w-5 h-5 flex-shrink-0 ${isActive("/chat") ? "text-brand-600" : "text-gray-400"}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
                                 >
-                                    <svg
-                                        className={`w-5 h-5 flex-shrink-0 ${isActive("/chat") ? "text-brand-600" : "text-gray-400"}`}
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={1.5}
-                                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                                        />
-                                    </svg>
-                                    <span className="flex-1">Messages</span>
-                                    {totalUnreadMessages > 0 && (
-                                        <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-danger-600 rounded-full">
-                                            {totalUnreadMessages > 99
-                                                ? "99+"
-                                                : totalUnreadMessages}
-                                        </span>
-                                    )}
-                                    <svg
-                                        className={`w-4 h-4 text-gray-400 transition-transform ${isMessagesOpen ? "rotate-180" : ""}`}
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                                        />
-                                    </svg>
-                                </button>
-
-                                {/* Messages List */}
-                                {isMessagesOpen && (
-                                    <div className="mt-1 ml-2 border-l-2 border-gray-200 pl-2 space-y-1">
-                                        {conversations.length > 0 ? (
-                                            conversations.map(
-                                                (conversation) => (
-                                                    <Link
-                                                        key={conversation.id}
-                                                        href={`/chat/${conversation.id}`}
-                                                        onClick={() => {
-                                                            setIsMessagesOpen(
-                                                                false,
-                                                            );
-                                                            setSidebarOpen(
-                                                                false,
-                                                            );
-                                                        }}
-                                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-600 hover:bg-gray-50 transition-colors group"
-                                                    >
-                                                        {conversation.other_user
-                                                            ?.avatar ? (
-                                                            <img
-                                                                src={
-                                                                    conversation
-                                                                        .other_user
-                                                                        .avatar
-                                                                }
-                                                                alt={
-                                                                    conversation
-                                                                        .other_user
-                                                                        .name
-                                                                }
-                                                                className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-                                                            />
-                                                        ) : (
-                                                            <div className="w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center text-brand-600 font-bold text-xs flex-shrink-0">
-                                                                {conversation.other_user?.name?.charAt(
-                                                                    0,
-                                                                ) || "?"}
-                                                            </div>
-                                                        )}
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="font-medium text-gray-700 truncate">
-                                                                {
-                                                                    conversation
-                                                                        .other_user
-                                                                        ?.name
-                                                                }
-                                                            </p>
-                                                            <p className="text-xs text-gray-500 truncate line-clamp-1">
-                                                                {conversation
-                                                                    .latest_message
-                                                                    ?.content ||
-                                                                    "No messages yet"}
-                                                            </p>
-                                                        </div>
-                                                        {conversation.unread_count >
-                                                            0 && (
-                                                            <span className="inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-brand-600 rounded-full flex-shrink-0">
-                                                                {
-                                                                    conversation.unread_count
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </Link>
-                                                ),
-                                            )
-                                        ) : (
-                                            <div className="px-3 py-4 text-center">
-                                                <p className="text-xs text-gray-400">
-                                                    No conversations yet
-                                                </p>
-                                            </div>
-                                        )}
-                                        <Link
-                                            href="/chat"
-                                            onClick={() => {
-                                                setIsMessagesOpen(false);
-                                                setSidebarOpen(false);
-                                            }}
-                                            className="block px-3 py-2 text-xs text-center text-brand-600 hover:text-brand-700 font-medium mt-2 pt-2 border-t border-gray-200"
-                                        >
-                                            View all messages →
-                                        </Link>
-                                    </div>
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={1.5}
+                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                                    />
+                                </svg>
+                                <span className="flex-1">Messages</span>
+                                {totalUnreadMessages > 0 && (
+                                    <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-danger-600 rounded-full">
+                                        {totalUnreadMessages > 99
+                                            ? "99+"
+                                            : totalUnreadMessages}
+                                    </span>
                                 )}
-                            </div>
+                            </Link>
                         </nav>
                     </div>
 

@@ -25,6 +25,7 @@ export default function UserWallet({ user, wallet, transactions }) {
 
     return (
         <div className="min-h-screen bg-cream-50">
+            <AdminNavbar user={user} />
             <div className="flex">
                 <AdminSidebar
                     sidebarOpen={sidebarOpen}

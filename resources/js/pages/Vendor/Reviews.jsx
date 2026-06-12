@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, usePage, router } from "@inertiajs/react";
+import VendorNavbar from "../../components/VendorNavbar";
 import VendorSidebar from "../../components/VendorSidebar";
+import Pagination from "../../components/Pagination";
 import { Star, MessageCircle, Clock, CheckCircle } from "lucide-react";
 
 export default function VendorReviews({ reviews, gigs, filters }) {
@@ -57,15 +59,18 @@ export default function VendorReviews({ reviews, gigs, filters }) {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex">
-            <VendorSidebar
-                user={user}
-                sidebarOpen={sidebarOpen}
-                setSidebarOpen={setSidebarOpen}
-            />
+        <div className="min-h-screen bg-slate-50">
+            <VendorNavbar user={user} />
 
-            <main className="flex-1 w-full lg:w-[calc(100%-16rem)] ml-0">
-                <div className="p-4 lg:p-8 w-full max-w-6xl mx-auto mt-16 lg:mt-0">
+            <div className="flex items-start">
+                <VendorSidebar
+                    user={user}
+                    sidebarOpen={sidebarOpen}
+                    setSidebarOpen={setSidebarOpen}
+                />
+
+                <main className="flex-1 min-w-0">
+                    <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 w-full max-w-6xl mx-auto">
                     <div className="mb-8">
                         <h1 className="text-2xl font-bold text-gray-900 mb-2">
                             My Reviews
@@ -266,28 +271,10 @@ export default function VendorReviews({ reviews, gigs, filters }) {
                     )}
 
                     {/* Pagination */}
-                    {reviews.links && reviews.links.length > 3 && (
-                        <div className="flex justify-center mt-8 gap-2">
-                            {reviews.links.map((link, idx) => (
-                                <Link
-                                    key={idx}
-                                    href={link.url || "#"}
-                                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                                        link.active
-                                            ? "bg-brand-600 text-white shadow-sm"
-                                            : link.url
-                                              ? "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
-                                              : "bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-100"
-                                    }`}
-                                    dangerouslySetInnerHTML={{
-                                        __html: link.label,
-                                    }}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </main>
+                    <Pagination links={reviews.links} className="mt-8" />
+                    </div>
+                </main>
+            </div>
 
             {/* Confirmation Modal */}
             {confirmModal && (

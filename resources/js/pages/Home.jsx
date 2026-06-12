@@ -138,27 +138,27 @@ export default function Home({ user, featuredGigs = [] }) {
                             {/* Left Content */}
                             <div className="space-y-5 sm:space-y-6 md:space-y-8 w-full">
                                 {/* Badge */}
-                                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-gradient-to-r from-white to-slate-50 px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 text-[11px] sm:text-xs md:text-sm font-medium text-slate-700 shadow-sm">
+                                <div className="flex justify-center md:inline-flex items-center gap-2 rounded-full border border-slate-200 bg-gradient-to-r from-white to-slate-50 px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 text-[11px] sm:text-xs md:text-sm font-medium text-slate-700 shadow-sm">
                                     <span className="flex h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                                     <span className="truncate sm:truncate">Join 50,000+ successful businesses</span>
                                 </div>
 
                                 {/* Main Heading */}
                                 <div className="space-y-3 sm:space-y-4 md:space-y-6 w-full">
-                                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-slate-900 leading-tight tracking-tight break-words">
+                                    <h1 className="text-center md:text-left text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-slate-900 leading-tight tracking-tight break-words">
                                         Hire Experts.
                                         <br />
                                         <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                                             Scale Fast.
                                         </span>
                                     </h1>
-                                    <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-lg">
+                                    <p className="text-center md:text-left text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-lg mx-auto md:mx-0">
                                         Connect with top-rated freelancers and agencies. Get professional work done in days, not months. Perfect for startups, businesses, and enterprises.
                                     </p>
                                 </div>
 
                                 {/* CTA Buttons */}
-                                <div className="flex flex-col xs:flex-row gap-2.5 sm:gap-3 md:gap-4 pt-3 sm:pt-4 md:pt-6 w-full">
+                                <div className="flex flex-col xs:flex-row gap-2.5 sm:gap-3 md:gap-4 pt-3 sm:pt-4 md:pt-6 w-full justify-center md:justify-start">
                                     <a
                                         href="/gigs"
                                         className="group inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 text-xs sm:text-sm md:text-base font-semibold text-white shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 transition-all duration-300 hover:-translate-y-1 active:translate-y-0 flex-shrink-0"
@@ -180,7 +180,7 @@ export default function Home({ user, featuredGigs = [] }) {
                                 </div>
 
                                 {/* Stats */}
-                                <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6 pt-6 sm:pt-8 md:pt-12 border-t border-slate-200 w-full">
+                                <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6 pt-6 sm:pt-8 md:pt-12 border-t border-slate-200 w-full justify-items-center md:justify-items-start">
                                     <div>
                                         <p className="text-[10px] sm:text-xs md:text-sm text-slate-500 uppercase tracking-wider font-medium">Avg. Delivery</p>
                                         <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-slate-900 mt-1 sm:mt-2">24h</p>
@@ -276,7 +276,7 @@ export default function Home({ user, featuredGigs = [] }) {
                         </div>
 
                         {/* Categories Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
                             {categories.map((category) => (
                                 <div
                                     key={category.id}
@@ -351,8 +351,8 @@ export default function Home({ user, featuredGigs = [] }) {
                 <div className="w-full max-w-full">
                     <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
                         {/* Section Header */}
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-10 sm:mb-12 md:mb-16">
-                            <div className="space-y-2">
+                        <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center gap-4 sm:gap-6 mb-10 sm:mb-12 md:mb-16">
+                            <div className="space-y-2 text-center sm:text-left">
                                 <p className="text-xs sm:text-sm md:text-base uppercase tracking-[0.35em] font-bold text-blue-600">
                                     TOP SELLERS
                                 </p>
@@ -372,11 +372,11 @@ export default function Home({ user, featuredGigs = [] }) {
                         </div>
 
                         {/* Gigs Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
                             {featuredGigs.map((gig) => (
                                 <a
                                     key={gig.id}
-                                    href={`/gigs/${gig.id}`}
+                                    href={`/gigs/${gig.uuid}`}
                                     className="group bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 active:translate-y-0"
                                 >
                                     {/* Image Container */}

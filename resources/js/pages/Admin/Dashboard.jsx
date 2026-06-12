@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "@inertiajs/react";
-import Navbar from "../../components/Navbar";
+import AdminNavbar from "../../components/AdminNavbar";
 import AdminSidebar from "../../components/AdminSidebar";
 
 const StatCard = ({ title, value, subtitle, icon, color, trend }) => {
@@ -143,7 +143,7 @@ export default function AdminDashboard({
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Navbar user={user} />
+            <AdminNavbar user={user} />
 
             <div className="flex">
                 <AdminSidebar

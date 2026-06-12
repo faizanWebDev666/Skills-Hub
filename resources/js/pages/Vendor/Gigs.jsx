@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, router, usePage } from "@inertiajs/react";
 import VendorNavbar from "../../components/VendorNavbar";
 import VendorSidebar from "../../components/VendorSidebar";
+import Pagination from "../../components/Pagination";
 
 export default function VendorGigs({ gigs, counts, user }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -424,26 +425,7 @@ export default function VendorGigs({ gigs, counts, user }) {
                             </div>
 
                             {/* Pagination */}
-                            {gigs.links && gigs.links.length > 3 && (
-                                <div className="border-t border-gray-100 px-4 py-3 flex flex-wrap items-center justify-center gap-1">
-                                    {gigs.links.map((link, index) => (
-                                        <Link
-                                            key={index}
-                                            href={link.url || "#"}
-                                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                                                link.active
-                                                    ? "bg-brand-600 text-white"
-                                                    : link.url
-                                                      ? "text-gray-600 hover:bg-gray-100"
-                                                      : "text-gray-300 cursor-not-allowed"
-                                            }`}
-                                            dangerouslySetInnerHTML={{
-                                                __html: link.label,
-                                            }}
-                                        />
-                                    ))}
-                                </div>
-                            )}
+                            <Pagination links={gigs.links} className="border-t border-gray-100" />
                         </div>
                     </div>
                 </main>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Head, Link, router, usePage } from "@inertiajs/react";
+import AdminNavbar from "../../../components/AdminNavbar";
 import AdminSidebar from "../../../components/AdminSidebar";
 
 export default function Withdrawals({ withdrawals, filters }) {
