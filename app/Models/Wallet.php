@@ -5,15 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Wallet extends Model
 {
     protected $fillable = [
+        'uuid',
         'user_id',
         'balance',
         'currency',
         'is_active',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [
@@ -21,6 +23,20 @@ class Wallet extends Model
         'is_active' => 'boolean',
         'metadata' => 'array',
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Wallet $wallet) {
+            if (empty($wallet->uuid)) {
+                $wallet->uuid = (string) Str::uuid();
+            }
+        });
+    }
 
     public function user(): BelongsTo
     {
@@ -81,4 +97,3 @@ class Wallet extends Model
         return $this->available_balance >= $amount;
     }
 }
-

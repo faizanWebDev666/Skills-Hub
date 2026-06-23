@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Events\MessageSent;
+use App\Events\NotificationCreated;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,7 +16,7 @@ class ChatController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
+
         $conversations = Conversation::forUser($user)
             ->with(['userOne.roles', 'userTwo.roles', 'latestMessage'])
             ->orderBy('last_message_at', 'desc')
@@ -25,9 +27,9 @@ class ChatController extends Controller
                     ->where('user_id', '!=', $user->id)
                     ->where('read', false)
                     ->count();
-                
+
                 return [
-                    'id' => $conversation->id,
+                    'id' => $conversation->uuid,
                     'other_user' => [
                         'id' => $otherUser->id,
                         'name' => $otherUser->name,
@@ -47,7 +49,7 @@ class ChatController extends Controller
     public function show(Conversation $conversation)
     {
         $user = auth()->user();
-        
+
         abort_if(
             $conversation->user_one_id !== $user->id && $conversation->user_two_id !== $user->id,
             403
@@ -75,9 +77,9 @@ class ChatController extends Controller
                     ->where('user_id', '!=', $user->id)
                     ->where('read', false)
                     ->count();
-                
+
                 return [
-                    'id' => $c->id,
+                    'id' => $c->uuid,
                     'other_user' => [
                         'id' => $otherUser->id,
                         'name' => $otherUser->name,
@@ -91,12 +93,11 @@ class ChatController extends Controller
 
         return Inertia::render('Chat/Show', [
             'conversation' => [
-                'id' => $conversation->id,
+                'id' => $conversation->uuid,
                 'other_user' => $otherUser,
                 'messages' => $messages,
             ],
             'conversations' => $conversations,
-            'user' => $user,
         ]);
     }
 
@@ -120,28 +121,60 @@ class ChatController extends Controller
     public function store(Request $request, Conversation $conversation)
     {
         $user = auth()->user();
-        
+
         abort_if(
             $conversation->user_one_id !== $user->id && $conversation->user_two_id !== $user->id,
             403
         );
 
         $request->validate([
-            'content' => 'required|string|max:2000',
+            'content' => 'required_without:attachment|string|max:2000|nullable',
+            'attachment' => 'nullable|file|max:20480', // 20MB max
         ]);
 
-        $message = $conversation->messages()->create([
+        $messageData = [
             'user_id' => $user->id,
             'content' => $request->input('content'),
-        ]);
+        ];
+
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $path = $file->store('chat-attachments', 'public');
+            $messageData['attachment'] = $path;
+            $messageData['attachment_name'] = $file->getClientOriginalName();
+
+            if (str_starts_with($file->getMimeType(), 'image/')) {
+                $messageData['attachment_type'] = 'image';
+            } else {
+                $messageData['attachment_type'] = 'file';
+            }
+        }
+
+        $message = $conversation->messages()->create($messageData);
 
         $conversation->update(['last_message_at' => now()]);
 
-        $recipientId = $conversation->user_one_id === $user->id 
-            ? $conversation->user_two_id 
+        $recipientId = $conversation->user_one_id === $user->id
+            ? $conversation->user_two_id
             : $conversation->user_one_id;
 
-        broadcast(new MessageSent($message->load('user'), $conversation->id, $recipientId));
+        broadcast(new MessageSent($message->load('user'), $conversation->uuid, $recipientId));
+
+        // Create notification for recipient
+        $notification = Notification::create([
+            'user_id' => $recipientId,
+            'type' => 'message',
+            'related_id' => $message->id,
+            'conversation_id' => $conversation->id,
+            'title' => 'New Message from '.$user->name,
+            'message' => $message->content,
+            'from_user_id' => $user->id,
+        ]);
+
+        $notification->load('conversation', 'fromUser');
+
+        // Broadcast the notification
+        broadcast(new NotificationCreated($notification));
 
         return back();
     }
@@ -149,7 +182,7 @@ class ChatController extends Controller
     public function createWithUser(User $user)
     {
         $authUser = auth()->user();
-        
+
         if ($authUser->id === $user->id) {
             return redirect()->route('chat.index');
         }
@@ -165,5 +198,110 @@ class ChatController extends Controller
         );
 
         return redirect()->route('chat.show', $conversation);
+    }
+
+    public function searchUsers(Request $request)
+    {
+        $query = trim($request->input('query', ''));
+
+        $users = [];
+
+        if ($query !== '') {
+            $users = User::role(['vendor', 'freelancer'])
+                ->where('id', '!=', auth()->id())
+                ->where(function ($q) use ($query) {
+                    $q->where('name', 'like', "%{$query}%")
+                        ->orWhere('professional_title', 'like', "%{$query}%")
+                        ->orWhere('service_type', 'like', "%{$query}%");
+                })
+                ->limit(12)
+                ->get(['uuid', 'name', 'avatar', 'professional_title', 'service_type']);
+        }
+
+        return response()->json(['users' => $users]);
+    }
+
+    /**
+     * Get unread notifications count for the authenticated user
+     */
+    public function getUnreadNotifications()
+    {
+        $user = auth()->user();
+        $unreadCount = Notification::where('user_id', $user->id)
+            ->where('read', false)
+            ->count();
+
+        return response()->json([
+            'unread_count' => $unreadCount,
+        ]);
+    }
+
+    /**
+     * Get all notifications for the authenticated user
+     */
+    public function getNotifications()
+    {
+        $user = auth()->user();
+        $notifications = Notification::where('user_id', $user->id)
+            ->with(['fromUser:id,name,avatar', 'conversation'])
+            ->orderBy('created_at', 'desc')
+            ->limit(20)
+            ->get()
+            ->map(function ($notification) {
+                return [
+                    'id' => $notification->uuid,
+                    'type' => $notification->type,
+                    'title' => $notification->title,
+                    'message' => $notification->message,
+                    'from_user' => $notification->fromUser ? [
+                        'id' => $notification->fromUser->id,
+                        'name' => $notification->fromUser->name,
+                        'avatar' => $notification->fromUser->avatar,
+                    ] : null,
+                    'related_id' => $notification->related_id,
+                    'conversation_id' => $notification->conversation ? $notification->conversation->uuid : null,
+                    'read' => $notification->read,
+                    'created_at' => $notification->created_at,
+                ];
+            });
+
+        return response()->json([
+            'notifications' => $notifications,
+        ]);
+    }
+
+    /**
+     * Mark notification as read
+     */
+    public function markNotificationAsRead(Notification $notification)
+    {
+        $user = auth()->user();
+
+        abort_if($notification->user_id !== $user->id, 403);
+
+        $notification->markAsRead();
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }
+
+    /**
+     * Mark all notifications as read
+     */
+    public function markAllNotificationsAsRead()
+    {
+        $user = auth()->user();
+
+        Notification::where('user_id', $user->id)
+            ->where('read', false)
+            ->update([
+                'read' => true,
+                'read_at' => now(),
+            ]);
+
+        return response()->json([
+            'success' => true,
+        ]);
     }
 }

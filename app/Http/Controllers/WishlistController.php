@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Wishlist;
 use App\Models\Gig;
-use Illuminate\Http\Request;
+use App\Models\Wishlist;
 use Inertia\Inertia;
 
 class WishlistController extends Controller
@@ -17,7 +16,7 @@ class WishlistController extends Controller
             ->get();
 
         return Inertia::render('Wishlist/Index', [
-            'wishlistItems' => $wishlistItems
+            'wishlistItems' => $wishlistItems,
         ]);
     }
 
@@ -43,7 +42,7 @@ class WishlistController extends Controller
         } else {
             Wishlist::create([
                 'user_id' => auth()->id(),
-                'gig_id' => $gig->id
+                'gig_id' => $gig->id,
             ]);
             $status = 'added';
         }

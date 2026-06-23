@@ -30,5 +30,8 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
         $admin->assignRole('admin');
+
+        $this->call(GigSeeder::class);
+        $this->call(OrderSeeder::class);
     }
 }

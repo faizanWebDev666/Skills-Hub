@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
-use App\Services\StripePaymentService;
 use App\Services\PayPalPaymentService;
+use App\Services\StripePaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -14,6 +15,7 @@ use Inertia\Inertia;
 class WalletController extends Controller
 {
     protected $stripeService;
+
     protected $paypalService;
 
     public function __construct(StripePaymentService $stripeService, PayPalPaymentService $paypalService)
@@ -33,12 +35,47 @@ class WalletController extends Controller
             ->with('wallet.user')
             ->paginate(20);
 
-        return Inertia::render('Wallet/Show', [
+        $props = [
             'wallet' => $wallet,
             'transactions' => $transactions,
             'balance' => $wallet->available_balance,
             'stripePublishableKey' => $this->stripeService->getPublishableKey(),
-        ]);
+        ];
+
+        // Check if user is vendor/freelancer/admin to add vendor-specific props
+        if ($user->hasAnyRole(['freelancer', 'vendor', 'admin'])) {
+            $conversations = \App\Models\Conversation::forUser($user)
+                ->with(['userOne:id,name,avatar', 'userTwo:id,name,avatar', 'latestMessage'])
+                ->orderBy('last_message_at', 'desc')
+                ->get()
+                ->map(function ($conversation) use ($user) {
+                    $otherUser = $conversation->getOtherUser($user);
+                    $unreadCount = \App\Models\Message::where('conversation_id', $conversation->id)
+                        ->where('user_id', '!=', $user->id)
+                        ->where('read', false)
+                        ->count();
+
+                    return [
+                        'id' => $conversation->id,
+                        'other_user' => [
+                            'id' => $otherUser->id,
+                            'name' => $otherUser->name,
+                            'avatar' => $otherUser->avatar,
+                        ],
+                        'latest_message' => $conversation->latestMessage,
+                        'unread_count' => $unreadCount,
+                        'last_message_at' => $conversation->last_message_at,
+                    ];
+                });
+
+            $totalUnreadMessages = $conversations->sum('unread_count');
+
+            $props['user'] = $user;
+            $props['conversations'] = $conversations;
+            $props['totalUnreadMessages'] = $totalUnreadMessages;
+        }
+
+        return Inertia::render('Wallet/Show', $props);
     }
 
     public function transactions(Request $request)
@@ -56,8 +93,8 @@ class WalletController extends Controller
         // Filter by date range
         if ($request->filled(['start_date', 'end_date'])) {
             $query->whereBetween('created_at', [
-                $request->start_date . ' 00:00:00',
-                $request->end_date . ' 23:59:59'
+                $request->start_date.' 00:00:00',
+                $request->end_date.' 23:59:59',
             ]);
         }
 
@@ -68,11 +105,46 @@ class WalletController extends Controller
 
         $transactions = $query->paginate(20)->appends($request->query());
 
-        return Inertia::render('Wallet/Transactions', [
+        $props = [
             'transactions' => $transactions,
             'filters' => $request->only(['type', 'start_date', 'end_date', 'status']),
             'wallet' => $wallet,
-        ]);
+        ];
+
+        // Check if user is vendor/freelancer/admin to add vendor-specific props
+        if ($user->hasAnyRole(['freelancer', 'vendor', 'admin'])) {
+            $conversations = \App\Models\Conversation::forUser($user)
+                ->with(['userOne:id,name,avatar', 'userTwo:id,name,avatar', 'latestMessage'])
+                ->orderBy('last_message_at', 'desc')
+                ->get()
+                ->map(function ($conversation) use ($user) {
+                    $otherUser = $conversation->getOtherUser($user);
+                    $unreadCount = \App\Models\Message::where('conversation_id', $conversation->id)
+                        ->where('user_id', '!=', $user->id)
+                        ->where('read', false)
+                        ->count();
+
+                    return [
+                        'id' => $conversation->id,
+                        'other_user' => [
+                            'id' => $otherUser->id,
+                            'name' => $otherUser->name,
+                            'avatar' => $otherUser->avatar,
+                        ],
+                        'latest_message' => $conversation->latestMessage,
+                        'unread_count' => $unreadCount,
+                        'last_message_at' => $conversation->last_message_at,
+                    ];
+                });
+
+            $totalUnreadMessages = $conversations->sum('unread_count');
+
+            $props['user'] = $user;
+            $props['conversations'] = $conversations;
+            $props['totalUnreadMessages'] = $totalUnreadMessages;
+        }
+
+        return Inertia::render('Wallet/Transactions', $props);
     }
 
     public function deposit(Request $request)
@@ -133,6 +205,7 @@ class WalletController extends Controller
 
         if (! $session['success']) {
             $transaction->update(['status' => 'failed', 'metadata' => array_merge($transaction->metadata ?? [], ['error' => $session['error']])]);
+
             return response()->json(['error' => $session['error']], 500);
         }
 
@@ -171,6 +244,7 @@ class WalletController extends Controller
 
         if (! $payment['success']) {
             $transaction->update(['status' => 'failed', 'metadata' => array_merge($transaction->metadata ?? [], ['error' => $payment['error']])]);
+
             return response()->json(['error' => $payment['error']], 500);
         }
 
@@ -199,7 +273,7 @@ class WalletController extends Controller
         $user = auth()->user();
         $wallet = $user->wallet ?? $this->createWalletForUser($user);
 
-        if (!$wallet->canDebit($request->amount)) {
+        if (! $wallet->canDebit($request->amount)) {
             return back()->withErrors(['amount' => 'Insufficient available balance.']);
         }
 
@@ -208,7 +282,7 @@ class WalletController extends Controller
             'amount' => -abs($request->amount),
             'balance_before' => $wallet->balance,
             'balance_after' => $wallet->balance,
-            'description' => 'Withdrawal request to ' . str_replace('_', ' ', $request->payment_method),
+            'description' => 'Withdrawal request to '.str_replace('_', ' ', $request->payment_method),
             'status' => 'pending_approval',
             'metadata' => [
                 'payment_method' => $request->payment_method,
@@ -235,7 +309,7 @@ class WalletController extends Controller
         ]);
 
         $sender = auth()->user();
-        $recipient = \App\Models\User::where('email', $request->recipient_email)->first();
+        $recipient = User::where('email', $request->recipient_email)->first();
 
         if (! $recipient) {
             return back()->withErrors(['recipient_email' => 'Recipient email does not match an active user.']);
@@ -248,7 +322,7 @@ class WalletController extends Controller
         $senderWallet = $sender->wallet ?? $this->createWalletForUser($sender);
         $recipientWallet = $recipient->wallet ?? $this->createWalletForUser($recipient);
 
-        if (!$senderWallet->canDebit($request->amount)) {
+        if (! $senderWallet->canDebit($request->amount)) {
             return back()->withErrors(['amount' => 'Insufficient available balance.']);
         }
 
@@ -258,14 +332,14 @@ class WalletController extends Controller
             $senderWallet->debit(
                 $request->amount,
                 'transfer',
-                "Transfer to {$recipient->name}" . $message,
+                "Transfer to {$recipient->name}".$message,
                 ['recipient_id' => $recipient->id]
             );
 
             $recipientWallet->credit(
                 $request->amount,
                 'transfer',
-                "Transfer from {$sender->name}" . $message,
+                "Transfer from {$sender->name}".$message,
                 ['sender_id' => $sender->id]
             );
         });

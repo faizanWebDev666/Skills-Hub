@@ -105,8 +105,8 @@ class AdminWalletController extends Controller
         // Filter by date range
         if ($request->filled(['start_date', 'end_date'])) {
             $query->whereBetween('created_at', [
-                $request->start_date . ' 00:00:00',
-                $request->end_date . ' 23:59:59'
+                $request->start_date.' 00:00:00',
+                $request->end_date.' 23:59:59',
             ]);
         }
 
@@ -177,7 +177,7 @@ class AdminWalletController extends Controller
 
         DB::transaction(function () use ($transaction, $request) {
             $wallet = $transaction->wallet;
-            
+
             // Refund the amount back to wallet
             $wallet->balance += abs(floatval($transaction->amount));
             $wallet->save();
@@ -195,7 +195,7 @@ class AdminWalletController extends Controller
                 'metadata' => array_merge($transaction->metadata ?? [], [
                     'rejection_reason' => $request->reason,
                     'rejected_at' => now(),
-                ])
+                ]),
             ]);
         });
 
@@ -282,15 +282,15 @@ class AdminWalletController extends Controller
 
         if ($request->filled(['start_date', 'end_date'])) {
             $query->whereBetween('created_at', [
-                $request->start_date . ' 00:00:00',
-                $request->end_date . ' 23:59:59'
+                $request->start_date.' 00:00:00',
+                $request->end_date.' 23:59:59',
             ]);
         }
 
         $transactions = $query->latest()->get();
 
         // Generate CSV
-        $filename = 'wallet_transactions_' . date('Y-m-d_His') . '.csv';
+        $filename = 'wallet_transactions_'.date('Y-m-d_His').'.csv';
         $headers = [
             'Content-Type' => 'text/csv; charset=utf-8',
             'Content-Disposition' => "attachment; filename={$filename}",
@@ -314,6 +314,6 @@ class AdminWalletController extends Controller
 
         fclose($handle);
 
-        return response()->streamDownload(function () use ($handle) {}, $filename, $headers);
+        return response()->streamDownload(function () {}, $filename, $headers);
     }
 }

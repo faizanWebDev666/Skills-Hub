@@ -13,90 +13,90 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Basic Information
-            if (!Schema::hasColumn('users', 'professional_title')) {
+            if (! Schema::hasColumn('users', 'professional_title')) {
                 $table->string('professional_title')->nullable();
             }
-            if (!Schema::hasColumn('users', 'country')) {
+            if (! Schema::hasColumn('users', 'country')) {
                 $table->string('country')->nullable();
             }
-            if (!Schema::hasColumn('users', 'city')) {
+            if (! Schema::hasColumn('users', 'city')) {
                 $table->string('city')->nullable();
             }
-            if (!Schema::hasColumn('users', 'address')) {
+            if (! Schema::hasColumn('users', 'address')) {
                 $table->text('address')->nullable();
             }
-            if (!Schema::hasColumn('users', 'languages')) {
+            if (! Schema::hasColumn('users', 'languages')) {
                 $table->json('languages')->nullable();
             }
-            if (!Schema::hasColumn('users', 'years_of_experience')) {
+            if (! Schema::hasColumn('users', 'years_of_experience')) {
                 $table->string('years_of_experience')->nullable();
             }
-            
+
             // Identity Verification
-            if (!Schema::hasColumn('users', 'cnic')) {
+            if (! Schema::hasColumn('users', 'cnic')) {
                 $table->string('cnic')->nullable();
             }
-            if (!Schema::hasColumn('users', 'selfie_verification')) {
+            if (! Schema::hasColumn('users', 'selfie_verification')) {
                 $table->string('selfie_verification')->nullable();
             }
-            if (!Schema::hasColumn('users', 'business_registration')) {
+            if (! Schema::hasColumn('users', 'business_registration')) {
                 $table->string('business_registration')->nullable();
             }
-            
+
             // Portfolio
-            if (!Schema::hasColumn('users', 'portfolio_images')) {
+            if (! Schema::hasColumn('users', 'portfolio_images')) {
                 $table->json('portfolio_images')->nullable();
             }
-            if (!Schema::hasColumn('users', 'portfolio_videos')) {
+            if (! Schema::hasColumn('users', 'portfolio_videos')) {
                 $table->json('portfolio_videos')->nullable();
             }
-            if (!Schema::hasColumn('users', 'previous_work_links')) {
+            if (! Schema::hasColumn('users', 'previous_work_links')) {
                 $table->json('previous_work_links')->nullable();
             }
-            if (!Schema::hasColumn('users', 'resume_cv')) {
+            if (! Schema::hasColumn('users', 'resume_cv')) {
                 $table->string('resume_cv')->nullable();
             }
-            if (!Schema::hasColumn('users', 'certifications')) {
+            if (! Schema::hasColumn('users', 'certifications')) {
                 $table->json('certifications')->nullable();
             }
-            
+
             // Service Settings
-            if (!Schema::hasColumn('users', 'hourly_rate')) {
+            if (! Schema::hasColumn('users', 'hourly_rate')) {
                 $table->decimal('hourly_rate', 8, 2)->nullable();
             }
-            if (!Schema::hasColumn('users', 'delivery_time')) {
+            if (! Schema::hasColumn('users', 'delivery_time')) {
                 $table->string('delivery_time')->nullable();
             }
-            if (!Schema::hasColumn('users', 'available_days')) {
+            if (! Schema::hasColumn('users', 'available_days')) {
                 $table->json('available_days')->nullable();
             }
-            if (!Schema::hasColumn('users', 'service_type')) {
+            if (! Schema::hasColumn('users', 'service_type')) {
                 $table->string('service_type')->nullable(); // online/offline
             }
-            if (!Schema::hasColumn('users', 'emergency_service')) {
+            if (! Schema::hasColumn('users', 'emergency_service')) {
                 $table->boolean('emergency_service')->default(false);
             }
-            
+
             // Social Links
-            if (!Schema::hasColumn('users', 'linkedin')) {
+            if (! Schema::hasColumn('users', 'linkedin')) {
                 $table->string('linkedin')->nullable();
             }
-            if (!Schema::hasColumn('users', 'github')) {
+            if (! Schema::hasColumn('users', 'github')) {
                 $table->string('github')->nullable();
             }
-            if (!Schema::hasColumn('users', 'behance')) {
+            if (! Schema::hasColumn('users', 'behance')) {
                 $table->string('behance')->nullable();
             }
-            if (!Schema::hasColumn('users', 'dribbble')) {
+            if (! Schema::hasColumn('users', 'dribbble')) {
                 $table->string('dribbble')->nullable();
             }
-            if (!Schema::hasColumn('users', 'website')) {
+            if (! Schema::hasColumn('users', 'website')) {
                 $table->string('website')->nullable();
             }
-            if (!Schema::hasColumn('users', 'facebook')) {
+            if (! Schema::hasColumn('users', 'facebook')) {
                 $table->string('facebook')->nullable();
             }
-            if (!Schema::hasColumn('users', 'instagram')) {
+            if (! Schema::hasColumn('users', 'instagram')) {
                 $table->string('instagram')->nullable();
             }
         });
@@ -136,7 +136,7 @@ return new class extends Migration
                 'facebook',
                 'instagram',
             ];
-            
+
             foreach ($columns as $column) {
                 if (Schema::hasColumn('users', $column)) {
                     $table->dropColumn($column);

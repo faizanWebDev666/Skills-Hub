@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class Order extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
+        'uuid',
         'customer_id',
         'freelancer_id',
         'gig_id',
@@ -23,6 +27,20 @@ class Order extends Model
         'completed_at' => 'datetime',
         'funds_released_at' => 'datetime',
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Order $order) {
+            if (empty($order->uuid)) {
+                $order->uuid = (string) Str::uuid();
+            }
+        });
+    }
 
     public function customer(): BelongsTo
     {
